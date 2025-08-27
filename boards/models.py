@@ -12,7 +12,7 @@ class Board(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     owner = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE, related_name='owned_boards')
-    members = models.ManyToManyField('accounts.CustomUser', related_name='member_boards', through='BoardMembership')
+    members = models.ManyToManyField('accounts.CustomUser', related_name='member_boards', through='BoardMembership',through_fields=('board', 'user'))
     is_public = models.BooleanField(default=False, verbose_name="Public")
 
     def clean(self):
