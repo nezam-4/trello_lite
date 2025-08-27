@@ -22,6 +22,8 @@ class CustomUser(AbstractUser):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
+    first_name = models.CharField(max_length=150, blank=True, null=True)
+    last_name = models.CharField(max_length=150, blank=True, null=True)
     REQUIRED_FIELDS = ['username']
     USERNAME_FIELD = 'email'
 
@@ -31,7 +33,7 @@ class CustomUser(AbstractUser):
     
     def get_memberships_count(self):
         """Number of board memberships of the user"""
-        return self.board_memberships.filter(status='accepted').count()
+        return self.memberships.filter(status='accepted').count()
 
     def __str__(self):
         return self.username
