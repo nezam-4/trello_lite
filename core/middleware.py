@@ -12,17 +12,17 @@ class APILanguageMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        # 1️⃣ Check "lang" query parameter
+        # 1️ Check "lang" query parameter
         lang_code = request.GET.get("lang")
 
-        # 2️⃣ If query param is missing, check "Accept-Language" header
+        # 2️ If query param is missing, check "Accept-Language" header
         if not lang_code:
             lang_header = request.META.get("HTTP_ACCEPT_LANGUAGE")
             if lang_header:
                 # Take only the first segment before a comma
                 lang_code = lang_header.split(",")[0].split("-")[0]
 
-        # 3️⃣ Validate language code
+        # 3️ Validate language code
         if lang_code and lang_code in dict(settings.LANGUAGES):
             translation.activate(lang_code)
             request.LANGUAGE_CODE = lang_code
