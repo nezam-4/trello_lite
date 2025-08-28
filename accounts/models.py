@@ -35,6 +35,14 @@ class CustomUser(AbstractUser):
         """Number of board memberships of the user"""
         return self.memberships.filter(status='accepted').count()
 
+    @property
+    def all_boards(self):
+        owned = self.owned_boards.all()
+        member = Board.objects.filter(
+            memberships__user=self,
+            memberships__status='accepted'
+        )
+        return (owned | member).distinct()
     def __str__(self):
         return self.username
 
