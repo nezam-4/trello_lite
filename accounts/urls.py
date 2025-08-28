@@ -12,15 +12,15 @@ urlpatterns = [
     path("auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     
     # User management endpoints
-    path("users/", UserListView.as_view(), name="user_list"),  # GET: list all users (admin only)
-    path("users/me/", UserDetailView.as_view(), name="current_user_detail"),  # GET/PATCH/: current user
-    path("users/<int:pk>/", UserDetailView.as_view(), name="user_detail"),  # GET/PATCH/: specific user
-    path("users/current/", current_user, name="current_user"),  # GET: current user info
+    path("", UserListView.as_view(), name="user_list"),  # GET: list all users (admin only)
+    path("me/", UserDetailView.as_view(), name="current_user_detail"),  # GET/PATCH/: current user
+    path("<int:pk>/", UserDetailView.as_view(), name="user_detail"),  # GET/PATCH/: specific user
+    path("current/", current_user, name="current_user"),  # GET: current user info
     
     # Password management
-    path("users/change-password/", ChangePasswordView.as_view(), name="change_password"),
+    path("change-password/", ChangePasswordView.as_view(), name="change_password"),
     
     # Profile management
-    path("profiles/me/", ProfileView.as_view(), name="current_user_profile"),  # GET/PATCH: current user profile
-    path("profiles/<int:pk>/", ProfileView.as_view(), name="user_profile"),  # GET/PATCH: specific user profile
+    path("profile/", ProfileView.as_view(), name="current_user_profile"),  # GET/PATCH: current user profile
+    path("profile/<int:pk>/", ProfileView.as_view(), name="user_profile"),  # GET/PATCH: specific user profile
 ]
