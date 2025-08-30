@@ -1,12 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-
-# Create your models here.
-
+from boards.models import Board
 from django.utils import timezone
 import uuid
 import os
-
 
 def avatar_upload_path(instance, filename):
     """Save avatars under avatar/<MM>/filename"""
