@@ -230,7 +230,8 @@ class BoardInvitation(models.Model):# invitation with email
     def __str__(self):
         return f"Invitation for {self.user.username or self.user.email} to {self.board.title}"
 
-
+    class Meta:
+        unique_together = ['board', 'user']
 
 class BoardActivity(models.Model):
     ACTION_CHOICES = [
@@ -243,13 +244,14 @@ class BoardActivity(models.Model):
     
     board = models.ForeignKey('boards.Board', on_delete=models.CASCADE, related_name='activities')
     action = models.CharField(max_length=20, choices=ACTION_CHOICES, default='create')
-    user = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE, related_name='board_activities')
+    user = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE, related_name='board_activities',blank=True,null=True)
     description = models.TextField(max_length=255, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['-created_at']
+       
 
     def __str__(self):
         return f"{self.user.username} {self.get_action_display()} {self.board.title}"

@@ -318,3 +318,213 @@ class BoardInviteView(APIView):
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class BoardJoinView(APIView):
+    """
+    View for joining a board via invitation token.
+
+    Behaviour:
+    - POST: Accept the invitation and join the board.
+    - Validates invitation and expiration date.
+    - Checks board and user membership limits.
+    - Creates a new `BoardMembership` on success.
+    - Marks the invitation as used.
+    - Logs the join activity.
+
+    Endpoint: POST /api/v1/boards/join/{token}/
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request, token):
+        # Validate invitation existence
+        try:
+            invitation = BoardInvitation.objects.get(token=token, is_used=False)
+        except BoardInvitation.DoesNotExist:
+            return Response(
+                {"error": _("Invitation is invalid or expired.")}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Check invitation expiration
+        if invitation.is_expired():
+            return Response(
+                {"error": _("Invitation has expired.")}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        user = request.user
+        # Ensure invitation matches current user
+        if invitation.user and invitation.user != user:
+            return Response(
+                {"error": _("This invitation is not for you.")}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        # Assign current user to invitation if not already set
+        if invitation.user is None:
+            invitation.user = user
+            invitation.save()
+        
+        # Check limits
+        can_add_member, _ = check_board_member_limit(invitation.board)
+        can_join, _ = check_user_membership_limit(user)
+        
+        if not can_add_member:
+            return Response(
+                {"error": _("Board has reached the maximum number of members.")}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if not can_join:
+            return Response(
+                {"error": _("You have reached the maximum number of board memberships.")}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Create new membership
+        membership, created = BoardMembership.objects.get_or_create(
+            board=invitation.board,
+            user=user,
+            defaults={
+                'role': invitation.role,
+                'status': 'accepted',
+                'invited_by': invitation.invited_by,
+                'response_at': timezone.now()
+            }
+        )
+        
+        if not created:
+            return Response(
+                {"error": _("You are already a member of this board.")}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Mark invitation as used
+        invitation.is_used = True
+        invitation.save()
+        
+        # Log join activity
+        BoardActivity.objects.create(
+            board=invitation.board,
+            action='join',
+            user=user,
+            description=f"{user.username} joined the board"
+        )
+        
+        return Response(
+            {"message": _("Successfully joined the board")}, 
+            status=status.HTTP_200_OK
+        )
+
+
+class BoardLeaveView(APIView):
+    """
+    View for leaving a board.
+
+    Behaviour:
+    - POST: Remove the authenticated user from the board.
+    - The board owner cannot leave their own board.
+    - Deletes the user's membership.
+    - Logs the leave activity.
+
+    Endpoint: POST /api/v1/boards/{board_id}/leave/
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request, board_id):
+        user = request.user
+        
+        # Verify board existence and user access
+        try:
+            board = user.all_boards.get(id=board_id)
+        except Board.DoesNotExist:
+            return Response(
+                {"error": _("Board not found or you do not have access.")},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # The board owner cannot leave their own board
+        if board.owner == user:
+            return Response(
+                {"error": _("The board owner cannot leave their own board.")}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Check user's membership
+        try:
+            membership = BoardMembership.objects.get(
+                board=board, user=user, status='accepted'
+            )
+        except BoardMembership.DoesNotExist:
+            return Response(
+                {"error": _("You are not a member of this board.")}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Delete membership
+        membership.delete()
+        
+        # Log leave activity
+        BoardActivity.objects.create(
+            board=board,
+            action='leave',
+            user=user,
+            description=f"{user.username} left the board"
+        )
+        
+        return Response(
+            {"message": _("Left the board successfully")}, 
+            status=status.HTTP_200_OK
+        )
+
+
+class BoardActivitiesView(APIView):
+    """
+    View for listing board activities.
+
+    Behaviour:
+    - GET: Return the complete activity history of the board.
+    - Accessible only to board members.
+    - Activities are ordered by date (newest first).
+    - Includes activity type, acting user and description.
+
+    Endpoint: GET /api/v1/boards/{board_id}/activities/
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request, board_id):
+        user = request.user
+        
+        # Verify board existence and user access
+        try:
+            board = user.all_boards.get(id=board_id)
+        except Board.DoesNotExist:
+            return Response(
+                {"error": _("Board not found or you do not have access.")},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Fetch board activities
+        activities = BoardActivity.objects.filter(board=board).order_by('-created_at')
+        serializer = BoardActivitySerializer(activities, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class UserLimitsView(APIView):
+    """
+    View for displaying user limits.
+
+    Behaviour:
+    - GET: Return the current limits information of the user.
+    - Includes number of boards created vs maximum allowed.
+    - Includes number of memberships vs maximum allowed.
+    - Intended for showing status in the dashboard.
+
+    Endpoint: GET /api/v1/boards/limits/
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        user = request.user
+        # Retrieve limit information via utils
+        limits_info = get_user_limits_info(user)
+        return Response(limits_info, status=status.HTTP_200_OK)

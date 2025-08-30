@@ -152,7 +152,7 @@ class BoardInvitationSerializer(serializers.ModelSerializer):
         Validate invitee's email.
         - Checks if a user with this email exists.
         """
-        user = User.objects.get(email=value)
+        user = User.objects.filter(email=value).first()
         if user:
             raise serializers.ValidationError(_("This user is already signed up"))
 
