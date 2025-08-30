@@ -3,8 +3,7 @@ from django.utils import timezone
 import uuid
 from django.conf import settings
 from django.core.exceptions import ValidationError
-
-
+from datetime import timedelta
 class Board(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(max_length=500)
@@ -77,11 +76,11 @@ class Board(models.Model):
 
         return membership
 
-    def invite_member(self,email,invited_by,role='member'):
+    def invite_member(self,invited_email,invited_by,role='member'):
         # create board invitation and signal send email
         BoardInvitation.objects.create(
             board=self,
-            invited_email=email,
+            invited_email=invited_email,
             role=role,
             invited_by=invited_by,
             expires_at=timezone.now() + timedelta(days=7)
@@ -228,10 +227,10 @@ class BoardInvitation(models.Model):# invitation with email
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Invitation for {self.user.username or self.user.email} to {self.board.title}"
+        return f"Invitation for {self.invited_email} to {self.board.title}"
 
     class Meta:
-        unique_together = ['board', 'user']
+        unique_together = ['board', 'invited_email']
 
 class BoardActivity(models.Model):
     ACTION_CHOICES = [

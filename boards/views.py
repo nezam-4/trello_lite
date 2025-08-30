@@ -295,7 +295,7 @@ class BoardInviteView(APIView):
                     {"error": _("You do not have permission to invite a new member.")},
                     status=status.HTTP_403_FORBIDDEN
                 )
-        
+
         serializer = BoardInvitationSerializer(
             data=request.data,
             context={'request': request, 'board': board}

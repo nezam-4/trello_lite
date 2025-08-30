@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import get_user_model
 from .models import Board, BoardMembership, BoardInvitation, BoardActivity
 from .utils import check_user_board_limit, check_board_member_limit, check_user_membership_limit
-
+from rest_framework.validators import UniqueTogetherValidator
 User = get_user_model()
 
 
@@ -146,6 +146,7 @@ class BoardInvitationSerializer(serializers.ModelSerializer):
         fields = ['id', 'board_title', 'user', 'invited_by_username', 
                  'role', 'is_used', 'expires_at', 'created_at','invited_email']
         read_only_fields = ['token', 'is_used', ]
+
     
     def validate_invited_email(self, value):
         """
@@ -165,7 +166,14 @@ class BoardInvitationSerializer(serializers.ModelSerializer):
         """
         board = self.context.get('board')
         
-        #check board limitation and user 
+        # check duplicate invitation
+        invited_email = attrs.get('invited_email')
+        if board and invited_email:
+            if BoardInvitation.objects.filter(board=board, invited_email=invited_email).exists():
+                raise serializers.ValidationError(
+                    _("An invitation has already been sent to this email for this board.")
+                )
+        # check board limitation and user 
         if board:
             can_add_member, remaining_slots = check_board_member_limit(board)
             if not can_add_member:
