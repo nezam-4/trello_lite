@@ -1,0 +1,20 @@
+Board Invitation - {{ board_title }}
+
+Hello,
+
+{{ invited_by_name }} has invited you to join the board "{{ board_title }}" as a {{ role }}.
+
+{% if board_description %}
+Board Description:
+{{ board_description }}
+{% endif %}
+
+To accept this invitation, please click the following link:
+{{ activation_link }}
+
+This invitation will expire on {{ expires_at|date:"F d, Y" }} at {{ expires_at|time:"H:i" }}.
+
+If you didn't expect this invitation, you can safely ignore this email.
+
+---
+This is an automated message from Trello Lite.

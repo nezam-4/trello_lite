@@ -25,6 +25,9 @@ urlpatterns = [
     # Leave a board as a member (owner cannot leave)
     path('<int:board_id>/leave/', views.BoardLeaveView.as_view(), name='board-leave'),
     
+    # Accept board invitation via email link
+    path('invitations/accept/<str:token>/', views.BoardInvitationAcceptView.as_view(), name='board-invitation-accept'),
+    
     # Join a board via invitation link
     path('join/<str:token>/', views.BoardJoinView.as_view(), name='board-join'),
     

@@ -218,6 +218,7 @@ class BoardInvitation(models.Model):# invitation with email
                     f'This board has reached the limit of {max_members} members and cannot send new invitations.'
                 )
     
+    @property
     def is_expired(self):
         """Check if the invitation is expired"""
         return timezone.now() > self.expires_at
