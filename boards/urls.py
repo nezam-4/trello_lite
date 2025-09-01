@@ -32,6 +32,9 @@ urlpatterns = [
 
     # List all invitations related to current user
     path('invitations/', views.UserInvitationListView.as_view(), name='user-invitations'),
+
+    # Respond to an invitation (accept/reject)
+    path('invitations/<int:pk>/respond/', views.BoardInvitationRespondView.as_view(), name='invitation-respond'),
     
     # Show current user limits (number of boards, memberships)
     path('limits/', views.UserLimitsView.as_view(), name='user-limits'),

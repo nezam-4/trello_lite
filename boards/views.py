@@ -47,19 +47,16 @@ class BoardListView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-    """
-    View for creating a new board.
-
-    Behaviour:
-    - POST: Create a new board from the provided payload.
-    - Checks the user's board limit before creation.
-    - Automatically sets the current user as the board owner.
-    - Logs the creation activity.
-    - Returns the full board details on success.
-
-    Endpoint: POST /api/v1/boards/
-    """
     def post(self, request):
+        """
+        Create a new board.
+
+        - Validates input via `BoardCreateSerializer`.
+        - Enforces the user's board-creation limit.
+        - Sets the current user as owner.
+        - Logs creation activity.
+        - Returns full board details on success.
+        """
         serializer = BoardCreateSerializer(data=request.data, context={'request': request})
         
         if serializer.is_valid():
@@ -260,7 +257,7 @@ class BoardInviteView(APIView):
     Behaviour:
     - POST: Create an invitation for a email.
     - Only the board owner or admins can invite.
-    - Checks member limits before inviting.
+    - Checks board member limit before inviting.
     - Generates a unique token for the invitation.
     - Logs the invite activity.
     Endpoint: POST /api/v1/boards/{board_id}/invite/
@@ -350,7 +347,7 @@ class BoardInviteView(APIView):
                 user=user,
                 description=f"{invited_identity} has been invited to the board"
             )
-            
+            # send email with celery
             send_board_invitation_email.delay(invitation.id)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         
@@ -464,9 +461,80 @@ class UserInvitationListView(APIView):
         user = request.user
         invitations = BoardInvitation.objects.filter(
             Q(invited_email=user.email) | Q(user=user)
-        ).order_by('-created_at')
+        ).order_by('-created_at').filter(is_used=False)
         serializer = BoardInvitationSerializer(invitations, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class BoardInvitationRespondView(APIView):
+    """Handle accept or reject of a board invitation.
+
+    POST /api/v1/boards/invitations/<int:pk>/respond/
+    Body: {"action": "accept" | "reject"}
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        action = request.data.get('action')
+        if action not in ('accept', 'reject'):
+            return Response({"error": _("Action must be 'accept' or 'reject'.")}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            invitation = BoardInvitation.objects.get(pk=pk, is_used=False)
+        except BoardInvitation.DoesNotExist:
+            return Response({"error": _("Invitation not found or already processed.")}, status=status.HTTP_404_NOT_FOUND)
+
+        user = request.user
+        if not (invitation.user == user or invitation.invited_email == user.email):
+            return Response({"error": _("This invitation is not for you." )}, status=status.HTTP_403_FORBIDDEN)
+
+        if invitation.is_expired:
+            return Response({"error": _("Invitation has expired.")}, status=status.HTTP_400_BAD_REQUEST)
+
+        if action == 'reject':
+            invitation.is_used = True
+            invitation.save()
+            BoardActivity.objects.create(
+                board=invitation.board,
+                action='leave',  # treat as declined
+                user=user,
+                description=f"{user.username} rejected the invitation"
+            )
+            return Response({"message": _("Invitation rejected.")}, status=status.HTTP_200_OK)
+
+        # action == 'accept'
+        can_add_member, _ = check_board_member_limit(invitation.board)
+        can_join, _ = check_user_membership_limit(user)
+        if not can_add_member:
+            return Response({"error": _("Board has reached the maximum number of members.")}, status=status.HTTP_400_BAD_REQUEST)
+        if not can_join:
+            return Response({"error": _("You have reached the maximum number of board memberships.")}, status=status.HTTP_400_BAD_REQUEST)
+
+        membership, created = BoardMembership.objects.get_or_create(
+            board=invitation.board,
+            user=user,
+            defaults={
+                'role': invitation.role,
+                'status': 'accepted',
+                'invited_by': invitation.invited_by,
+                'response_at': timezone.now()
+            }
+        )
+        if not created:
+            return Response({"error": _("You are already a member of this board.")}, status=status.HTTP_400_BAD_REQUEST)
+
+        invitation.is_used = True
+        invitation.user = user
+        invitation.save()
+
+        BoardActivity.objects.create(
+            board=invitation.board,
+            action='join',
+            user=user,
+            description=f"{user.username} accepted the invitation"
+        )
+
+        return Response({"message": _("Successfully joined the board.")}, status=status.HTTP_200_OK)
 
 
 class UserLimitsView(APIView):
