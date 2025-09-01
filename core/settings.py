@@ -176,10 +176,16 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.ethereal.email'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'liliana.cronin@ethereal.email'  # Replace with your email
-EMAIL_HOST_PASSWORD = 'ZuakhkzMcETCydgKnp'  # Replace with your app password
+EMAIL_HOST_USER = 'trever.dietrich@ethereal.email'  # Replace with your email
+EMAIL_HOST_PASSWORD = '9ENwnvQmG2gfuK5enx'  # Replace with your app password
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # Site URL for email links
 SITE_URL = 'http://localhost:8000'
+
+# Application limits
+MAX_BOARDS_PER_USER = 10            # Each user can create up to 10 boards
+MAX_MEMBERS_PER_BOARD = 50          # A board can have at most 50 accepted members
+MAX_MEMBERSHIPS_PER_USER = 20       # A user can participate in up to 20 boards
+
 
