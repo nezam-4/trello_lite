@@ -62,14 +62,9 @@
         {{ board_description }}</p>
         {% endif %}
         
-        <p>Click the button below to accept this invitation:</p>
+        <p>Please sign up (or log in) on Trello&nbsp;Lite and join the board from your dashboard by clicking the button below:</p>
         
-        <a href="{{ activation_link }}" class="button">Accept Invitation</a>
-        
-        <p>Or copy and paste this link into your browser:</p>
-        <p style="word-break: break-all; background-color: #e9ecef; padding: 10px; border-radius: 3px;">
-            {{ activation_link }}
-        </p>
+        <a href="{{ site_link }}" class="button">Open Trello&nbsp;Lite</a>
         
         <p><strong>Note:</strong> This invitation will expire on {{ expires_at|date:"F d, Y" }} at {{ expires_at|time:"H:i" }}.</p>
         

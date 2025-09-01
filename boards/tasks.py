@@ -20,16 +20,16 @@ def send_board_invitation_email(self, invitation_id):
         if invitation.is_used or invitation.is_expired:
             return f"Invitation {invitation_id} is already used or expired"
         
-        # Generate activation link
-        activation_link = f"{settings.SITE_URL}/boards/invitations/accept/{invitation.token}/"
-        
+        # Site link (homepage)
+        site_link = settings.SITE_URL
+
         # Prepare email context
         context = {
             'board_title': invitation.board.title,
             'board_description': invitation.board.description,
             'invited_by_name': (f"{invitation.invited_by.first_name or ''} {invitation.invited_by.last_name or ''}".strip() or invitation.invited_by.username),
             'role': invitation.role,
-            'activation_link': activation_link,
+            'site_link': site_link,
             'expires_at': invitation.expires_at,
         }
         

@@ -9,8 +9,8 @@ Board Description:
 {{ board_description }}
 {% endif %}
 
-To accept this invitation, please click the following link:
-{{ activation_link }}
+Please sign up (or log in) on Trello Lite and join the board from your dashboard at the following address:
+{{ site_link }}
 
 This invitation will expire on {{ expires_at|date:"F d, Y" }} at {{ expires_at|time:"H:i" }}.
 

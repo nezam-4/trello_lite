@@ -195,6 +195,7 @@ class BoardInvitation(models.Model):# invitation with email
     user = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE, related_name='received_invitations', null=True, blank=True)
     invited_by = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE, related_name='created_invitations')
     invited_email = models.EmailField()
+    description = models.TextField(null=True, blank=True)
     token = models.CharField(max_length=100, unique=True, default=uuid.uuid4)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='member')
     is_used = models.BooleanField(default=False)
