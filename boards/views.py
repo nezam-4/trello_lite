@@ -556,3 +556,17 @@ class UserLimitsView(APIView):
         # Retrieve limit information via utils
         limits_info = get_user_limits_info(user)
         return Response(limits_info, status=status.HTTP_200_OK)
+
+
+class BoardListsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request, board_id):
+        from lists.views import ListListView
+        view = ListListView()
+        return view.get(request, board_id)
+    
+    def post(self, request, board_id):
+        from lists.views import ListListView
+        view = ListListView()
+        return view.post(request, board_id)

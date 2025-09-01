@@ -38,4 +38,8 @@ urlpatterns = [
     
     # Show current user limits (number of boards, memberships)
     path('limits/', views.UserLimitsView.as_view(), name='user-limits'),
+    
+    # Board lists management
+    # List all lists in a board and create new lists
+    path('<int:board_id>/lists/', views.BoardListsView.as_view(), name='board-lists'),
 ]

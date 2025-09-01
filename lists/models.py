@@ -1,7 +1,4 @@
 from django.db import models
-from django.conf import settings
-from django.core.exceptions import ValidationError
-
 
 class List(models.Model):
     title = models.CharField(max_length=255)
@@ -9,21 +6,11 @@ class List(models.Model):
     position = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    color = models.CharField(max_length=20, default='blue')
     
     class Meta:
         ordering = ['position', 'created_at']
         unique_together = ['board', 'position']
-    
-    def clean(self):
-        """Validate constraints before saving"""
-        if not self.pk:  # Only for new list
-            max_lists = getattr(settings, 'MAX_LISTS_PER_BOARD', 20)
-            board_lists_count = List.objects.filter(board=self.board).count()
-            
-            if board_lists_count >= max_lists:
-                raise ValidationError(
-                    'Each board cannot have more than {} lists.'.format(max_lists)
-                )
     
     def save(self, *args, **kwargs):
         if not self.position:
