@@ -19,6 +19,7 @@ from .utils import (
     check_user_membership_limit, get_user_limits_info
 )
 from .tasks import send_board_invitation_email
+from django.db.models import Q
 
 User = get_user_model()
 
@@ -255,19 +256,54 @@ class BoardMembersView(APIView):
 class BoardInviteView(APIView):
     """
     View for inviting users to a board.
-
+    Post
     Behaviour:
-    - POST: Create an invitation for a user (email delivery will be added later).
+    - POST: Create an invitation for a email.
     - Only the board owner or admins can invite.
     - Checks member limits before inviting.
     - Generates a unique token for the invitation.
     - Logs the invite activity.
-
-    Note: Email delivery of invitations will be implemented in future versions.
     Endpoint: POST /api/v1/boards/{board_id}/invite/
+
+    Get
+    Behaviour:
+    - GET: Return all invitations for the board.
+    - Only the board owner or admins can view.
+    - Logs the invite activity.
+    Endpoint: GET /api/v1/boards/{board_id}/invite/
     """
     permission_classes = [permissions.IsAuthenticated]
     
+    def get(self, request, board_id):
+        user = request.user
+        try:
+            board = Board.objects.get(id=board_id)
+            # Allow access for board owner or admin members
+            if board.owner != user:
+                try:
+                    membership = BoardMembership.objects.get(
+                        board=board, user=user, status='accepted'
+                    )
+                    if membership.role != 'admin':
+                        return Response(
+                            {"error": _("Only the board owner or an admin can view invitations.")},
+                            status=status.HTTP_403_FORBIDDEN
+                        )
+                except BoardMembership.DoesNotExist:
+                    return Response(
+                        {"error": _("You do not have permission to view invitations.")},
+                        status=status.HTTP_403_FORBIDDEN
+                    )
+            invitation = BoardInvitation.objects.filter(board=board)
+            invitations=BoardInvitationSerializer(invitation, many=True)
+
+            return Response(invitations.data, status=status.HTTP_200_OK)
+        except Board.DoesNotExist:
+            return Response(
+                {"error": _("Board not found or you do not have access.")},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
     def post(self, request, board_id):
         user = request.user
         
@@ -319,198 +355,6 @@ class BoardInviteView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class BoardInvitationAcceptView(APIView):
-    """
-    View for accepting board invitation via email link.
-    
-    Behaviour:
-    - GET: Display invitation details for confirmation
-    - POST: Accept the invitation and create membership
-    - Validates invitation token and expiration
-    - Handles both authenticated and unauthenticated users
-    
-    Endpoint: GET/POST /api/v1/boards/invitations/accept/{token}/
-    """
-    permission_classes = [permissions.AllowAny]
-    
-    def get(self, request, token):
-        """Accept invitation and create membership"""
-        
-        try:
-            invitation = BoardInvitation.objects.get(token=token, is_used=False)
-        except BoardInvitation.DoesNotExist:
-            return Response(
-                {"error": _("Invitation is invalid or has already been used.")},
-                status=status.HTTP_404_NOT_FOUND
-            )
-        
-        if invitation.is_expired():
-            return Response(
-                {"error": _("This invitation has expired.")},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        
-        # # Check if user's email matches invitation email
-        # if user.email != invitation.invited_email:
-        #     return Response(
-        #         {"error": _("This invitation was sent to a different email address.")},
-        #         status=status.HTTP_403_FORBIDDEN
-        #     )
-        
-        # # Check if user is already a member
-        # if BoardMembership.objects.filter(board=invitation.board, user=user).exists():
-        #     return Response(
-        #         {"error": _("You are already a member of this board.")},
-        #         status=status.HTTP_400_BAD_REQUEST
-        #     )
-        
-        # # Check limits
-        # can_add_member, _ = check_board_member_limit(invitation.board)
-        # can_join, _ = check_user_membership_limit(user)
-        
-        # if not can_add_member:
-        #     return Response(
-        #         {"error": _("Board has reached the maximum number of members.")},
-        #         status=status.HTTP_400_BAD_REQUEST
-        #     )
-        
-        # if not can_join:
-        #     return Response(
-        #         {"error": _("You have reached the maximum number of board memberships.")},
-        #         status=status.HTTP_400_BAD_REQUEST
-        #     )
-        
-        # # Create membership
-        # membership = BoardMembership.objects.create(
-        #     board=invitation.board,
-        #     user=user,
-        #     role=invitation.role,
-        #     status='accepted',
-        #     invited_by=invitation.invited_by,
-        #     response_at=timezone.now()
-        # )
-        
-        # # Mark invitation as used
-        # invitation.is_used = True
-        # invitation.user = user
-        # invitation.save()
-        
-        # # Log join activity
-        # BoardActivity.objects.create(
-        #     board=invitation.board,
-        #     action='join',
-        #     user=user,
-        #     description=f"{user.username} joined the board via invitation"
-        # )
-        
-        # return Response({
-        #     "message": _("Successfully joined the board!"),
-        #     "board": {
-        #         "id": invitation.board.id,
-        #         "title": invitation.board.title,
-        #         "role": membership.get_role_display()
-        #     }
-        # }, status=status.HTTP_200_OK)
-
-
-class BoardJoinView(APIView):
-    """
-    View for joining a board via invitation token.
-
-    Behaviour:
-    - POST: Accept the invitation and join the board.
-    - Validates invitation and expiration date.
-    - Checks board and user membership limits.
-    - Creates a new `BoardMembership` on success.
-    - Marks the invitation as used.
-    - Logs the join activity.
-
-    Endpoint: POST /api/v1/boards/join/{token}/
-    """
-    permission_classes = [permissions.IsAuthenticated]
-    
-    def post(self, request, token):
-        # Validate invitation existence
-        try:
-            invitation = BoardInvitation.objects.get(token=token, is_used=False)
-        except BoardInvitation.DoesNotExist:
-            return Response(
-                {"error": _("Invitation is invalid or expired.")}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        # Check invitation expiration
-        if invitation.is_expired():
-            return Response(
-                {"error": _("Invitation has expired.")}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        user = request.user
-        # Ensure invitation matches current user
-        if invitation.user and invitation.user != user:
-            return Response(
-                {"error": _("This invitation is not for you.")}, 
-                status=status.HTTP_403_FORBIDDEN
-            )
-        # Assign current user to invitation if not already set
-        if invitation.user is None:
-            invitation.user = user
-            invitation.save()
-        
-        # Check limits
-        can_add_member, _ = check_board_member_limit(invitation.board)
-        can_join, _ = check_user_membership_limit(user)
-        
-        if not can_add_member:
-            return Response(
-                {"error": _("Board has reached the maximum number of members.")}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        if not can_join:
-            return Response(
-                {"error": _("You have reached the maximum number of board memberships.")}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        # Create new membership
-        membership, created = BoardMembership.objects.get_or_create(
-            board=invitation.board,
-            user=user,
-            defaults={
-                'role': invitation.role,
-                'status': 'accepted',
-                'invited_by': invitation.invited_by,
-                'response_at': timezone.now()
-            }
-        )
-        
-        if not created:
-            return Response(
-                {"error": _("You are already a member of this board.")}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        # Mark invitation as used
-        invitation.is_used = True
-        invitation.save()
-        
-        # Log join activity
-        BoardActivity.objects.create(
-            board=invitation.board,
-            action='join',
-            user=user,
-            description=f"{user.username} joined the board"
-        )
-        
-        return Response(
-            {"message": _("Successfully joined the board")}, 
-            status=status.HTTP_200_OK
-        )
 
 
 class BoardLeaveView(APIView):
@@ -603,6 +447,25 @@ class BoardActivitiesView(APIView):
         # Fetch board activities
         activities = BoardActivity.objects.filter(board=board).order_by('-created_at')
         serializer = BoardActivitySerializer(activities, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class UserInvitationListView(APIView):
+    """
+    List all board invitations related to the authenticated user.
+
+    GET /api/v1/boards/invitations/
+    - Invitations where invited_email == user.email OR user == current user.
+    - Only not expired or unused invitations can be filtered here (current behaviour filters is_used=False).
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        invitations = BoardInvitation.objects.filter(
+            Q(invited_email=user.email) | Q(user=user)
+        ).order_by('-created_at')
+        serializer = BoardInvitationSerializer(invitations, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

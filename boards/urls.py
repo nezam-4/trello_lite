@@ -20,16 +20,18 @@ urlpatterns = [
     path('<int:board_id>/members/', views.BoardMembersView.as_view(), name='board-members'),
     
     # Invite a new user to the board via email
+    #List all invitations for a specific board by owner or admin
     path('<int:board_id>/invite/', views.BoardInviteView.as_view(), name='board-invite'),
     
     # Leave a board as a member (owner cannot leave)
     path('<int:board_id>/leave/', views.BoardLeaveView.as_view(), name='board-leave'),
     
-    # Join a board via invitation link
-    path('join/<str:token>/', views.BoardJoinView.as_view(), name='board-join'),
-    
+  
     # Show activity history of a board
     path('<int:board_id>/activities/', views.BoardActivitiesView.as_view(), name='board-activities'),
+
+    # List all invitations related to current user
+    path('invitations/', views.UserInvitationListView.as_view(), name='user-invitations'),
     
     # Show current user limits (number of boards, memberships)
     path('limits/', views.UserLimitsView.as_view(), name='user-limits'),
