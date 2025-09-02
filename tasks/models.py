@@ -31,19 +31,11 @@ class Task(models.Model):
     
     def clean(self):
         """Validate constraints before saving"""
-        if not self.pk:  # Only for new task
-            max_tasks = getattr(settings, 'MAX_TASKS_PER_LIST', 100)
-            list_tasks_count = Task.objects.filter(list=self.list).count()
-            
-            if list_tasks_count >= max_tasks:
-                raise ValidationError(
-                    f'Each list cannot have more than {max_tasks} tasks.'
-                )
-        
+
         # Ensure assigned user is a member of the board
         if self.assigned_to:
             board = self.list.board
-            if not board.active_members.filter(id=self.assigned_to.id).exists():
+            if not board.active_members.filter(user_id=self.assigned_to.id).exists():
                 raise ValidationError(
                     'Selected user must be a member of this board.'
                 )
@@ -56,7 +48,7 @@ class Task(models.Model):
             )['position__max']
             self.position = (last_position or 0) + 1
         
-        # Set completed_at
+        # Set completed_at 
         if self.is_completed and not self.completed_at:
             self.completed_at = timezone.now()
         elif not self.is_completed:
@@ -169,25 +161,3 @@ class TaskComment(models.Model):
     
     def __str__(self):
         return f"{self.user.username} - {self.task.title}"
-
-
-class TaskAttachment(models.Model):
-    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='attachments')
-    file = models.FileField(upload_to='task_attachments/')
-    filename = models.CharField(max_length=255)
-    uploaded_by = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE, related_name='uploaded_attachments')
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    def clean(self):
-        """Validate that the user is a member of the board"""
-        if not self.task.board.active_members.filter(id=self.uploaded_by.id).exists():
-            raise ValidationError('Only board members can upload files.')
-    
-    def save(self, *args, **kwargs):
-        if not self.filename:
-            self.filename = self.file.name
-        self.full_clean()
-        super().save(*args, **kwargs)
-    
-    def __str__(self):
-        return f"{self.task.title} - {self.filename}"

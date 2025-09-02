@@ -23,4 +23,5 @@ urlpatterns = [
     path('api/v1/users/',include('accounts.urls')),
     path('api/v1/boards/',include('boards.urls')),
     path('api/v1/lists/',include('lists.urls')),
+    path('api/v1/tasks/',include('tasks.urls')),
 ]

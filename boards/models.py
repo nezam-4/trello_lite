@@ -4,6 +4,7 @@ import uuid
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from datetime import timedelta
+
 class Board(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(max_length=500)
