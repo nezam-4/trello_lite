@@ -6,6 +6,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.decorators import api_view, permission_classes
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 from .models import CustomUser, Profile
 from .serilizer import (
@@ -17,6 +19,7 @@ class RegisterView(APIView):
     """User registration endpoint that returns JWT tokens"""
     permission_classes = [AllowAny]
     serializer_class=RegisterSerializer
+    @swagger_auto_schema(operation_summary="Register a new user", request_body=RegisterSerializer, responses={201: UserSerializer, 400: 'Validation Error'})
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
@@ -37,6 +40,7 @@ class UserListView(APIView):
     """List all users - Admin only"""
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(operation_summary="List all users (Admin only)", responses={200: UserSerializer(many=True)})
     def get(self, request):
         # Only allow staff/admin to view all users
         if not request.user.is_staff:
@@ -57,6 +61,7 @@ class UserDetailView(APIView):
     def get_object(self, pk):
         return get_object_or_404(CustomUser, pk=pk)
 
+    @swagger_auto_schema(operation_summary="Retrieve a user detail", responses={200: UserSerializer})
     def get(self, request, pk=None):
         # If no pk provided, return current user
         if pk is None:
@@ -73,6 +78,7 @@ class UserDetailView(APIView):
         serializer = UserSerializer(user)
         return Response(serializer.data)
 
+    @swagger_auto_schema(operation_summary="Partially update a user", request_body=UserUpdateSerializer, responses={200: UserSerializer, 400: 'Validation Error'})
     def patch(self, request, pk=None):
         # If no pk provided, update current user
         if pk is None:
@@ -98,6 +104,7 @@ class ChangePasswordView(APIView):
     """Change user password"""
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(operation_summary="Change current user's password", request_body=ChangePasswordSerializer, responses={200: 'Password changed', 400: 'Validation Error'})
     def post(self, request):
         serializer = ChangePasswordSerializer(
             data=request.data, 
@@ -120,6 +127,7 @@ class ProfileView(APIView):
         profile, created = Profile.objects.get_or_create(user=user)
         return profile
 
+    @swagger_auto_schema(operation_summary="Retrieve a user's profile", responses={200: ProfileSerializer})
     def get(self, request, pk=None):
         if pk is None:
             user = request.user
@@ -136,6 +144,7 @@ class ProfileView(APIView):
         serializer = ProfileSerializer(profile)
         return Response(serializer.data)
 
+    @swagger_auto_schema(operation_summary="Partially update a profile", request_body=ProfileSerializer, responses={200: ProfileSerializer, 400: 'Validation Error'})
     def patch(self, request, pk=None):
         if pk is None:
             user = request.user
@@ -157,6 +166,7 @@ class ProfileView(APIView):
 
 
 @api_view(['GET'])
+@swagger_auto_schema(operation_summary="Get current authenticated user", responses={200: UserSerializer})
 @permission_classes([IsAuthenticated])
 def current_user(request):
     """Get current authenticated user details"""

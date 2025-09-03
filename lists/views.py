@@ -4,6 +4,8 @@ from rest_framework import status, permissions
 from rest_framework.exceptions import PermissionDenied, NotFound
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 from .models import List
 from .serializers import (
@@ -53,6 +55,7 @@ class ListListView(APIView):
     
 
 
+    @swagger_auto_schema(operation_summary="List all lists in a board", responses={200: ListSerializer(many=True)})
     def get(self, request, board_id):
         """List all lists in a board"""
         board = self.get_board_and_check_permission(board_id, request.user)
@@ -61,6 +64,7 @@ class ListListView(APIView):
         serializer = ListSerializer(lists, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+    @swagger_auto_schema(operation_summary="Create a new list in a board", request_body=ListCreateSerializer, responses={201: ListDetailSerializer, 400: 'Validation Error'})
     def post(self, request, board_id):
         """Create a new list in a board"""
         board = self.get_board_and_check_permission_admin(board_id, request.user)
@@ -94,11 +98,13 @@ class ListDetailView(APIView):
             return Response(_("You don't have permission to access this list."), status=status.HTTP_403_FORBIDDEN)
         return list_obj
     
+    @swagger_auto_schema(operation_summary="Retrieve a list", responses={200: ListDetailSerializer})
     def get(self, request, list_id):
         list_obj = self.get_list_and_check_permission(list_id, request.user)
         serializer = ListDetailSerializer(list_obj)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+    @swagger_auto_schema(operation_summary="Partially update a list", request_body=ListUpdateSerializer, responses={200: ListDetailSerializer, 400: 'Validation Error'})
     def patch(self, request, list_id):
         list_obj = self.get_list_and_check_permission_admin(list_id, request.user)
         serializer = ListUpdateSerializer(list_obj, data=request.data, partial=True)
@@ -107,6 +113,7 @@ class ListDetailView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+    @swagger_auto_schema(operation_summary="Delete a list", responses={204: 'No Content'})
     def delete(self, request, list_id):
         list_obj = self.get_list_and_check_permission_admin(list_id, request.user)
         list_obj.delete()
@@ -123,6 +130,7 @@ class ListMoveView(APIView):
             return Response(_("You don't have permission to move this list."), status=status.HTTP_403_FORBIDDEN)
         return list_obj
     
+    @swagger_auto_schema(operation_summary="Move list to new position", request_body=ListMoveSerializer, responses={200: ListDetailSerializer, 400: 'Validation Error'})
     def post(self, request, list_id):
         list_obj = self.get_list_and_check_permission(list_id, request.user)
         serializer = ListMoveSerializer(data=request.data)

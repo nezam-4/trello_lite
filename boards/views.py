@@ -2,6 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework.exceptions import PermissionDenied, ValidationError, NotFound
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -38,6 +40,7 @@ class BoardListView(APIView):
     """
     permission_classes = [permissions.IsAuthenticated]
     
+    @swagger_auto_schema(responses={200: BoardListSerializer(many=True)})
     def get(self, request):
         user = request.user
         # Use all_boards property to fetch all boards of the user
@@ -47,6 +50,7 @@ class BoardListView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+    @swagger_auto_schema(request_body=BoardCreateSerializer, responses={201: BoardDetailSerializer, 400: 'Bad Request'})
     def post(self, request):
         """
         Create a new board.
@@ -116,12 +120,14 @@ class BoardDetailView(APIView):
         except Board.DoesNotExist:
             raise NotFound(_("Board not found or you do not have access."))
     
+    @swagger_auto_schema(responses={200: BoardDetailSerializer})
     def get(self, request, pk):
         """Return full board details"""
         board = self.get_board(pk, request.user)
         serializer = BoardDetailSerializer(board)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+    @swagger_auto_schema(request_body=BoardUpdateSerializer, responses={200: BoardDetailSerializer, 400: 'Bad Request', 403: 'Forbidden'})
     def patch(self, request, pk):
         """
         Edit board information
@@ -166,6 +172,7 @@ class BoardDetailView(APIView):
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+    @swagger_auto_schema(responses={204: 'No Content', 403: 'Forbidden'})
     def delete(self, request, pk):
         """
         Delete board
@@ -210,6 +217,7 @@ class PublicBoardListView(APIView):
     """
     permission_classes = [permissions.IsAuthenticated]
     
+    @swagger_auto_schema(responses={200: BoardListSerializer(many=True)})
     def get(self, request):
         # Fetch all public boards
         boards = Board.objects.filter(is_public=True).order_by('-created_at')
@@ -230,6 +238,7 @@ class BoardMembersView(APIView):
     """
     permission_classes = [permissions.IsAuthenticated]
     
+    @swagger_auto_schema(responses={200: BoardMembershipSerializer(many=True), 403: 'Forbidden', 404: 'Not Found'})
     def get(self, request, board_id):
         # Check user access to board
         user = request.user
@@ -271,6 +280,7 @@ class BoardInviteView(APIView):
     """
     permission_classes = [permissions.IsAuthenticated]
     
+    @swagger_auto_schema(responses={200: BoardInvitationSerializer(many=True), 403: 'Forbidden', 404: 'Not Found'})
     def get(self, request, board_id):
         user = request.user
         try:
@@ -300,7 +310,16 @@ class BoardInviteView(APIView):
                 {"error": _("Board not found or you do not have access.")},
                 status=status.HTTP_404_NOT_FOUND
             )
-        
+    
+    @swagger_auto_schema(
+        request_body=BoardInvitationSerializer,
+        responses={
+            201: BoardInvitationSerializer,
+            400: 'Bad Request',
+            403: 'Forbidden',
+            404: 'Not Found',
+        }
+    )      
     def post(self, request, board_id):
         user = request.user
         
@@ -368,6 +387,7 @@ class BoardLeaveView(APIView):
     """
     permission_classes = [permissions.IsAuthenticated]
     
+    @swagger_auto_schema(request_body=None, responses={200: 'Left the board', 400: 'Bad Request', 404: 'Not Found'})
     def post(self, request, board_id):
         user = request.user
         
@@ -429,6 +449,7 @@ class BoardActivitiesView(APIView):
     """
     permission_classes = [permissions.IsAuthenticated]
     
+    @swagger_auto_schema(responses={200: BoardActivitySerializer(many=True), 404: 'Not Found'})
     def get(self, request, board_id):
         user = request.user
         
@@ -457,6 +478,7 @@ class UserInvitationListView(APIView):
     """
     permission_classes = [permissions.IsAuthenticated]
 
+    @swagger_auto_schema(responses={200: BoardListSerializer(many=True)})
     def get(self, request):
         user = request.user
         invitations = BoardInvitation.objects.filter(
@@ -474,6 +496,12 @@ class BoardInvitationRespondView(APIView):
     """
     permission_classes = [permissions.IsAuthenticated]
 
+    @swagger_auto_schema(request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={'action': openapi.Schema(type=openapi.TYPE_STRING, enum=['accept','reject'])},
+        required=['action']
+    ), responses={200: 'Success', 400: 'Bad Request', 404: 'Not Found', 403: 'Forbidden'})
+   
     def post(self, request, pk):
         action = request.data.get('action')
         if action not in ('accept', 'reject'):
@@ -551,6 +579,7 @@ class UserLimitsView(APIView):
     """
     permission_classes = [permissions.IsAuthenticated]
     
+    @swagger_auto_schema(responses={200: openapi.Response(description='User limits')})
     def get(self, request):
         user = request.user
         # Retrieve limit information via utils
@@ -561,11 +590,13 @@ class UserLimitsView(APIView):
 class BoardListsView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     
+    @swagger_auto_schema(responses={200: openapi.Response(description='List data')})
     def get(self, request, board_id):
         from lists.views import ListListView
         view = ListListView()
         return view.get(request, board_id)
     
+    @swagger_auto_schema(request_body=openapi.Schema(type=openapi.TYPE_OBJECT), responses={201: openapi.Response(description='Created list'), 400: 'Bad Request'})
     def post(self, request, board_id):
         from lists.views import ListListView
         view = ListListView()

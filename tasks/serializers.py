@@ -16,17 +16,15 @@ class TaskListSerializer(serializers.ModelSerializer):
     - Optimized for speed and minimum payload size.
     """
     assigned_to_username = serializers.CharField(source='assigned_to.username', read_only=True)
-    created_by_username = serializers.CharField(source='created_by.username', read_only=True)
-    list_title = serializers.CharField(source='list.title', read_only=True)
     is_overdue = serializers.ReadOnlyField()
     
     class Meta:
         model = Task
         fields = [
-            'id', 'title', 'description', 'list', 'list_title',
-            'assigned_to', 'assigned_to_username', 'created_by_username',
-            'priority', 'due_date', 'position', 'is_completed', 'completed_at',
-            'is_overdue', 'created_at', 'updated_at'
+            'id', 'title', 'list',
+            'assigned_to_username',
+            'priority', 'due_date', 'position', 'is_completed', 
+            'is_overdue', 
         ]
 
 
@@ -38,18 +36,16 @@ class TaskDetailSerializer(serializers.ModelSerializer):
     - Used on the task details page.
     """
     assigned_to_username = serializers.CharField(source='assigned_to.username', read_only=True)
-    assigned_to_email = serializers.CharField(source='assigned_to.email', read_only=True)
     created_by_username = serializers.CharField(source='created_by.username', read_only=True)
     list_title = serializers.CharField(source='list.title', read_only=True)
-    board_title = serializers.CharField(source='list.board.title', read_only=True)
     comments_count = serializers.SerializerMethodField()
     is_overdue = serializers.ReadOnlyField()
     
     class Meta:
         model = Task
         fields = [
-            'id', 'title', 'description', 'list', 'list_title', 'board_title',
-            'assigned_to', 'assigned_to_username', 'assigned_to_email',
+            'id', 'title', 'description', 'list', 'list_title',
+            'assigned_to', 'assigned_to_username', 
             'created_by_username', 'priority', 'due_date', 'position',
             'is_completed', 'completed_at', 'comments_count', 'is_overdue',
             'created_at', 'updated_at'
@@ -70,7 +66,7 @@ class TaskCreateSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Task
-        fields = ['title', 'description', 'list', 'assigned_to', 'priority', 'due_date']
+        fields = ['title', 'list', ]
     
     def validate_list(self, value):
         """Validate that user has access to the list"""

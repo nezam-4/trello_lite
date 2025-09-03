@@ -13,7 +13,7 @@ class Task(models.Model):
     ]
     
     title = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
+    description = models.TextField(blank=True,null=True)
     list = models.ForeignKey('lists.List', on_delete=models.CASCADE, related_name='tasks')
     assigned_to = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_tasks')
     created_by = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE, related_name='created_tasks')
