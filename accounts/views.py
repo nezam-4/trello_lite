@@ -139,10 +139,10 @@ class ProfileView(APIView):
                     {"detail": _("You do not have permission to view this profile.")},
                     status=status.HTTP_403_FORBIDDEN
                 )
-        
+        u_serializer=UserUpdateSerializer(user)
         profile = self.get_object(user)
-        serializer = ProfileSerializer(profile)
-        return Response(serializer.data)
+        p_serializer = ProfileSerializer(profile)
+        return Response({"user": u_serializer.data, "profile": p_serializer.data})
 
     @swagger_auto_schema(operation_summary="Partially update a profile", request_body=ProfileSerializer, responses={200: ProfileSerializer, 400: 'Validation Error'})
     def patch(self, request, pk=None):
@@ -156,13 +156,15 @@ class ProfileView(APIView):
                     {"detail": _("You do not have permission to update this profile.")},
                     status=status.HTTP_403_FORBIDDEN
                 )
-        
+        u_serializer=UserUpdateSerializer(user, data=request.data, partial=True)
+        if u_serializer.is_valid():
+            u_serializer.save()
         profile = self.get_object(user)
-        serializer = ProfileSerializer(profile, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        p_serializer = ProfileSerializer(profile, data=request.data, partial=True)
+        if p_serializer.is_valid():
+            p_serializer.save()
+            return Response({"user": u_serializer.data, "profile": p_serializer.data}, status=status.HTTP_200_OK)
+        return Response({"user": u_serializer.errors, "profile": p_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
