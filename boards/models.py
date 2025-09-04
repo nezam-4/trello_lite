@@ -7,8 +7,8 @@ from datetime import timedelta
 
 class Board(models.Model):
     title = models.CharField(max_length=255)
-    description = models.TextField(max_length=500)
-    color = models.CharField(max_length=7)
+    description = models.TextField(max_length=500,null=True,blank=True)
+    color = models.CharField(max_length=7,null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     owner = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE, related_name='owned_boards')
