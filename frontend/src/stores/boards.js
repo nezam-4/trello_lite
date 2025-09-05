@@ -1,0 +1,64 @@
+import { defineStore } from 'pinia';
+import api from '../api';
+
+export const useBoardsStore = defineStore('boards', {
+  state: () => ({
+    boards: [],
+    currentBoard: null
+  }),
+  actions: {
+    async fetchBoards() {
+      try {
+        const res = await api.get('/boards/');
+        this.boards = res.data;
+      } catch (e) {
+        console.error(e);
+        throw e.response?.data || e;
+      }
+    },
+    async createBoard(data) {
+      try {
+        const payload = typeof data === 'string' ? { title: data } : data;
+        const res = await api.post('/boards/', payload);
+        this.boards.push(res.data);
+        return res.data;
+      } catch (e) {
+        console.error(e);
+        throw e.response?.data || e;
+      }
+    },
+    async updateBoard(id, data) {
+      try {
+        const res = await api.patch(`/boards/${id}/`, data);
+        // Update local list
+        const idx = this.boards.findIndex(b => b.id === id);
+        if (idx !== -1) this.boards[idx] = res.data;
+        // if editing current board
+        if (this.currentBoard && this.currentBoard.id === id) this.currentBoard = res.data;
+        return res.data;
+      } catch (e) {
+        console.error(e);
+        throw e.response?.data || e;
+      }
+    },
+    async deleteBoard(id) {
+      try {
+        await api.delete(`/boards/${id}/`);
+        this.boards = this.boards.filter(b => b.id !== id);
+        if (this.currentBoard && this.currentBoard.id === id) this.currentBoard = null;
+      } catch (e) {
+        console.error(e);
+        throw e.response?.data || e;
+      }
+    },
+    async fetchBoard(id) {
+      try {
+        const res = await api.get(`/boards/${id}/`);
+        this.currentBoard = res.data;
+      } catch (e) {
+        console.error(e);
+        throw e.response?.data || e;
+      }
+    }
+  }
+});

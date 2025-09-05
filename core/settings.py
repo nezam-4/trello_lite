@@ -46,14 +46,16 @@ INSTALLED_APPS = [
 
     # third-party
     'rest_framework',
+    'corsheaders',
     'rest_framework_simplejwt.token_blacklist',
     'drf_yasg',
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-        "django.middleware.locale.LocaleMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "core.middleware.APILanguageMiddleware",
 
     "django.middleware.common.CommonMiddleware",
@@ -81,6 +83,30 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "core.wsgi.application"
+
+# CORS configuration
+from corsheaders.defaults import default_headers
+
+# Front-end dev servers
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+CORS_ALLOW_CREDENTIALS = True
+
+# In development you may allow all origins to simplify front-end integration
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
+
+# Allow front-end host for CSRF cookies when sending credentials
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'Authorization',
+]
+
 
 
 # Database
