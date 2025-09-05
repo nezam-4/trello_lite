@@ -14,7 +14,7 @@ from .models import Board, BoardMembership, BoardInvitation, BoardActivity
 from .serializers import (
     BoardListSerializer, BoardDetailSerializer, BoardCreateSerializer, 
     BoardUpdateSerializer, BoardMembershipSerializer, BoardInvitationSerializer,
-    BoardActivitySerializer
+    BoardActivitySerializer, BoardUserInvitationSerializer
 )
 from .utils import (
     check_user_board_limit, check_board_member_limit, 
