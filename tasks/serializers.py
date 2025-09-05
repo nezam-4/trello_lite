@@ -28,6 +28,10 @@ class TaskListSerializer(serializers.ModelSerializer):
         ]
 
 
+    def get_assigned_to_usernames(self, obj):
+        return list(obj.assigned_to.values_list('username', flat=True))
+
+
 class TaskDetailSerializer(serializers.ModelSerializer):
     """
     Serializer for task detail view.
