@@ -15,7 +15,7 @@ class Task(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True,null=True)
     list = models.ForeignKey('lists.List', on_delete=models.CASCADE, related_name='tasks')
-    assigned_to = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_tasks')
+    assigned_to = models.ManyToManyField('accounts.CustomUser', blank=True, related_name='assigned_tasks')
     created_by = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE, related_name='created_tasks')
     priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='medium')
     due_date = models.DateTimeField(null=True, blank=True)
@@ -32,13 +32,11 @@ class Task(models.Model):
     def clean(self):
         """Validate constraints before saving"""
 
-        # Ensure assigned user is a member of the board
-        if self.assigned_to:
-            board = self.list.board
-            if not board.active_members.filter(user_id=self.assigned_to.id).exists():
-                raise ValidationError(
-                    'Selected user must be a member of this board.'
-                )
+        # Ensure all assigned users are members of the board
+        board = self.list.board
+        invalid_users = [user for user in self.assigned_to.all() if not board.active_members.filter(user_id=user.id).exists()]
+        if invalid_users:
+            raise ValidationError('All assigned users must be members of this board.')
     
     def save(self, *args, **kwargs):
         if not self.position:
