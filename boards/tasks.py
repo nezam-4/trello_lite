@@ -7,6 +7,49 @@ from django.conf import settings
 
 
 @shared_task(bind=True, max_retries=3)
+def send_registered_invitation_email(self, invitation_id):
+    """
+    Celery task to notify a *registered* user about a board invitation.
+    Email simply informs the user to check their dashboard.
+    """
+    try:
+        from .models import BoardInvitation
+        invitation = BoardInvitation.objects.get(id=invitation_id)
+
+        # Only proceed if invitation still valid and linked to a user
+        if invitation.is_used or invitation.is_expired or invitation.user is None:
+            return "Invalid or unusable invitation"
+
+        site_link = settings.SITE_URL
+        user = invitation.user
+        plain_message = (
+            f"Hi {user.first_name or user.username},\n\n"
+            f"You have a new invitation to join the board '{invitation.board.title}'.\n\n"
+            f"Please log in to your dashboard ({site_link}) to accept or reject the invitation.\n\n"
+            f"Regards,\n{invitation.invited_by.username}"
+        )
+        html_message = render_to_string('emails/board_invitation_registered.html', {
+            'user': user,
+            'board_title': invitation.board.title,
+            'site_link': site_link,
+            'invited_by_name': invitation.invited_by.username,
+        })
+        send_mail(
+            subject=f"New board invitation: {invitation.board.title}",
+            message=plain_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            html_message=html_message,
+            fail_silently=False,
+        )
+        return "Notification sent"
+    except BoardInvitation.DoesNotExist:
+        return "Invitation does not exist"
+    except Exception as exc:
+        raise self.retry(exc=exc, countdown=60, max_retries=3)
+
+
+@shared_task(bind=True, max_retries=3)
 def send_board_invitation_email(self, invitation_id):
     """
     Celery task to send board invitation email

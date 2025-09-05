@@ -20,7 +20,7 @@ from .utils import (
     check_user_board_limit, check_board_member_limit, 
     check_user_membership_limit, get_user_limits_info
 )
-from .tasks import send_board_invitation_email
+from .tasks import send_board_invitation_email, send_registered_invitation_email
 from django.db.models import Q
 
 User = get_user_model()
@@ -370,6 +370,75 @@ class BoardInviteView(APIView):
             send_board_invitation_email.delay(invitation.id)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+class BoardUserInviteView(APIView):
+    """
+    Invite an *already registered* user to a board using their username or email.
+
+    POST /api/v1/boards/<board_id>/invite/user/
+    Body: {"identifier": "username_or_email", "role": "member|admin"}
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(
+        request_body=BoardUserInvitationSerializer,
+        responses={
+            201: BoardInvitationSerializer,
+            400: 'Bad Request',
+            403: 'Forbidden',
+            404: 'Not Found',
+        }
+    )
+    def post(self, request, board_id):
+        user = request.user
+
+        # Verify board existence and user access
+        try:
+            board = user.all_boards.get(id=board_id)
+        except Board.DoesNotExist:
+            return Response({"error": _("Board not found or you do not have access.")}, status=status.HTTP_404_NOT_FOUND)
+
+        # Verify permission to invite (owner or admin)
+        if board.owner != user:
+            try:
+                membership = BoardMembership.objects.get(board=board, user=user, status='accepted')
+                if membership.role != 'admin':
+                    return Response({"error": _("Only the board owner or an admin can invite a new member.")}, status=status.HTTP_403_FORBIDDEN)
+            except BoardMembership.DoesNotExist:
+                return Response({"error": _("You do not have permission to invite a new member.")}, status=status.HTTP_403_FORBIDDEN)
+
+        serializer = BoardUserInvitationSerializer(data=request.data, context={'board': board})
+        if serializer.is_valid():
+            target_user = serializer.validated_data['target_user']
+            role = serializer.validated_data.get('role', 'member')
+
+            invitation = BoardInvitation.objects.create(
+                board=board,
+                user=target_user,
+                invited_by=user,
+                invited_email=target_user.email,
+                role=role,
+                expires_at=timezone.now() + timedelta(days=7)
+            )
+
+            # Log activity
+            BoardActivity.objects.create(
+                board=board,
+                action='join',
+                user=user,
+                description=f"{target_user.username} has been invited to the board"
+            )
+
+            # Send notification email to registered user
+            send_registered_invitation_email.delay(invitation.id)
+
+            response_serializer = BoardInvitationSerializer(invitation)
+            return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

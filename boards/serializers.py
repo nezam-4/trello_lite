@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from .models import Board, BoardMembership, BoardInvitation, BoardActivity
 from .utils import check_user_board_limit, check_board_member_limit, check_user_membership_limit
 from rest_framework.validators import UniqueTogetherValidator
+from django.db.models import Q
 User = get_user_model()
 
 
@@ -192,6 +193,49 @@ class BoardInvitationSerializer(serializers.ModelSerializer):
         
         return super().create(validated_data)
 
+
+class BoardUserInvitationSerializer(serializers.Serializer):
+    """
+    Serializer for inviting an already-registered user to a board using username **or** email.
+    Fields:
+        identifier: str   -> username *or* email of the target user
+        role: str         -> optional, defaults to "member"
+    """
+    identifier = serializers.CharField(max_length=150)
+    role = serializers.ChoiceField(choices=[('admin', 'Admin'), ('member', 'Member')], default='member')
+
+    def validate(self, attrs):
+        identifier = attrs.get('identifier')
+        board = self.context.get('board')
+        if not board:
+            raise serializers.ValidationError("Board context missing.")
+
+        # Find user by username or email
+        try:
+            target_user = User.objects.get(Q(username=identifier) | Q(email=identifier))
+        except User.DoesNotExist:
+            raise serializers.ValidationError(_("No registered user with this username or email was found."))
+
+        # Ensure target user is not already a member
+        if BoardMembership.objects.filter(board=board, user=target_user, status='accepted').exists():
+            raise serializers.ValidationError(_("This user is already a member of the board."))
+
+        # Ensure there isn't already a pending invitation for this user
+        if BoardInvitation.objects.filter(board=board, user=target_user, is_used=False).exists():
+            raise serializers.ValidationError(_("An invitation has already been sent to this user."))
+
+        # Check board member limit
+        can_add_member, _ = check_board_member_limit(board)
+        if not can_add_member:
+            raise serializers.ValidationError(_("Board has reached the maximum number of members."))
+
+        # Check user membership limit
+        can_join, _ = check_user_membership_limit(target_user)
+        if not can_join:
+            raise serializers.ValidationError(_("The user has reached their maximum number of board memberships."))
+
+        attrs['target_user'] = target_user
+        return attrs
 
 class BoardActivitySerializer(serializers.ModelSerializer):
     """

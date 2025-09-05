@@ -22,6 +22,9 @@ urlpatterns = [
     # Invite a new user to the board via email
     #List all invitations for a specific board by owner or admin
     path('<int:board_id>/invite/', views.BoardInviteView.as_view(), name='board-invite'),
+
+    # Invite an already registered user by username or email
+    path('<int:board_id>/invite/user/', views.BoardUserInviteView.as_view(), name='board-user-invite'),
     
     # Leave a board as a member (owner cannot leave)
     path('<int:board_id>/leave/', views.BoardLeaveView.as_view(), name='board-leave'),
