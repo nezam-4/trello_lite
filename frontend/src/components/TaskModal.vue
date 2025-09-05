@@ -34,6 +34,21 @@
           <label class="block text-sm">عنوان</label>
           <input v-model="form.title" class="w-full p-2 border rounded mb-4" />
 
+          <!-- Members -->
+          <div class="mb-4">
+            <label class="block text-sm mb-1">اعضا</label>
+            <div class="flex items-center space-x-2 rtl:space-x-reverse mb-2">
+              <div v-for="u in task.assigned_to_usernames" :key="u" class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-xs uppercase text-white">
+                {{ u.charAt(0) }}
+              </div>
+              <button @click="addingMember.value = !addingMember.value" class="w-8 h-8 border rounded-full flex items-center justify-center hover:bg-gray-100">+</button>
+            </div>
+            <div v-if="addingMember.value" class="flex space-x-2 rtl:space-x-reverse">
+              <input v-model="memberUsername.value" placeholder="نام کاربر" class="flex-1 p-1 border rounded" />
+              <button @click="addMember" class="px-2 bg-blue-600 text-white rounded">افزودن</button>
+            </div>
+          </div>
+
           <label class="block text-sm">توضیحات</label>
           <textarea
             v-model="form.description"
@@ -70,7 +85,7 @@
 </template>
 
 <script setup>
-import { reactive, watch } from 'vue';
+import { reactive, watch, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useTasksStore } from '../stores/tasks';
 
@@ -79,6 +94,10 @@ const tasksStore = useTasksStore();
 const { currentTask: task } = storeToRefs(tasksStore);
 const form = reactive({ title: '', description: '', priority: 'medium' });
 
+// members UI state
+const addingMember = ref(false);
+const memberUsername = ref('');
+
 watch(task, (t) => {
   if (t) {
     form.title = t.title;
@@ -86,6 +105,16 @@ watch(task, (t) => {
     form.priority = t.priority;
   }
 }, { immediate: true });
+
+async function addMember() {
+  if (!memberUsername.value.trim()) return;
+  try {
+    const updated = await tasksStore.updateTask(task.id, { assigned_to_usernames: [...task.assigned_to_usernames, memberUsername.value.trim()] });
+    Object.assign(task, updated);
+    memberUsername.value = '';
+    addingMember.value = false;
+  } catch (e) {}
+}
 
 async function save() {
   await tasksStore.updateTask(task.value.id, { ...form });

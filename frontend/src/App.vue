@@ -1,10 +1,12 @@
 <template>
+  <ErrorAlert />
   <Header />
   <router-view />
 </template>
 
 <script setup>
 import Header from './components/Header.vue';
+import ErrorAlert from './components/ErrorAlert.vue';
 </script>
 
 <style>
