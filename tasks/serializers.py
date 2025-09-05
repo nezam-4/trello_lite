@@ -15,14 +15,14 @@ class TaskListSerializer(serializers.ModelSerializer):
     - Contains main task information + assignee info.
     - Optimized for speed and minimum payload size.
     """
-    assigned_to_username = serializers.CharField(source='assigned_to.username', read_only=True)
+    assigned_to_usernames = serializers.SerializerMethodField()
     is_overdue = serializers.ReadOnlyField()
     
     class Meta:
         model = Task
         fields = [
             'id', 'title', 'list',
-            'assigned_to_username',
+            'assigned_to_usernames',
             'priority', 'due_date', 'position', 'is_completed', 
             'is_overdue', 
         ]
@@ -35,7 +35,7 @@ class TaskDetailSerializer(serializers.ModelSerializer):
     - Includes full assignee info, comments count.
     - Used on the task details page.
     """
-    assigned_to_username = serializers.CharField(source='assigned_to.username', read_only=True)
+    assigned_to_usernames = serializers.SerializerMethodField()
     created_by_username = serializers.CharField(source='created_by.username', read_only=True)
     list_title = serializers.CharField(source='list.title', read_only=True)
     comments_count = serializers.SerializerMethodField()
@@ -45,12 +45,15 @@ class TaskDetailSerializer(serializers.ModelSerializer):
         model = Task
         fields = [
             'id', 'title', 'description', 'list', 'list_title',
-            'assigned_to', 'assigned_to_username', 
+            'assigned_to', 'assigned_to_usernames', 
             'created_by_username', 'priority', 'due_date', 'position',
             'is_completed', 'completed_at', 'comments_count', 'is_overdue',
             'created_at', 'updated_at'
         ]
     
+    def get_assigned_to_usernames(self, obj):
+        return list(obj.assigned_to.values_list('username', flat=True))
+
     def get_comments_count(self, obj):
         """Calculate task comments count"""
         return obj.comments.count()
@@ -61,7 +64,7 @@ class TaskCreateSerializer(serializers.ModelSerializer):
     Serializer for creating a new task.
     - Validates incoming data to create a task.
     - Automatically assigns the creator.
-    - Validates assigned user is board member.
+
     """
     
     class Meta:
@@ -81,21 +84,6 @@ class TaskCreateSerializer(serializers.ModelSerializer):
                 )
         return value
     
-    def validate_assigned_to(self, value):
-        """Validate that assigned user is a board member"""
-        if value:
-            list_obj = self.initial_data.get('list')
-            if list_obj:
-                try:
-                    list_instance = List.objects.get(id=list_obj)
-                    board = list_instance.board
-                    if not board.active_members.filter(user=value).exists() and board.owner != value:
-                        raise serializers.ValidationError(
-                            _("Assigned user must be a member of this board.")
-                        )
-                except List.DoesNotExist:
-                    raise serializers.ValidationError(_("Invalid list."))
-        return value
     
     def create(self, validated_data):
         """Automatically set the task creator"""
@@ -116,13 +104,14 @@ class TaskUpdateSerializer(serializers.ModelSerializer):
         fields = ['title', 'description', 'assigned_to', 'priority', 'due_date', 'is_completed']
     
     def validate_assigned_to(self, value):
-        """Validate that assigned user is a board member"""
+        """Validate that assigned users are board members"""
         if value:
             task = self.instance
             board = task.list.board
-            if not board.active_members.filter(user=value).exists() and board.owner != value:
+            invalid_users = [user for user in value if not board.active_members.filter(user=user).exists() and board.owner != user]
+            if invalid_users:
                 raise serializers.ValidationError(
-                    _("Assigned user must be a member of this board.")
+                    _("All assigned users must be members of this board.")
                 )
         return value
 
