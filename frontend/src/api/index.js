@@ -23,10 +23,10 @@ apiClient.interceptors.response.use(
   (error) => {
     const status = error.response?.status;
     const errorsStore = useErrorsStore();
-    if (error.response?.data) {
+    if (status !== 400 && error.response?.data) {
       const msg = typeof error.response.data === 'string' ? error.response.data : error.response.data.detail || JSON.stringify(error.response.data);
       errorsStore.setError(msg);
-    } else {
+    } else if (status !== 400) {
       errorsStore.setError(error.message || 'خطای ناشناخته');
     }
 

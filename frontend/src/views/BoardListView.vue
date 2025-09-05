@@ -23,6 +23,8 @@
           v-if="openMenuId === board.id"
           class="absolute left-2 top-8 bg-white border shadow rounded z-10 text-sm w-32"
         >
+                    <button @click="openInvite(board.id, 'user')" class="block w-full text-left px-2 py-1 hover:bg-gray-100">دعوت کاربر</button>
+          <button @click="openInvite(board.id, 'email')" class="block w-full text-left px-2 py-1 hover:bg-gray-100">دعوت کاربر جدید</button>
           <button @click="openEditDialog(board)" class="block w-full text-left px-2 py-1 hover:bg-gray-100">ویرایش</button>
           <button @click="prepareDelete(board.id)" class="block w-full text-left px-2 py-1 hover:bg-gray-100 text-red-600">حذف</button>
         </div>
@@ -48,10 +50,19 @@
       @confirm="confirmDelete"
     />
   </div>
+  <InviteDialog
+      :visible="showInviteDialog"
+      :type="inviteType"
+      :error="inviteError"
+      :success="inviteSuccess"
+      @cancel="showInviteDialog=false"
+      @submit="handleInviteSubmit"
+  />
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import InviteDialog from '../components/InviteDialog.vue';
 import BoardEditDialog from '../components/BoardEditDialog.vue';
 import DeleteConfirmDialog from '../components/DeleteConfirmDialog.vue';
 import CreateBoardDialog from '../components/CreateBoardDialog.vue';
@@ -69,6 +80,11 @@ const dialogError = ref('');
 const showCreateDialog = ref(false);
 const createError = ref('');
 const showDeleteDialog = ref(false);
+const showInviteDialog = ref(false);
+const inviteType = ref('user');
+const inviteError = ref('');
+const inviteSuccess = ref('');
+let inviteBoardId = null;
 const deleteTargetId = ref(null);
 
 const handleCreateSave = async (data) => {
@@ -125,6 +141,30 @@ const confirmDelete = async () => {
   } catch (err) {
     errorMessage.value = typeof err === 'string' ? err : (err.detail || JSON.stringify(err));
     showDeleteDialog.value = false;
+  }
+};
+
+const openInvite = (boardId, type) => {
+  inviteBoardId = boardId;
+  inviteType.value = type;
+  inviteError.value = '';
+  inviteSuccess.value = '';
+  showInviteDialog.value = true;
+};
+
+const handleInviteSubmit = async (value) => {
+  inviteError.value = '';
+  inviteSuccess.value = '';
+  if (!value) return;
+  try {
+    if (inviteType.value === 'user') {
+      await boardsStore.inviteMember(inviteBoardId, value);
+    } else {
+      await boardsStore.inviteEmail(inviteBoardId, value);
+    }
+    inviteSuccess.value = 'دعوت ارسال شد.';
+  } catch (e) {
+    inviteError.value = typeof e === 'string' ? e : (e.detail || JSON.stringify(e));
   }
 };
 
