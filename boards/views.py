@@ -591,6 +591,7 @@ class BoardInvitationRespondView(APIView):
             return Response({"error": _("Invitation has expired.")}, status=status.HTTP_400_BAD_REQUEST)
 
         if action == 'reject':
+            invitation.status = 'rejected'
             invitation.is_used = True
             invitation.save()
             BoardActivity.objects.create(
@@ -622,6 +623,7 @@ class BoardInvitationRespondView(APIView):
         if not created:
             return Response({"error": _("You are already a member of this board.")}, status=status.HTTP_400_BAD_REQUEST)
 
+        invitation.status = 'accepted'
         invitation.is_used = True
         invitation.user = user
         invitation.save()

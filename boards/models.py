@@ -206,6 +206,14 @@ class BoardInvitation(models.Model):# invitation with email
     token = models.CharField(max_length=100, unique=True, default=uuid.uuid4)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='member')
     is_used = models.BooleanField(default=False)
+
+    # Invitation status management
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('rejected', 'Rejected'),
+    ]
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     expires_at = models.DateTimeField(default=default_invitation_expiry)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

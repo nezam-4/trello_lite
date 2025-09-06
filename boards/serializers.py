@@ -160,7 +160,7 @@ class BoardInvitationSerializer(serializers.ModelSerializer):
     class Meta:
         model = BoardInvitation
         fields = ['id', 'board_title', 'user', 'invited_by_username', 
-                 'role', 'is_used', 'expires_at', 'created_at','invited_email']
+                 'role', 'is_used', 'expires_at','status', 'created_at','invited_email']
         read_only_fields = ['token', 'is_used', ]
 
     
