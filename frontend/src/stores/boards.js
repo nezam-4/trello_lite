@@ -51,18 +51,18 @@ export const useBoardsStore = defineStore('boards', {
         throw e.response?.data || e;
       }
     },
-    async inviteMember(boardId, username) {
+    async inviteMember(boardId, username, role = 'member') {
       try {
-        const res = await api.post(`/boards/${boardId}/invite/user/`, { username });
+        const res = await api.post(`/boards/${boardId}/invite/user/`, { identifier: username, role });
         return res.data;
       } catch (e) {
         console.error(e);
         throw e.response?.data || e;
       }
     },
-    async inviteEmail(boardId, email) {
+    async inviteEmail(boardId, email, role='member') {
       try {
-        const res = await api.post(`/boards/${boardId}/invite/`, { email });
+        const res = await api.post(`/boards/${boardId}/invite/`, { invited_email: email, role });
         return res.data;
       } catch (e) {
         console.error(e);

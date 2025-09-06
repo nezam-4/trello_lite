@@ -7,7 +7,14 @@
         :placeholder="placeholder"
         class="w-full p-2 border rounded mb-4"
       />
-      <div class="flex justify-end space-x-2 rtl:space-x-reverse">
+      <div class="mb-4">
+      <label class="block text-sm mb-1">نقش</label>
+      <select v-model="role" class="w-full border p-2 rounded">
+        <option value="member">عضو</option>
+        <option value="admin">ادمین</option>
+      </select>
+    </div>
+    <div class="flex justify-end space-x-2 rtl:space-x-reverse">
         <button @click="cancel" class="px-3 py-1 bg-gray-300 rounded">انصراف</button>
         <button @click="save" class="px-3 py-1 bg-blue-600 text-white rounded">ارسال</button>
       </div>
@@ -27,13 +34,14 @@ const props = defineProps({
   success: String,
 });
 const emit = defineEmits(['cancel', 'submit']);
+const role = ref('member');
 
 const input = ref('');
 watch(() => props.visible, (v) => { if (v) input.value = ''; });
 
-const title = props.type === 'user' ? 'دعوت کاربر موجود' : 'دعوت با ایمیل';
+const title = props.type === 'user' ? 'دعوت کاربر موجود' : 'دعوت با استفاده از ایمیل';
 const placeholder = props.type === 'user' ? 'نام کاربری' : 'ایمیل';
 
 function cancel() { emit('cancel'); }
-function save() { emit('submit', input.value.trim()); }
+function save() { emit('submit', { value: input.value.trim(), role: role.value }); }
 </script>

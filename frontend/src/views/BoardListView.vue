@@ -13,7 +13,7 @@
       >
         <div class="flex justify-between items-start cursor-pointer" @click="goToBoard(board.id)">
           <span class="font-medium">{{ board.title }}</span>
-          <button @click.stop="toggleMenu(board.id)" class="text-gray-500 hover:text-gray-700">
+          <button @click.stop="toggleMenu(board.id)" class="text-gray-500 hover:text-gray-700 board-menu">
             ⋮
           </button>
         </div>
@@ -21,7 +21,7 @@
         <!-- dropdown menu -->
         <div
           v-if="openMenuId === board.id"
-          class="absolute left-2 top-8 bg-white border shadow rounded z-10 text-sm w-32"
+          class="absolute left-2 top-8 bg-white border shadow rounded z-10 text-sm w-32 board-menu"
         >
                     <button @click="openInvite(board.id, 'user')" class="block w-full text-left px-2 py-1 hover:bg-gray-100">دعوت کاربر</button>
           <button @click="openInvite(board.id, 'email')" class="block w-full text-left px-2 py-1 hover:bg-gray-100">دعوت کاربر جدید</button>
@@ -61,7 +61,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import InviteDialog from '../components/InviteDialog.vue';
 import BoardEditDialog from '../components/BoardEditDialog.vue';
 import DeleteConfirmDialog from '../components/DeleteConfirmDialog.vue';
@@ -101,8 +101,20 @@ const handleCreateSave = async (data) => {
   }
 };
 
+function handleOutsideClick(e) {
+  // If the click is not inside a dropdown menu button area, close
+  if (!e.target.closest('.board-menu')) {
+    openMenuId.value = null;
+  }
+}
+
 onMounted(() => {
   boardsStore.fetchBoards();
+  window.addEventListener('click', handleOutsideClick);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('click', handleOutsideClick);
 });
 
 const toggleMenu = (id) => {
@@ -152,15 +164,15 @@ const openInvite = (boardId, type) => {
   showInviteDialog.value = true;
 };
 
-const handleInviteSubmit = async (value) => {
+const handleInviteSubmit = async ({ value, role }) => {
   inviteError.value = '';
   inviteSuccess.value = '';
   if (!value) return;
   try {
     if (inviteType.value === 'user') {
-      await boardsStore.inviteMember(inviteBoardId, value);
+      await boardsStore.inviteMember(inviteBoardId, value, role);
     } else {
-      await boardsStore.inviteEmail(inviteBoardId, value);
+      await boardsStore.inviteEmail(inviteBoardId, value, role);
     }
     inviteSuccess.value = 'دعوت ارسال شد.';
   } catch (e) {

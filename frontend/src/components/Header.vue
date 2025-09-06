@@ -5,18 +5,12 @@
         <router-link to="/boards" class="hover:text-sky-200">Trello Lite</router-link>
       </h1>
       <ul class="flex gap-4 items-center relative">
-        <li v-if="!auth.isAuthenticated">
-          <router-link to="/login" class="hover:text-sky-200">ورود</router-link>
-        </li>
-        <li v-if="!auth.isAuthenticated">
-          <router-link to="/register" class="hover:text-sky-200">ثبت نام</router-link>
-        </li>
         <li v-if="auth.isAuthenticated">
           <router-link to="/boards" class="hover:text-sky-200">بردها</router-link>
         </li>
-        <!-- user dropdown -->
+        <!-- profile / auth links area -->
         <li v-if="auth.isAuthenticated" class="relative">
-          <button @click="toggleMenu" class="flex items-center gap-2 focus:outline-none">
+          <button @click="toggleMenu" class="flex items-center gap-2 focus:outline-none profile-menu">
             <template v-if="auth.user && auth.user.profile && auth.user.profile.avatar">
               <img :src="auth.user.profile.avatar" alt="avatar" class="w-8 h-8 rounded-full object-cover" />
             </template>
@@ -27,11 +21,15 @@
             </template>
           </button>
           <!-- dropdown -->
-          <div v-if="showMenu" class="absolute right-0 mt-2 bg-white text-gray-800 rounded shadow w-40 z-20">
+          <div v-if="showMenu" class="absolute right-0 mt-2 bg-white text-gray-800 rounded shadow w-40 z-20 profile-menu">
             <router-link to="/profile" class="block px-4 py-2 hover:bg-gray-100">ویرایش پروفایل</router-link>
             <router-link to="/change-password" class="block px-4 py-2 hover:bg-gray-100">تغییر رمز</router-link>
             <button @click="logout" class="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600">خروج</button>
           </div>
+        </li>
+        <li v-else class="flex gap-4 items-center">
+          <router-link to="/login" class="hover:text-sky-200">ورود</router-link>
+          <router-link to="/register" class="hover:text-sky-200">ثبت نام</router-link>
         </li>
       </ul>
     </nav>
@@ -39,7 +37,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, onBeforeUnmount } from 'vue';
 import { useAuthStore } from '../stores/auth';
 import { useRouter } from 'vue-router';
 
@@ -47,10 +45,21 @@ const auth = useAuthStore();
 const router = useRouter();
 const showMenu = ref(false);
 
+function handleOutside(e) {
+  if (!e.target.closest('.profile-menu')) {
+    showMenu.value = false;
+  }
+}
+
 onMounted(() => {
   if (auth.isAuthenticated && !auth.user) {
     auth.fetchCurrentUser();
   }
+  window.addEventListener('click', handleOutside);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('click', handleOutside);
 });
 
 function toggleMenu() {
