@@ -416,6 +416,9 @@ class BoardUserInviteView(APIView):
             target_user = serializer.validated_data['target_user']
             role = serializer.validated_data.get('role', 'member')
 
+            # Remove old processed invitations for this user/email on this board
+            BoardInvitation.objects.filter(board=board, invited_email=target_user.email, is_used=True).delete()
+
             invitation = BoardInvitation.objects.create(
                 board=board,
                 user=target_user,
@@ -599,8 +602,8 @@ class BoardInvitationRespondView(APIView):
             return Response({"message": _("Invitation rejected.")}, status=status.HTTP_200_OK)
 
         # action == 'accept'
-        can_add_member, _ = check_board_member_limit(invitation.board)
-        can_join, _ = check_user_membership_limit(user)
+        can_add_member, _remaining_slots = check_board_member_limit(invitation.board)
+        can_join, _remaining_memberships = check_user_membership_limit(user)
         if not can_add_member:
             return Response({"error": _("Board has reached the maximum number of members.")}, status=status.HTTP_400_BAD_REQUEST)
         if not can_join:

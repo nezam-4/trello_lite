@@ -170,7 +170,7 @@ class BoardInvitationSerializer(serializers.ModelSerializer):
         # check duplicate invitation
         invited_email = attrs.get('invited_email')
         if board and invited_email:
-            if BoardInvitation.objects.filter(board=board, invited_email=invited_email).exists():
+            if BoardInvitation.objects.filter(board=board, invited_email=invited_email, is_used=False).exists():
                 raise serializers.ValidationError(
                     _("An invitation has already been sent to this email for this board.")
                 )
@@ -188,8 +188,12 @@ class BoardInvitationSerializer(serializers.ModelSerializer):
         Create a new invitation.
         - Sets board and inviter.
         """
-        validated_data['board'] = self.context['board']
+        board = self.context['board']
+        validated_data['board'] = board
         validated_data['invited_by'] = self.context['request'].user
+
+        # Remove old processed invitations to avoid unique constraint conflicts
+        BoardInvitation.objects.filter(board=board, invited_email=validated_data.get('invited_email'), is_used=True).delete()
         
         return super().create(validated_data)
 
