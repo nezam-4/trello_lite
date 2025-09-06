@@ -248,6 +248,9 @@ class BoardActivity(models.Model):
         ('delete', 'Delete'),
         ('join', 'Join'),
         ('leave', 'Leave'),
+        ('reject', 'Reject'),
+        ('accept', 'Accept'),
+        ('invite','Invite')
     ]
     
     board = models.ForeignKey('boards.Board', on_delete=models.CASCADE, related_name='activities')
