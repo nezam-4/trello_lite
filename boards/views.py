@@ -421,8 +421,7 @@ class BoardUserInviteView(APIView):
                 user=target_user,
                 invited_by=user,
                 invited_email=target_user.email,
-                role=role,
-                expires_at=timezone.now() + timedelta(days=7)
+                role=role
             )
 
             # Log activity
