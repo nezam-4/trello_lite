@@ -1,5 +1,7 @@
 <template>
-  <div class="p-6" dir="rtl">
+  <div class="p-6 flex flex-col md:flex-row gap-4" dir="rtl">
+    <!-- Left section -->
+    <div class="flex-[0.7] bg-gray-100 dark:bg-gray-600 p-4 rounded">
     <div class="flex items-center justify-between mb-2">
       <h1 class="text-2xl font-bold text-right">بردها</h1>
       <button @click="showCreateDialog=true" class="bg-sky-600 text-white px-4 py-2 rounded hover:bg-sky-700">ایجاد برد جدید</button>
@@ -18,15 +20,32 @@
           </button>
         </div>
         <p class="text-sm text-gray-600 mt-2">اعضا: {{ board.members_count }}</p>
+        <span v-if="board.current_user_role" class="inline-block mt-2 px-2 py-1 rounded-full text-xs font-semibold"
+              :class="{
+                'bg-emerald-100 text-emerald-700': board.current_user_role==='owner',
+                'bg-indigo-100 text-indigo-700': board.current_user_role==='admin',
+                'bg-gray-100 text-gray-700': board.current_user_role==='member'
+              }">
+          {{ board.current_user_role }}
+        </span>
         <!-- dropdown menu -->
         <div
           v-if="openMenuId === board.id"
-          class="absolute left-2 top-8 bg-white border shadow rounded z-10 text-sm w-32 board-menu"
+          class="absolute left-2 top-8 bg-white border shadow rounded z-10 text-sm w-36 board-menu"
         >
-                    <button @click="openInvite(board.id, 'user')" class="block w-full text-left px-2 py-1 hover:bg-gray-100">دعوت کاربر</button>
-          <button @click="openInvite(board.id, 'email')" class="block w-full text-left px-2 py-1 hover:bg-gray-100">دعوت کاربر جدید</button>
-          <button @click="openEditDialog(board)" class="block w-full text-left px-2 py-1 hover:bg-gray-100">ویرایش</button>
-          <button @click="prepareDelete(board.id)" class="block w-full text-left px-2 py-1 hover:bg-gray-100 text-red-600">حذف</button>
+          <!-- invite/edit for owner or admin -->
+          <template v-if="['owner','admin'].includes(board.current_user_role)">
+            <button @click="openInvite(board.id, 'user')" class="block w-full text-left px-2 py-1 hover:bg-gray-100">دعوت کاربر</button>
+            <button @click="openInvite(board.id, 'email')" class="block w-full text-left px-2 py-1 hover:bg-gray-100">دعوت کاربر جدید</button>
+            <button @click="openEditDialog(board)" class="block w-full text-left px-2 py-1 hover:bg-gray-100">ویرایش</button>
+          </template>
+          <!-- destructive option -->
+          <template v-if="board.current_user_role === 'owner'">
+            <button @click="prepareDelete(board.id)" class="block w-full text-left px-2 py-1 hover:bg-gray-100 text-red-600">حذف برد</button>
+          </template>
+          <template v-else>
+            <button @click="leaveBoard(board.id)" class="block w-full text-left px-2 py-1 hover:bg-gray-100 text-red-600">ترک برد</button>
+          </template>
         </div>
       </div>
     </div>
@@ -43,21 +62,41 @@
       @cancel="showCreateDialog=false"
       @save="handleCreateSave"
     />
-    <DeleteConfirmDialog
+    </div> <!-- end left section -->
+    <!-- Right section -->
+    <div class="flex-[0.3] bg-gray-50 dark:bg-gray-500 p-4 rounded overflow-y-auto max-h-screen">
+      <h2 class="text-xl font-bold mb-4 text-right">دعوت‌ها</h2>
+      <p v-if="invitationsStore.invitations.length === 0" class="text-gray-600 dark:text-gray-300 text-right">هیچ دعوتی وجود ندارد.</p>
+      <div v-for="inv in invitationsStore.invitations" :key="inv.id" class="bg-white dark:bg-gray-700 shadow rounded p-3 mb-3 flex flex-col gap-2">
+        <div class="flex justify-between items-center">
+          <h3 class="font-semibold">{{ inv.board_title }}</h3>
+          <span class="text-sm" :class="{'text-green-600': inv.role==='admin', 'text-gray-600': inv.role!=='admin'}">{{ inv.role === 'admin' ? 'ادمین' : 'عضو' }}</span>
+        </div>
+        <p class="text-sm text-gray-500 dark:text-gray-300">دعوت‌کننده: {{ inv.invited_by_username || 'سیستم' }}</p>
+        <div class="flex gap-2 self-end">
+          <button @click="respondInvitation(inv.id, 'accept')" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-sm">پذیرش</button>
+          <button @click="respondInvitation(inv.id, 'reject')" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-sm">رد</button>
+        </div>
+      </div>
+    </div>
+  </div> <!-- end root flex container -->
+
+  <!-- Delete confirm dialog -->
+  <DeleteConfirmDialog
       :visible="showDeleteDialog"
       message="آیا از حذف این برد مطمئن هستید؟"
       @cancel="showDeleteDialog=false"
       @confirm="confirmDelete"
-    />
-  </div>
-  <InviteDialog
+  />
+  <!-- Invite dialog -->
+    <InviteDialog
       :visible="showInviteDialog"
       :type="inviteType"
       :error="inviteError"
       :success="inviteSuccess"
       @cancel="showInviteDialog=false"
       @submit="handleInviteSubmit"
-  />
+    />
 </template>
 
 <script setup>
@@ -67,9 +106,11 @@ import BoardEditDialog from '../components/BoardEditDialog.vue';
 import DeleteConfirmDialog from '../components/DeleteConfirmDialog.vue';
 import CreateBoardDialog from '../components/CreateBoardDialog.vue';
 import { useBoardsStore } from '../stores/boards';
+import { useInvitationsStore } from '../stores/invitations';
 import { useRouter } from 'vue-router';
 
 const boardsStore = useBoardsStore();
+const invitationsStore = useInvitationsStore();
 const router = useRouter(); // still used for board navigation
 
 const errorMessage = ref('');
@@ -109,6 +150,7 @@ function handleOutsideClick(e) {
 }
 
 onMounted(() => {
+  invitationsStore.fetchInvitations();
   boardsStore.fetchBoards();
   window.addEventListener('click', handleOutsideClick);
 });
@@ -139,6 +181,7 @@ const handleDialogSave = async (data) => {
 };
 
 const prepareDelete = (id) => {
+  console.log('prepareDelete called', id);
   deleteTargetId.value = id;
   showDeleteDialog.value = true;
 };
@@ -178,6 +221,16 @@ const handleInviteSubmit = async ({ value, role }) => {
   } catch (e) {
     inviteError.value = typeof e === 'string' ? e : (e.detail || JSON.stringify(e));
   }
+};
+
+const respondInvitation = async (id, action) => {
+  await invitationsStore.respondInvitation(id, action);
+  // Refresh boards list in case user joined a new board
+  boardsStore.fetchBoards();
+};
+
+const leaveBoard = async (id) => {
+  await boardsStore.leaveBoard(id);
 };
 
 const goToBoard = (id) => {

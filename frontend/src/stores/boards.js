@@ -51,6 +51,16 @@ export const useBoardsStore = defineStore('boards', {
         throw e.response?.data || e;
       }
     },
+    async leaveBoard(id) {
+      try {
+        await api.post(`/boards/${id}/leave/`);
+        this.boards = this.boards.filter(b => b.id !== id);
+        if (this.currentBoard && this.currentBoard.id === id) this.currentBoard = null;
+      } catch (e) {
+        console.error(e);
+        throw e.response?.data || e;
+      }
+    },
     async inviteMember(boardId, username, role = 'member') {
       try {
         const res = await api.post(`/boards/${boardId}/invite/user/`, { identifier: username, role });
