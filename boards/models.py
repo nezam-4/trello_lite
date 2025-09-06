@@ -1,6 +1,12 @@
 from django.db import models
 from django.utils import timezone
 import uuid
+
+# Default expiration for board invitations (7 days from creation)
+
+def default_invitation_expiry():
+    """Return datetime 7 days from now for invitation expiration"""
+    return timezone.now() + timedelta(days=7)
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from datetime import timedelta
@@ -200,7 +206,7 @@ class BoardInvitation(models.Model):# invitation with email
     token = models.CharField(max_length=100, unique=True, default=uuid.uuid4)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='member')
     is_used = models.BooleanField(default=False)
-    expires_at = models.DateTimeField()
+    expires_at = models.DateTimeField(default=default_invitation_expiry)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
