@@ -70,6 +70,15 @@ export const useBoardsStore = defineStore('boards', {
         throw e.response?.data || e;
       }
     },
+    async fetchActivities(boardId) {
+      try {
+        const res = await api.get(`/boards/${boardId}/activities/`);
+        return res.data;
+      } catch (e) {
+        console.error(e);
+        throw e.response?.data || e;
+      }
+    },
     async inviteEmail(boardId, email, role='member') {
       try {
         const res = await api.post(`/boards/${boardId}/invite/`, { invited_email: email, role });

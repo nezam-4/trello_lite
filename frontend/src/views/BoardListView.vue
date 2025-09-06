@@ -15,7 +15,7 @@
       >
         <div class="flex justify-between items-start cursor-pointer" @click="goToBoard(board.id)">
           <span class="font-medium">{{ board.title }}</span>
-          <button @click.stop="toggleMenu(board.id)" class="text-gray-500 hover:text-gray-700 board-menu">
+          <button @click.stop="toggleMenu(board.id)" class="text-gray-500 hover:text-gray-700 board-menu text-xl p-2 absolute top-2 left-2">
             ⋮
           </button>
         </div>
@@ -33,6 +33,7 @@
           v-if="openMenuId === board.id"
           class="absolute left-2 top-8 bg-white border shadow rounded z-10 text-sm w-36 board-menu"
         >
+          <button @click="openActivities(board.id)" class="block w-full text-left px-2 py-1 hover:bg-gray-100">تاریخچه</button>
           <!-- invite/edit for owner or admin -->
           <template v-if="['owner','admin'].includes(board.current_user_role)">
             <button @click="openInvite(board.id, 'user')" class="block w-full text-left px-2 py-1 hover:bg-gray-100">دعوت کاربر</button>
@@ -88,6 +89,12 @@
       @cancel="showDeleteDialog=false"
       @confirm="confirmDelete"
   />
+  <!-- Activity dialog -->
+  <ActivityDialog
+      :visible="showActivitiesDialog"
+      :activities="activitiesList"
+      @close="showActivitiesDialog=false"
+  />
   <!-- Invite dialog -->
     <InviteDialog
       :visible="showInviteDialog"
@@ -102,6 +109,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import InviteDialog from '../components/InviteDialog.vue';
+import ActivityDialog from '../components/ActivityDialog.vue';
 import BoardEditDialog from '../components/BoardEditDialog.vue';
 import DeleteConfirmDialog from '../components/DeleteConfirmDialog.vue';
 import CreateBoardDialog from '../components/CreateBoardDialog.vue';
@@ -122,6 +130,8 @@ const showCreateDialog = ref(false);
 const createError = ref('');
 const showDeleteDialog = ref(false);
 const showInviteDialog = ref(false);
+const showActivitiesDialog = ref(false);
+const activitiesList = ref([]);
 const inviteType = ref('user');
 const inviteError = ref('');
 const inviteSuccess = ref('');
@@ -221,6 +231,14 @@ const handleInviteSubmit = async ({ value, role }) => {
   } catch (e) {
     inviteError.value = typeof e === 'string' ? e : (e.detail || JSON.stringify(e));
   }
+};
+
+const openActivities = async (id) => {
+  try {
+    activitiesList.value = await boardsStore.fetchActivities(id);
+    showActivitiesDialog.value = true;
+    openMenuId.value = null;
+  } catch (e) { /* handled globally */ }
 };
 
 const respondInvitation = async (id, action) => {
