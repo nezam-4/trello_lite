@@ -33,15 +33,30 @@ class BoardListSerializer(serializers.ModelSerializer):
     """
     owner_username = serializers.CharField(source='owner.username', read_only=True)
     members_count = serializers.SerializerMethodField()
+    current_user_role = serializers.SerializerMethodField()
     
     class Meta:
         model = Board
         fields = ['id', 'title', 'description', 'color', 'is_public', 'owner_username', 
-                 'members_count', 'created_at', 'updated_at']
+                 'members_count', 'current_user_role', 'created_at', 'updated_at']
     
     def get_members_count(self, obj):
         """Calculate active board member count"""
         return obj.active_members_count
+
+
+
+    def get_current_user_role(self, obj):
+        request = self.context.get('request')
+        if not request:
+            return None
+        user = request.user
+        if obj.owner_id == user.id:
+            return 'owner'
+        membership = obj.memberships.filter(user=user, status='accepted').first()
+        if membership:
+            return membership.role
+        return None
 
 
 class BoardDetailSerializer(serializers.ModelSerializer):

@@ -46,7 +46,7 @@ class BoardListView(APIView):
         # Use all_boards property to fetch all boards of the user
         boards = user.all_boards.order_by('-created_at')
         
-        serializer = BoardListSerializer(boards, many=True)
+        serializer = BoardListSerializer(boards, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -221,7 +221,7 @@ class PublicBoardListView(APIView):
     def get(self, request):
         # Fetch all public boards
         boards = Board.objects.filter(is_public=True).order_by('-created_at')
-        serializer = BoardListSerializer(boards, many=True)
+        serializer = BoardListSerializer(boards, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
