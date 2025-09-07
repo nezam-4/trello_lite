@@ -1,15 +1,17 @@
 from django.db import models
 from django.utils import timezone
 import uuid
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from datetime import timedelta
+
 
 # Default expiration for board invitations (7 days from creation)
 
 def default_invitation_expiry():
     """Return datetime 7 days from now for invitation expiration"""
     return timezone.now() + timedelta(days=7)
-from django.conf import settings
-from django.core.exceptions import ValidationError
-from datetime import timedelta
+
 
 class Board(models.Model):
     title = models.CharField(max_length=255)
