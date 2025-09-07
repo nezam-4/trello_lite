@@ -116,6 +116,46 @@ export const useTasksStore = defineStore('tasks', {
       this.currentTask = null;
     },
 
+    async moveTask(taskId, newListId, newPosition) {
+      try {
+        const payload = {};
+        if (newListId) payload.new_list = newListId;
+        if (newPosition !== undefined) payload.new_position = newPosition;
+        
+        const res = await api.post(`/tasks/tasks/${taskId}/move/`, payload);
+        const updated = res.data;
+        
+        // Find the task in current cache and remove it
+        let oldListId = null;
+        for (const listId in this.tasksByList) {
+          const taskIndex = this.tasksByList[listId].findIndex(t => t.id === taskId);
+          if (taskIndex !== -1) {
+            oldListId = listId;
+            this.tasksByList[listId].splice(taskIndex, 1);
+            break;
+          }
+        }
+        
+        // Add to new list if different
+        const targetListId = newListId || oldListId;
+        if (!this.tasksByList[targetListId]) {
+          this.tasksByList[targetListId] = [];
+        }
+        
+        // Insert at correct position or append
+        if (newPosition !== undefined && newPosition < this.tasksByList[targetListId].length) {
+          this.tasksByList[targetListId].splice(newPosition, 0, updated);
+        } else {
+          this.tasksByList[targetListId].push(updated);
+        }
+        
+        return updated;
+      } catch (e) {
+        console.error('Failed to move task', e);
+        throw e.response?.data || e;
+      }
+    },
+
     clear() {
       this.tasksByList = {};
       this.currentTask = null;
