@@ -11,7 +11,7 @@
       <div
         v-for="board in boardsStore.boards"
         :key="board.id"
-        class="bg-white p-4 shadow rounded hover:bg-gray-100 relative"
+        :style="{ backgroundColor: board.color || '#ffffff' }" class="p-4 shadow rounded relative"
       >
         <div class="flex justify-between items-start cursor-pointer" @click="goToBoard(board.id)">
           <span class="font-medium">{{ board.title }}</span>
@@ -34,6 +34,8 @@
           class="absolute left-2 top-8 bg-white border shadow rounded z-10 text-sm w-36 board-menu"
         >
           <button @click="openActivities(board.id)" class="block w-full text-left px-2 py-1 hover:bg-gray-100">تاریخچه</button>
+            <button @click="openMembers(board.id)" class="block w-full text-left px-2 py-1 hover:bg-gray-100">کاربران</button>
+            <button @click="openInvitations(board.id)" class="block w-full text-left px-2 py-1 hover:bg-gray-100">دعوت‌ها</button>
           <!-- invite/edit for owner or admin -->
           <template v-if="['owner','admin'].includes(board.current_user_role)">
             <button @click="openInvite(board.id, 'user')" class="block w-full text-left px-2 py-1 hover:bg-gray-100">دعوت کاربر</button>
@@ -95,6 +97,10 @@
       :activities="activitiesList"
       @close="showActivitiesDialog=false"
   />
+  <!-- Board members dialog -->
+  <MembersDialog :visible="showMembersDialog" :members="membersList" @close="showMembersDialog=false" />
+  <!-- Board invitations dialog -->
+  <InvitationDialog :visible="showInvDialog" :invitations="invitationsList" @close="showInvDialog=false" />
   <!-- Invite dialog -->
     <InviteDialog
       :visible="showInviteDialog"
@@ -110,6 +116,8 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import InviteDialog from '../components/InviteDialog.vue';
 import ActivityDialog from '../components/ActivityDialog.vue';
+import InvitationDialog from '../components/InvitationDialog.vue';
+import MembersDialog from '../components/MembersDialog.vue';
 import BoardEditDialog from '../components/BoardEditDialog.vue';
 import DeleteConfirmDialog from '../components/DeleteConfirmDialog.vue';
 import CreateBoardDialog from '../components/CreateBoardDialog.vue';
@@ -131,6 +139,10 @@ const createError = ref('');
 const showDeleteDialog = ref(false);
 const showInviteDialog = ref(false);
 const showActivitiesDialog = ref(false);
+const showMembersDialog = ref(false);
+const showInvDialog = ref(false);
+const membersList = ref([]);
+const invitationsList = ref([]);
 const activitiesList = ref([]);
 const inviteType = ref('user');
 const inviteError = ref('');
@@ -239,6 +251,22 @@ const openActivities = async (id) => {
     showActivitiesDialog.value = true;
     openMenuId.value = null;
   } catch (e) { /* handled globally */ }
+};
+
+const openMembers = async (id) => {
+  try {
+    membersList.value = await boardsStore.fetchMembers(id);
+    showMembersDialog.value = true;
+    openMenuId.value = null;
+  } catch (e) { /* ignore */ }
+};
+
+const openInvitations = async (id) => {
+  try {
+    invitationsList.value = await boardsStore.fetchInvitations(id);
+    showInvDialog.value = true;
+    openMenuId.value = null;
+  } catch (e) { /* ignore */ }
 };
 
 const respondInvitation = async (id, action) => {

@@ -70,6 +70,25 @@ export const useBoardsStore = defineStore('boards', {
         throw e.response?.data || e;
       }
     },
+    async fetchInvitations(boardId) {
+      try {
+        const res = await api.get(`/boards/${boardId}/invite/`);
+        return res.data;
+      } catch (e) {
+        console.error(e);
+        throw e.response?.data || e;
+      }
+    },
+    async fetchMembers(boardId) {
+      try {
+        const res = await api.get(`/boards/${boardId}/members/`);
+        return res.data;
+      } catch (e) {
+        console.error(e);
+        throw e.response?.data || e;
+      }
+    },
+
     async fetchActivities(boardId) {
       try {
         const res = await api.get(`/boards/${boardId}/activities/`);

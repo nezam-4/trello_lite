@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div :style="{ backgroundColor: (board && board.color) ? board.color : '#ffffff' }" class="min-h-screen">
     <div class="p-4 overflow-x-auto flex space-x-4" v-if="board">
       <ListColumn v-for="list in lists" :key="list.id" :list="list" />
     </div>
