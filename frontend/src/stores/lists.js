@@ -24,6 +24,46 @@ export const useListsStore = defineStore('lists', {
     },
 
     /**
+     * Update a list (title, color, etc.)
+     * @param {Number|String} listId
+     * @param {Object} data - Update data (title, color)
+     */
+    async updateList(listId, data) {
+      try {
+        if (!listId) throw new Error('listId is required');
+        const res = await api.patch(`/lists/${listId}/`, data);
+        
+        // Update the list in cache
+        const index = this.lists.findIndex(list => list.id == listId);
+        if (index !== -1) {
+          this.lists[index] = { ...this.lists[index], ...res.data };
+        }
+        
+        return res.data;
+      } catch (e) {
+        console.error('Failed to update list', e);
+        throw e.response?.data || e;
+      }
+    },
+
+    /**
+     * Delete a list
+     * @param {Number|String} listId
+     */
+    async deleteList(listId) {
+      try {
+        if (!listId) throw new Error('listId is required');
+        await api.delete(`/lists/${listId}/`);
+        
+        // Remove the list from cache
+        this.lists = this.lists.filter(list => list.id != listId);
+      } catch (e) {
+        console.error('Failed to delete list', e);
+        throw e.response?.data || e;
+      }
+    },
+
+    /**
      * Clear cached lists (e.g., when leaving the board view)
      */
     clear() {
