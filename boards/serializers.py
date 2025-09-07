@@ -15,13 +15,14 @@ class BoardMemberSerializer(serializers.ModelSerializer):
     - Includes username, email, full name, role and membership status.
     - Read-only.
     """
+    user_id = serializers.IntegerField(source='user.id', read_only=True)
     username = serializers.CharField(source='user.username', read_only=True)
     email = serializers.CharField(source='user.email', read_only=True)
     full_name = serializers.CharField(source='user.get_full_name', read_only=True)
     
     class Meta:
         model = BoardMembership
-        fields = ['id', 'username', 'email', 'full_name', 'role', 'status', 'created_at']
+        fields = ['id', 'user_id', 'username', 'email', 'full_name', 'role', 'status', 'created_at']
 
 
 class BoardListSerializer(serializers.ModelSerializer):
@@ -138,12 +139,14 @@ class BoardMembershipSerializer(serializers.ModelSerializer):
     - Includes role, status and join date.
     - Used for board member management.
     """
-    user_username = serializers.CharField(source='user.username', read_only=True)
+    user_id = serializers.IntegerField(source='user.id', read_only=True)
+    username = serializers.CharField(source='user.username', read_only=True)
+    full_name = serializers.CharField(source='user.get_full_name', read_only=True)
     board_title = serializers.CharField(source='board.title', read_only=True)
     
     class Meta:
         model = BoardMembership
-        fields = ['id', 'user_username', 'board_title', 'role', 'status', 'created_at', 'response_at']
+        fields = ['id', 'user_id', 'username', 'full_name', 'board_title', 'role', 'status', 'created_at', 'response_at']
 
 
 class BoardInvitationSerializer(serializers.ModelSerializer):

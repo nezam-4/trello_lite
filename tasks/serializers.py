@@ -16,13 +16,14 @@ class TaskListSerializer(serializers.ModelSerializer):
     - Optimized for speed and minimum payload size.
     """
     assigned_to_usernames = serializers.SerializerMethodField()
+    assigned_users = serializers.SerializerMethodField()
     is_overdue = serializers.ReadOnlyField()
     
     class Meta:
         model = Task
         fields = [
             'id', 'title', 'list',
-            'assigned_to_usernames',
+            'assigned_to_usernames', 'assigned_users',
             'priority', 'due_date', 'position', 'is_completed', 
             'is_overdue', 
         ]
@@ -30,6 +31,22 @@ class TaskListSerializer(serializers.ModelSerializer):
 
     def get_assigned_to_usernames(self, obj):
         return list(obj.assigned_to.values_list('username', flat=True))
+    
+    def get_assigned_users(self, obj):
+        return [
+            {
+                'id': user.id,
+                'username': user.username,
+                'full_name': user.get_full_name(),
+                'initials': self._get_initials(user)
+            }
+            for user in obj.assigned_to.all()
+        ]
+    
+    def _get_initials(self, user):
+        if user.get_full_name():
+            return ''.join([p[0] for p in user.get_full_name().split()[:2]]).upper()
+        return user.username[:2].upper() if user.username else '??'
 
 
 class TaskDetailSerializer(serializers.ModelSerializer):
@@ -43,12 +60,14 @@ class TaskDetailSerializer(serializers.ModelSerializer):
     created_by_username = serializers.CharField(source='created_by.username', read_only=True)
     list_title = serializers.CharField(source='list.title', read_only=True)
     comments_count = serializers.SerializerMethodField()
+    board = serializers.IntegerField(source='board.id', read_only=True)
     is_overdue = serializers.ReadOnlyField()
     
     class Meta:
         model = Task
         fields = [
             'id', 'title', 'description', 'list', 'list_title',
+            'board',
             'assigned_to', 'assigned_to_usernames', 
             'created_by_username', 'priority', 'due_date', 'position',
             'is_completed', 'completed_at', 'comments_count', 'is_overdue',

@@ -207,7 +207,7 @@ class UserTasksView(APIView):
         if overdue_only and overdue_only.lower() == 'true':
             from django.utils import timezone
             tasks = tasks.filter(
-                due_date__lt=timezone.now(),
+                due_date__lt=timezone.now().date(),
                 is_completed=False
             )
         

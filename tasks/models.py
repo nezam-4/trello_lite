@@ -2,6 +2,12 @@ from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from datetime import timedelta
+
+
+def get_default_due_date():
+    """Return default due date: 7 days from now"""
+    return timezone.now().date() + timedelta(days=7)
 
 
 class Task(models.Model):
@@ -18,7 +24,7 @@ class Task(models.Model):
     assigned_to = models.ManyToManyField('accounts.CustomUser', blank=True, related_name='assigned_tasks')
     created_by = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE, related_name='created_tasks')
     priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='medium')
-    due_date = models.DateTimeField(null=True, blank=True)
+    due_date = models.DateField(null=True, blank=True, default=get_default_due_date)
     position = models.PositiveIntegerField(default=0)
     is_completed = models.BooleanField(default=False)
     completed_at = models.DateTimeField(null=True, blank=True)
@@ -31,6 +37,9 @@ class Task(models.Model):
     
     def clean(self):
         """Validate constraints before saving"""
+        # While creating (no PK yet) we cannot access M2M manager
+        if not self.pk:
+            return
 
         # Ensure all assigned users are members of the board
         board = self.list.board
@@ -57,6 +66,8 @@ class Task(models.Model):
     
     def move_to_list(self, new_list, new_position=None):
         """Move task to a new list"""
+        from django.db import transaction
+        
         old_list = self.list
         old_position = self.position
         
@@ -64,51 +75,67 @@ class Task(models.Model):
         if new_list.board != old_list.board:
             raise ValidationError('Cannot move task to a list of another board.')
         
-        # Remove from previous position
-        Task.objects.filter(
-            list=old_list,
-            position__gt=old_position
-        ).update(position=models.F('position') - 1)
-        
-        # Determine new position
-        if new_position is None:
-            last_position = Task.objects.filter(list=new_list).aggregate(
-                models.Max('position')
-            )['position__max']
-            new_position = (last_position or 0) + 1
-        else:
-            # Shift existing tasks
+        with transaction.atomic():
+            # Temporarily set position to a high value to avoid constraint violation
+            temp_position = 999999
+            self.position = temp_position
+            self.save(update_fields=['position'])
+            
+            # Remove from previous position
             Task.objects.filter(
-                list=new_list,
-                position__gte=new_position
-            ).update(position=models.F('position') + 1)
-        
-        self.list = new_list
-        self.position = new_position
-        self.save(update_fields=['list', 'position'])
+                list=old_list,
+                position__gt=old_position
+            ).update(position=models.F('position') - 1)
+            
+            # Determine new position
+            if new_position is None:
+                last_position = Task.objects.filter(list=new_list).aggregate(
+                    models.Max('position')
+                )['position__max']
+                new_position = (last_position or 0) + 1
+            else:
+                # Shift existing tasks
+                Task.objects.filter(
+                    list=new_list,
+                    position__gte=new_position
+                ).update(position=models.F('position') + 1)
+            
+            # Set final position and list
+            self.list = new_list
+            self.position = new_position
+            self.save(update_fields=['list', 'position'])
     
     def move_to_position(self, new_position):
         """Move task within the same list"""
+        from django.db import transaction
+        
         old_position = self.position
         if old_position == new_position:
             return
         
-        # Shift other tasks
-        if new_position > old_position:
-            Task.objects.filter(
-                list=self.list,
-                position__gt=old_position,
-                position__lte=new_position
-            ).update(position=models.F('position') - 1)
-        else:
-            Task.objects.filter(
-                list=self.list,
-                position__gte=new_position,
-                position__lt=old_position
-            ).update(position=models.F('position') + 1)
-        
-        self.position = new_position
-        self.save(update_fields=['position'])
+        with transaction.atomic():
+            # Temporarily set position to a high value to avoid constraint violation
+            temp_position = 999999
+            self.position = temp_position
+            self.save(update_fields=['position'])
+            
+            # Shift other tasks
+            if new_position > old_position:
+                Task.objects.filter(
+                    list=self.list,
+                    position__gt=old_position,
+                    position__lte=new_position
+                ).update(position=models.F('position') - 1)
+            else:
+                Task.objects.filter(
+                    list=self.list,
+                    position__gte=new_position,
+                    position__lt=old_position
+                ).update(position=models.F('position') + 1)
+            
+            # Set final position
+            self.position = new_position
+            self.save(update_fields=['position'])
     
     def mark_completed(self):
         """Mark task as completed"""
@@ -126,7 +153,7 @@ class Task(models.Model):
     def is_overdue(self):
         """Check if task is overdue"""
         if self.due_date and not self.is_completed:
-            return timezone.now() > self.due_date
+            return timezone.now().date() > self.due_date
         return False
     
     @property
