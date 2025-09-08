@@ -37,7 +37,7 @@ class Task(models.Model):
     
     def clean(self):
         """Validate constraints before saving"""
-        # While creating (no PK yet) we cannot access M2M manager
+        # Skip validation for new objects that haven't been saved yet
         if not self.pk:
             return
 
@@ -66,8 +66,6 @@ class Task(models.Model):
     
     def move_to_list(self, new_list, new_position=None):
         """Move task to a new list"""
-        from django.db import transaction
-        
         old_list = self.list
         old_position = self.position
         
@@ -75,67 +73,51 @@ class Task(models.Model):
         if new_list.board != old_list.board:
             raise ValidationError('Cannot move task to a list of another board.')
         
-        with transaction.atomic():
-            # Temporarily set position to a high value to avoid constraint violation
-            temp_position = 999999
-            self.position = temp_position
-            self.save(update_fields=['position'])
-            
-            # Remove from previous position
+        # Remove from previous position
+        Task.objects.filter(
+            list=old_list,
+            position__gt=old_position
+        ).update(position=models.F('position') - 1)
+        
+        # Determine new position
+        if new_position is None:
+            last_position = Task.objects.filter(list=new_list).aggregate(
+                models.Max('position')
+            )['position__max']
+            new_position = (last_position or 0) + 1
+        else:
+            # Shift existing tasks
             Task.objects.filter(
-                list=old_list,
-                position__gt=old_position
-            ).update(position=models.F('position') - 1)
-            
-            # Determine new position
-            if new_position is None:
-                last_position = Task.objects.filter(list=new_list).aggregate(
-                    models.Max('position')
-                )['position__max']
-                new_position = (last_position or 0) + 1
-            else:
-                # Shift existing tasks
-                Task.objects.filter(
-                    list=new_list,
-                    position__gte=new_position
-                ).update(position=models.F('position') + 1)
-            
-            # Set final position and list
-            self.list = new_list
-            self.position = new_position
-            self.save(update_fields=['list', 'position'])
+                list=new_list,
+                position__gte=new_position
+            ).update(position=models.F('position') + 1)
+        
+        self.list = new_list
+        self.position = new_position
+        self.save(update_fields=['list', 'position'])
     
     def move_to_position(self, new_position):
         """Move task within the same list"""
-        from django.db import transaction
-        
         old_position = self.position
         if old_position == new_position:
             return
         
-        with transaction.atomic():
-            # Temporarily set position to a high value to avoid constraint violation
-            temp_position = 999999
-            self.position = temp_position
-            self.save(update_fields=['position'])
-            
-            # Shift other tasks
-            if new_position > old_position:
-                Task.objects.filter(
-                    list=self.list,
-                    position__gt=old_position,
-                    position__lte=new_position
-                ).update(position=models.F('position') - 1)
-            else:
-                Task.objects.filter(
-                    list=self.list,
-                    position__gte=new_position,
-                    position__lt=old_position
-                ).update(position=models.F('position') + 1)
-            
-            # Set final position
-            self.position = new_position
-            self.save(update_fields=['position'])
+        # Shift other tasks
+        if new_position > old_position:
+            Task.objects.filter(
+                list=self.list,
+                position__gt=old_position,
+                position__lte=new_position
+            ).update(position=models.F('position') - 1)
+        else:
+            Task.objects.filter(
+                list=self.list,
+                position__gte=new_position,
+                position__lt=old_position
+            ).update(position=models.F('position') + 1)
+        
+        self.position = new_position
+        self.save(update_fields=['position'])
     
     def mark_completed(self):
         """Mark task as completed"""
