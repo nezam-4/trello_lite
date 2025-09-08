@@ -88,6 +88,36 @@ export const useListsStore = defineStore('lists', {
     },
 
     /**
+     * Move a list to a new position
+     * @param {Number|String} listId
+     * @param {Number} newPosition - 1-based position
+     */
+    async moveList(listId, newPosition) {
+      try {
+        if (!listId) throw new Error('listId is required');
+        if (!newPosition || newPosition < 1) throw new Error('Valid position is required');
+        
+        const res = await api.post(`/lists/${listId}/move/`, {
+          position: newPosition
+        });
+        
+        // Update the list in cache
+        const index = this.lists.findIndex(list => list.id == listId);
+        if (index !== -1) {
+          this.lists[index] = { ...this.lists[index], ...res.data };
+        }
+        
+        // Re-sort lists by position to maintain order
+        this.lists.sort((a, b) => a.position - b.position);
+        
+        return res.data;
+      } catch (e) {
+        console.error('Failed to move list', e);
+        throw e.response?.data || e;
+      }
+    },
+
+    /**
      * Clear cached lists (e.g., when leaving the board view)
      */
     clear() {

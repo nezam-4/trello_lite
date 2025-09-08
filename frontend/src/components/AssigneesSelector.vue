@@ -4,8 +4,9 @@
     <div
       v-for="user in assignedDetails"
       :key="user.id"
-      class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-semibold"
+      class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-semibold cursor-pointer hover:bg-blue-700 transition-colors"
       :title="user.full_name || user.username"
+      @click="handleUserClick(user)"
     >
       <span :title="(user.full_name || user.username)">
         {{ user.initials }}
@@ -65,7 +66,7 @@ import { useTasksStore } from '../stores/tasks';
 const props = defineProps({
   task: { type: Object, required: true },
 });
-const emit = defineEmits(['updated']);
+const emit = defineEmits(['updated', 'userClick']);
 
 const boardsStore = useBoardsStore();
 const tasksStore = useTasksStore();
@@ -75,19 +76,27 @@ const members = ref([]);
 const selectedIds = ref([]);
 
 const assignedDetails = computed(() => {
-  return members.value.length
-    ? members.value.filter((m) => props.task.assigned_to.includes((m.user_id ?? m.id))).map((m) => ({
-        ...m,
-        initials: getInitials(m),
-        username: m.username || m.user_username,
-        full_name: m.full_name,
-      }))
-    : props.task.assigned_to_usernames.map((username, idx) => ({
-        id: props.task.assigned_to[idx] || idx,
-        username,
-        full_name: '',
-        initials: username.slice(0, 2).toUpperCase(),
-      }));
+  if (members.value.length) {
+    return members.value.filter((m) => props.task.assigned_to.includes((m.user_id ?? m.id))).map((m) => ({
+      ...m,
+      id: m.user_id ?? m.id,
+      initials: getInitials(m),
+      username: m.username || m.user_username,
+      full_name: m.full_name,
+      email: m.email || '',
+      role: m.role || 'member'
+    }));
+  } else {
+    // Fallback when members data is not loaded yet
+    return props.task.assigned_to_usernames.map((username, idx) => ({
+      id: props.task.assigned_to[idx] || idx,
+      username,
+      full_name: '',
+      email: '',
+      role: 'member',
+      initials: username.slice(0, 2).toUpperCase(),
+    }));
+  }
 });
 
 function getInitials(user) {
@@ -124,6 +133,11 @@ function close() {
 async function fetchMembers() {
   const list = await boardsStore.fetchMembers(props.task.board);
   members.value = list;
+}
+
+function handleUserClick(user) {
+  console.log('User clicked:', user);
+  emit('userClick', user);
 }
 
 async function save() {

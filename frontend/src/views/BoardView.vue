@@ -32,14 +32,17 @@
               <div 
                 v-for="(member, index) in boardMembers.slice(0, 4)" 
                 :key="member.id"
-                class="w-8 h-8 rounded-full border-2 border-white bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-medium"
+                @click.stop="openMemberProfile(member)"
+                class="w-8 h-8 rounded-full border-2 border-white bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-medium cursor-pointer hover:scale-110 transition-transform duration-200"
                 :title="member.name"
               >
                 {{ member.name ? member.name[0].toUpperCase() : 'U' }}
               </div>
               <div 
                 v-if="boardMembers.length > 4"
-                class="w-8 h-8 rounded-full border-2 border-white bg-gray-400 flex items-center justify-center text-white text-xs font-medium"
+                @click="showAllMembers = true"
+                class="w-8 h-8 rounded-full border-2 border-white bg-gray-400 flex items-center justify-center text-white text-xs font-medium cursor-pointer hover:scale-110 transition-transform duration-200"
+                :title="`${boardMembers.length - 4} عضو دیگر`"
               >
                 +{{ boardMembers.length - 4 }}
               </div>
@@ -62,13 +65,22 @@
 
     <!-- Board Content -->
     <div class="container mx-auto px-4 md:px-6 py-4 md:py-6" v-if="board">
-      <div class="flex space-x-4 md:space-x-6 space-x-reverse overflow-x-auto pb-6" style="min-height: calc(100vh - 200px);">
-        <ListColumn 
+      <div 
+        ref="listsContainer"
+        class="flex space-x-4 md:space-x-6 space-x-reverse overflow-x-auto pb-6" 
+        style="min-height: calc(100vh - 200px);"
+      >
+        <div
           v-for="list in lists" 
-          :key="list.id" 
-          :list="list" 
-          class="flex-shrink-0"
-        />
+          :key="list.id"
+          :data-list-id="list.id"
+          class="flex-shrink-0 draggable-list"
+        >
+          <ListColumn 
+            :list="list" 
+            @taskUserClick="handleTaskUserClick"
+          />
+        </div>
         
         <!-- Add List Column -->
         <div class="flex-shrink-0 w-80">
@@ -125,13 +137,92 @@
     </div>
 
     <TaskModal v-if="tasksStore.modalOpen" />
+    <MemberProfileModal 
+      v-if="memberProfileModal.isOpen && memberProfileModal.member"
+      :member="memberProfileModal.member"
+      :canManageMembers="canManageMembers"
+      @close="closeMemberProfile"
+      @sendMessage="handleSendMessage"
+      @manageMember="handleManageMember"
+      @removeMember="handleRemoveMember"
+    />
+    <TaskMemberProfileModal 
+      v-if="taskMemberProfileModal.isOpen && taskMemberProfileModal.member"
+      :member="taskMemberProfileModal.member"
+      :task="taskMemberProfileModal.task"
+      @close="closeTaskMemberProfile"
+      @viewTask="handleViewTask"
+    />
+    
+    <ConfirmationModal
+      :isOpen="confirmationModal.isOpen"
+      :memberInfo="confirmationModal.member"
+      title="حذف عضو از برد"
+      :message="`آیا مطمئن هستید که می‌خواهید ${confirmationModal.member?.name || confirmationModal.member?.username} را از برد حذف کنید؟`"
+      confirmText="حذف عضو"
+      @confirm="confirmRemoveMember"
+      @cancel="cancelRemoveMember"
+    />
+    
+    <!-- All Members Modal -->
+    <div 
+      v-if="showAllMembers" 
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      @click="showAllMembers = false"
+    >
+      <div 
+        class="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 max-h-96 overflow-hidden"
+        @click.stop
+      >
+        <div class="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xl font-bold text-white">اعضای برد</h3>
+            <button 
+              @click="showAllMembers = false"
+              class="text-white hover:text-gray-200 transition-colors"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="p-6 overflow-y-auto max-h-80">
+          <div class="space-y-3">
+            <div 
+              v-for="member in boardMembers" 
+              :key="member.id"
+              @click="openMemberProfile(member)"
+              class="flex items-center space-x-3 space-x-reverse p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+            >
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-medium">
+                {{ member.name ? member.name[0].toUpperCase() : 'U' }}
+              </div>
+              <div class="flex-1">
+                <h4 class="font-medium text-gray-900">{{ member.name || member.username }}</h4>
+                <p class="text-sm text-gray-600">@{{ member.username }}</p>
+              </div>
+              <span 
+                class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+                :class="getRoleClass(member.role)"
+              >
+                {{ getRoleText(member.role) }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted, computed, ref, nextTick, watch } from 'vue';
+import { onMounted, computed, ref, nextTick, watch, reactive } from 'vue';
 import { useTasksStore } from '../stores/tasks';
 import TaskModal from '../components/TaskModal.vue';
+import MemberProfileModal from '../components/MemberProfileModal.vue';
+import TaskMemberProfileModal from '../components/TaskMemberProfileModal.vue';
+import ConfirmationModal from '../components/ConfirmationModal.vue';
 import { useRoute } from 'vue-router';
 import { useBoardsStore } from '../stores/boards';
 import { useListsStore } from '../stores/lists';
@@ -146,11 +237,34 @@ const tasksStore = useTasksStore();
 const showAddListDialog = ref(false);
 const newListTitle = ref('');
 const listTitleInput = ref(null);
+const listsContainer = ref(null);
+
+// Member profile modal
+const memberProfileModal = reactive({
+  isOpen: false,
+  member: null
+});
+const showAllMembers = ref(false);
+
+// Task member profile modal
+const taskMemberProfileModal = reactive({
+  isOpen: false,
+  member: null,
+  task: null
+});
+
+// Confirmation modal
+const confirmationModal = ref({
+  isOpen: false,
+  member: null
+});
 
 onMounted(async () => {
   const boardId = route.params.id;
   await boardsStore.fetchBoard(boardId);
   await listsStore.fetchLists(boardId);
+  await nextTick();
+  initializeListSortable();
 });
 
 const board = computed(() => boardsStore.currentBoard);
@@ -162,12 +276,25 @@ const totalTasks = computed(() => {
 });
 
 const boardMembers = computed(() => {
-  // Mock data - replace with actual board members from store
-  return [
-    { id: 1, name: 'احمد محمدی' },
-    { id: 2, name: 'فاطمه احمدی' },
-    { id: 3, name: 'علی رضایی' }
-  ];
+  if (!board.value?.members) return [];
+  
+  return board.value.members.map(membership => ({
+    id: membership.user_id,
+    user_id: membership.user_id,
+    name: membership.full_name || membership.username,
+    username: membership.username,
+    full_name: membership.full_name,
+    email: membership.email,
+    role: membership.role,
+    status: membership.status
+  }));
+});
+
+const canManageMembers = computed(() => {
+  // Check if current user is owner or admin
+  const currentUser = board.value?.owner;
+  return board.value && (board.value.owner === currentUser || 
+    boardMembers.value.some(member => member.role === 'admin'));
 });
 
 // Helper functions
@@ -220,4 +347,187 @@ const watchAddListDialog = async (newVal) => {
 
 // Watch showAddListDialog
 watch(() => showAddListDialog.value, watchAddListDialog);
+
+// Initialize sortable functionality for lists
+function initializeListSortable() {
+  if (!listsContainer.value) return;
+  
+  import('sortablejs').then(({ default: Sortable }) => {
+    new Sortable(listsContainer.value, {
+      animation: 200,
+      ghostClass: 'ghost-list',
+      chosenClass: 'chosen-list',
+      dragClass: 'drag-list',
+      handle: '.draggable-list', // Only allow dragging by the list container
+      onUpdate: async (evt) => {
+        try {
+          const listId = evt.item.getAttribute('data-list-id');
+          const newIndex = evt.newIndex;
+          console.log('Moving list', listId, 'to position', newIndex + 1);
+          
+          // Move the list to new position
+          await listsStore.moveList(parseInt(listId), newIndex + 1);
+          
+          // Refresh lists to ensure correct order
+          await listsStore.fetchLists(route.params.id);
+        } catch (error) {
+          console.error('Failed to move list:', error);
+          // Refresh lists on error to restore correct order
+          await listsStore.fetchLists(route.params.id);
+        }
+      }
+    });
+  });
+}
+
+// Watch for list changes to reinitialize sortable
+watch(() => lists.value.length, async () => {
+  await nextTick();
+  initializeListSortable();
+});
+
+// Member profile functions
+const openMemberProfile = (member) => {
+  console.log('openMemberProfile called with:', member);
+  if (!member) {
+    console.warn('openMemberProfile called with null/undefined member');
+    return;
+  }
+  
+  console.log('Setting modal state...');
+  memberProfileModal.isOpen = true;
+  memberProfileModal.member = member;
+  showAllMembers.value = false;
+  console.log('Modal state after setting:', memberProfileModal);
+  console.log('Modal isOpen:', memberProfileModal.isOpen);
+  console.log('Modal member:', memberProfileModal.member);
+};
+
+const closeMemberProfile = () => {
+  memberProfileModal.isOpen = false;
+  memberProfileModal.member = null;
+};
+
+const handleSendMessage = (member) => {
+  // TODO: Implement messaging functionality
+  console.log('Send message to:', member);
+};
+
+const handleManageMember = (member) => {
+  // TODO: Implement member management functionality
+  console.log('Manage member:', member);
+};
+
+const handleRemoveMember = (member) => {
+  confirmationModal.value = {
+    isOpen: true,
+    member: member
+  };
+};
+
+// Task member profile functions
+function handleTaskUserClick(data) {
+  console.log('Task user clicked:', data);
+  taskMemberProfileModal.isOpen = true;
+  taskMemberProfileModal.member = data.user;
+  taskMemberProfileModal.task = data.task;
+}
+
+function closeTaskMemberProfile() {
+  taskMemberProfileModal.isOpen = false;
+  taskMemberProfileModal.member = null;
+  taskMemberProfileModal.task = null;
+}
+
+function handleViewTask(task) {
+  tasksStore.openTask(task.id);
+}
+
+function handleSendMessageToTaskMember(member) {
+  // TODO: Implement messaging functionality
+  console.log('Send message to task member:', member);
+}
+
+const confirmRemoveMember = async () => {
+  const member = confirmationModal.value.member;
+  confirmationModal.value.isOpen = false;
+  
+  try {
+    await boardsStore.removeMember(route.params.id, member.id);
+    console.log('Member removed successfully');
+  } catch (error) {
+    console.error('Failed to remove member:', error);
+    alert('خطا در حذف عضو: ' + (error.error || 'خطای نامشخص'));
+  }
+};
+
+const cancelRemoveMember = () => {
+  confirmationModal.value = {
+    isOpen: false,
+    member: null
+  };
+};
+
+const getRoleClass = (role) => {
+  switch (role) {
+    case 'owner':
+      return 'bg-purple-100 text-purple-800';
+    case 'admin':
+      return 'bg-blue-100 text-blue-800';
+    case 'member':
+      return 'bg-green-100 text-green-800';
+    default:
+      return 'bg-gray-100 text-gray-800';
+  }
+};
+
+const getRoleText = (role) => {
+  switch (role) {
+    case 'owner':
+      return 'مالک';
+    case 'admin':
+      return 'مدیر';
+    case 'member':
+      return 'عضو';
+    default:
+      return 'نامشخص';
+  }
+};
 </script>
+
+<style scoped>
+/* Drag and drop visual feedback for lists */
+.ghost-list {
+  opacity: 0.5;
+  background: rgba(59, 130, 246, 0.1);
+  border: 2px dashed rgba(59, 130, 246, 0.3);
+  border-radius: 16px;
+}
+
+.chosen-list {
+  cursor: grabbing !important;
+  transform: rotate(2deg);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+
+.drag-list {
+  opacity: 0.9;
+  transform: rotate(2deg);
+}
+
+/* Draggable list styling */
+.draggable-list {
+  cursor: grab;
+  transition: all 0.2s ease;
+}
+
+.draggable-list:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.draggable-list:active {
+  cursor: grabbing;
+}
+</style>

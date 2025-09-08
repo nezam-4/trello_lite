@@ -72,7 +72,7 @@
           <div class="mb-8">
             <label class="block text-sm font-semibold text-gray-700 mb-3">اعضای مسئول</label>
             <div class="bg-gray-50 rounded-xl p-4">
-              <AssigneesSelector :task="task" @updated="reloadTask" />
+              <AssigneesSelector :task="task" @updated="reloadTask" @userClick="showMemberProfile" />
             </div>
           </div>
 
@@ -217,14 +217,6 @@
             </div>
           </div>
 
-          <div class="flex space-x-2 my-4">
-            <button
-              @click="save"
-              class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              ذخیره
-            </button>
-          </div>
         </div>
 
         <!-- Right column: Activity and Operations -->
@@ -300,19 +292,33 @@
         </div>
       </div>
     </div>
+
+    <!-- Member Profile Modal -->
+    <MemberProfileModal 
+      v-if="showMemberProfileModal && selectedMember"
+      :member="selectedMember"
+      @close="closeMemberProfile"
+    />
   </div>
 </template>
 
 <script setup>
 import { reactive, watch, computed, ref, nextTick } from 'vue';
 import AssigneesSelector from './AssigneesSelector.vue';
+import MemberProfileModal from './MemberProfileModal.vue';
 import { storeToRefs } from 'pinia';
 import { useTasksStore } from '../stores/tasks';
 
 const tasksStore = useTasksStore();
-const task = computed(() => tasksStore.selectedTask);
-const form = ref({});
+const task = computed(() => tasksStore.currentTask);
+const form = reactive({
+  title: '',
+  description: '',
+  priority: 'medium'
+});
 const showDatePicker = ref(false);
+const showMemberProfileModal = ref(false);
+const selectedMember = ref(null);
 
 // Priority options with modern styling
 const priorityOptions = [
@@ -439,10 +445,33 @@ async function save() {
   // Don't include due_date in form save since it's handled separately
   delete updateData.due_date;
   await tasksStore.updateTask(task.value.id, updateData);
+  close();
 }
 
 function reloadTask() {
   tasksStore.fetchTask(task.value.id);
+}
+
+function showMemberProfile(user) {
+  console.log('showMemberProfile called with:', user);
+  // Transform user data to match MemberProfileModal expected format
+  const memberData = {
+    id: user.id,
+    user_id: user.id,
+    username: user.username,
+    full_name: user.full_name,
+    email: user.email || '',
+    role: 'member', // Default role since AssigneesSelector doesn't have role info
+    status: 'accepted'
+  };
+  console.log('Transformed member data:', memberData);
+  selectedMember.value = memberData;
+  showMemberProfileModal.value = true;
+}
+
+function closeMemberProfile() {
+  showMemberProfileModal.value = false;
+  selectedMember.value = null;
 }
 
 function close() {

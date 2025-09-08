@@ -116,6 +116,17 @@ export const useBoardsStore = defineStore('boards', {
         console.error(e);
         throw e.response?.data || e;
       }
+    },
+    async removeMember(boardId, userId) {
+      try {
+        const res = await api.delete(`/boards/${boardId}/members/${userId}/`);
+        // Refresh board data to update members list
+        await this.fetchBoard(boardId);
+        return res.data;
+      } catch (e) {
+        console.error(e);
+        throw e.response?.data || e;
+      }
     }
   }
 });

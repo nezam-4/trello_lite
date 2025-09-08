@@ -118,6 +118,7 @@
             v-for="task in tasks" 
             :key="task.id" 
             :card="task" 
+            @userClick="handleTaskUserClick"
             class="draggable-task"
           />
         </div>
@@ -264,6 +265,8 @@ const props = defineProps({
   },
 });
 
+const emit = defineEmits(['taskUserClick']);
+
 const tasksStore = useTasksStore();
 const listsStore = useListsStore();
 const taskContainer = ref();
@@ -381,18 +384,23 @@ const adding = ref(false);
 const newTitle = ref('');
 const newTaskInput = ref();
 
-async function submit() {
-  if (!newTitle.value.trim()) {
-    cancel();
-    return;
+async function addTask() {
+  if (!newTitle.value.trim()) return;
+  
+  try {
+    await tasksStore.createTask({
+      title: newTitle.value,
+      list: props.list.id,
+    });
+    newTitle.value = '';
+    adding.value = false;
+  } catch (error) {
+    console.error('Failed to create task:', error);
   }
-  await tasksStore.createTask(props.list.id, newTitle.value.trim());
-  newTitle.value = '';
-  adding.value = false;
 }
-function cancel() {
-  adding.value = false;
-  newTitle.value = '';
+
+function handleTaskUserClick(data) {
+  emit('taskUserClick', data);
 }
 
 // Focus input when adding starts
