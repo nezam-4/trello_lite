@@ -38,19 +38,9 @@
             <!-- Dropdown Menu -->
             <div 
               v-if="showMenu" 
-              class="absolute left-0 mt-2 w-52 bg-white rounded-xl shadow-lg border border-gray-200/50 py-2 z-20"
+              class="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-lg border border-gray-200/50 py-2 z-[9999]"
               @click.stop
             >
-              <button 
-                @click="refreshList"
-                class="flex items-center space-x-3 space-x-reverse w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                </svg>
-                <span>بروزرسانی لیست</span>
-              </button>
-              
               <button 
                 @click="startEditFromMenu"
                 class="flex items-center space-x-3 space-x-reverse w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
@@ -58,7 +48,7 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                 </svg>
-                <span>ویرایش نام</span>
+                <span>ویرایش لیست</span>
               </button>
               
               <button 
@@ -87,7 +77,7 @@
             <!-- Color Picker Modal -->
             <div 
               v-if="showColorPicker" 
-              class="absolute left-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-gray-200/50 z-30"
+              class="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-gray-200/50 z-[9999]"
               @click.stop
             >
               <div class="p-6">
@@ -173,6 +163,91 @@
         </button>
       </div>
     </div>
+
+    <!-- Edit List Modal -->
+    <div 
+      v-if="showEditModal" 
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[10000]"
+      @click="closeEditModal"
+    >
+      <div 
+        class="bg-white rounded-2xl shadow-2xl w-96 max-w-[90vw] max-h-[90vh] overflow-y-auto"
+        @click.stop
+      >
+        <div class="p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-bold text-gray-900">ویرایش لیست</h3>
+            <button 
+              @click="closeEditModal"
+              class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+
+          <form @submit.prevent="saveListChanges" class="space-y-6">
+            <!-- List Title -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">نام لیست</label>
+              <input
+                v-model="modalEditTitle"
+                ref="modalTitleInput"
+                type="text"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                placeholder="نام لیست را وارد کنید..."
+                required
+              />
+            </div>
+
+            <!-- List Color -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-3">رنگ پس‌زمینه</label>
+              <div class="grid grid-cols-6 gap-3">
+                <button
+                  v-for="color in availableColors"
+                  :key="color.value"
+                  type="button"
+                  @click="modalSelectedColor = color.value"
+                  :class="[
+                    'w-12 h-12 rounded-xl border-2 transition-all duration-200 hover:scale-105 hover:shadow-md relative group',
+                    modalSelectedColor === color.value ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-200 hover:border-gray-300'
+                  ]"
+                  :style="{ backgroundColor: color.bg }"
+                  :title="color.name"
+                >
+                  <span v-if="modalSelectedColor === color.value" class="absolute inset-0 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex space-x-3 space-x-reverse pt-4">
+              <button
+                type="submit"
+                :disabled="!modalEditTitle.trim() || isUpdating"
+                class="flex-1 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-4 py-3 rounded-lg font-medium transition-colors"
+              >
+                <span v-if="isUpdating">در حال ذخیره...</span>
+                <span v-else>ذخیره تغییرات</span>
+              </button>
+              <button
+                type="button"
+                @click="closeEditModal"
+                class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-3 rounded-lg font-medium transition-colors"
+              >
+                انصراف
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -197,6 +272,13 @@ const showColorPicker = ref(false);
 const editing = ref(false);
 const editTitle = ref('');
 const editInput = ref();
+
+// Modal editing state
+const showEditModal = ref(false);
+const modalEditTitle = ref('');
+const modalSelectedColor = ref('');
+const modalTitleInput = ref();
+const isUpdating = ref(false);
 
 // Available colors for list backgrounds
 const availableColors = [
@@ -366,7 +448,59 @@ function startEdit() {
 
 function startEditFromMenu() {
   closeMenu();
-  startEdit();
+  openEditModal();
+}
+
+// Modal functions
+function openEditModal() {
+  showEditModal.value = true;
+  modalEditTitle.value = props.list.title;
+  modalSelectedColor.value = props.list.color || 'blue';
+  nextTick(() => {
+    if (modalTitleInput.value) {
+      modalTitleInput.value.focus();
+      modalTitleInput.value.select();
+    }
+  });
+}
+
+function closeEditModal() {
+  showEditModal.value = false;
+  modalEditTitle.value = '';
+  modalSelectedColor.value = '';
+  isUpdating.value = false;
+}
+
+async function saveListChanges() {
+  if (!modalEditTitle.value.trim()) {
+    return;
+  }
+  
+  isUpdating.value = true;
+  
+  try {
+    const updates = {};
+    
+    // Check if title changed
+    if (modalEditTitle.value.trim() !== props.list.title) {
+      updates.title = modalEditTitle.value.trim();
+    }
+    
+    // Check if color changed
+    if (modalSelectedColor.value !== (props.list.color || 'blue')) {
+      updates.color = modalSelectedColor.value;
+    }
+    
+    // Only update if there are changes
+    if (Object.keys(updates).length > 0) {
+      await listsStore.updateList(props.list.id, updates);
+    }
+    
+    closeEditModal();
+  } catch (error) {
+    console.error('Failed to update list:', error);
+    isUpdating.value = false;
+  }
 }
 
 async function saveEdit() {

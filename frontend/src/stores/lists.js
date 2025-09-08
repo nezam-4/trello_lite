@@ -47,6 +47,30 @@ export const useListsStore = defineStore('lists', {
     },
 
     /**
+     * Create a new list
+     * @param {Object} data - List data (title, board)
+     */
+    async createList(data) {
+      try {
+        if (!data.title) throw new Error('List title is required');
+        if (!data.board) throw new Error('Board ID is required');
+        
+        const res = await api.post(`/boards/${data.board}/lists/`, {
+          title: data.title,
+          color: data.color || 'blue'
+        });
+        
+        // Add the new list to cache
+        this.lists.push(res.data);
+        
+        return res.data;
+      } catch (e) {
+        console.error('Failed to create list', e);
+        throw e.response?.data || e;
+      }
+    },
+
+    /**
      * Delete a list
      * @param {Number|String} listId
      */
