@@ -1,139 +1,178 @@
 <template>
-  <div :class="listBackgroundClass" class="rounded p-4 w-64 mr-4 flex-shrink-0">
-    <div class="flex items-center justify-between mb-2">
-      <h2 
-        v-if="!editing" 
-        @click="startEdit"
-        class="font-bold cursor-pointer hover:bg-gray-300 px-2 py-1 rounded transition-colors"
-      >
-        {{ list.title }}
-      </h2>
-      <input 
-        v-else
-        ref="editInput"
-        v-model="editTitle"
-        @keyup.enter="saveEdit"
-        @blur="saveEdit"
-        @keyup.escape="cancelEdit"
-        class="font-bold bg-white border border-blue-500 px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-      <div class="relative">
-        <button 
-          @click="toggleMenu"
-          class="p-1 hover:bg-gray-300 rounded transition-colors"
-          :class="{ 'bg-gray-300': showMenu }"
-        >
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
-          </svg>
-        </button>
-        
-        <!-- Dropdown Menu -->
-        <div 
-          v-if="showMenu" 
-          class="absolute left-0 mt-1 w-48 bg-white rounded-lg shadow-lg border z-10"
-          @click.stop
-        >
-          <div class="py-1">
-            <button 
-              @click="refreshList"
-              class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+  <div class="w-72 sm:w-80 flex-shrink-0">
+    <div :class="['bg-white rounded-2xl shadow-sm border border-gray-200/50 overflow-hidden border-l-4', listAccentColor]">
+      <!-- List Header -->
+      <div class="px-6 py-4 border-b border-gray-100">
+        <div class="flex items-center justify-between">
+          <div class="flex-1">
+            <h2 
+              v-if="!editing" 
+              @click="startEdit"
+              class="font-bold text-gray-900 cursor-pointer hover:bg-gray-100 px-2 py-1 -mx-2 rounded-lg transition-all duration-200 text-lg"
             >
-              <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-              </svg>
-              بروزرسانی لیست
-            </button>
-            <button 
-              @click="startEditFromMenu"
-              class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-            >
-              <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-              </svg>
-              ویرایش نام
-            </button>
-            <button 
-              @click="toggleColorPicker"
-              class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-            >
-              <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM7 3H5a2 2 0 00-2 2v12a4 4 0 004 4h2a2 2 0 002-2V5a2 2 0 00-2-2z"/>
-              </svg>
-              تغییر رنگ
-            </button>
-            <hr class="my-1">
-            <button 
-              @click="deleteList"
-              class="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-            >
-              <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-              </svg>
-              حذف لیست
-            </button>
+              {{ list.title }}
+            </h2>
+            <input 
+              v-else
+              ref="editInput"
+              v-model="editTitle"
+              @keyup.enter="saveEdit"
+              @blur="saveEdit"
+              @keyup.escape="cancelEdit"
+              class="font-bold text-lg bg-white border-2 border-blue-500 px-2 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 w-full"
+            />
+            <p class="text-sm text-gray-500 mt-1">{{ tasks.length }} تسک</p>
           </div>
-        </div>
+          
+          <div class="relative">
+            <button 
+              @click="toggleMenu"
+              class="p-2 hover:bg-gray-100 rounded-lg transition-all duration-200 text-gray-500 hover:text-gray-700"
+              :class="{ 'bg-gray-100 text-gray-700': showMenu }"
+            >
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
+              </svg>
+            </button>
         
-        <!-- Color Picker Modal -->
-        <div 
-          v-if="showColorPicker" 
-          class="absolute left-0 mt-1 w-56 bg-white rounded-lg shadow-lg border z-20"
-          @click.stop
-        >
-          <div class="p-4">
-            <h3 class="text-sm font-medium mb-3">انتخاب رنگ پس‌زمینه</h3>
-            <div class="grid grid-cols-4 gap-2">
-              <button
-                v-for="color in availableColors"
-                :key="color.value"
-                @click="changeColor(color.value)"
-                :class="[
-                  'w-10 h-10 rounded-lg border-2 transition-all duration-200 hover:scale-110',
-                  list.color === color.value ? 'border-gray-800 ring-2 ring-blue-500' : 'border-gray-300'
-                ]"
-                :style="{ backgroundColor: color.bg }"
-                :title="color.name"
+            <!-- Dropdown Menu -->
+            <div 
+              v-if="showMenu" 
+              class="absolute left-0 mt-2 w-52 bg-white rounded-xl shadow-lg border border-gray-200/50 py-2 z-20"
+              @click.stop
+            >
+              <button 
+                @click="refreshList"
+                class="flex items-center space-x-3 space-x-reverse w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
               >
-                <span v-if="list.color === color.value" class="text-white text-xs">✓</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                <span>بروزرسانی لیست</span>
               </button>
+              
+              <button 
+                @click="startEditFromMenu"
+                class="flex items-center space-x-3 space-x-reverse w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+                <span>ویرایش نام</span>
+              </button>
+              
+              <button 
+                @click="toggleColorPicker"
+                class="flex items-center space-x-3 space-x-reverse w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM7 3H5a2 2 0 00-2 2v12a4 4 0 004 4h2a2 2 0 002-2V5a2 2 0 00-2-2z"/>
+                </svg>
+                <span>تغییر رنگ پس‌زمینه</span>
+              </button>
+              
+              <hr class="my-2">
+              
+              <button 
+                @click="deleteList"
+                class="flex items-center space-x-3 space-x-reverse w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+                <span>حذف لیست</span>
+              </button>
+            </div>
+        
+            <!-- Color Picker Modal -->
+            <div 
+              v-if="showColorPicker" 
+              class="absolute left-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-gray-200/50 z-30"
+              @click.stop
+            >
+              <div class="p-6">
+                <h3 class="text-sm font-semibold text-gray-900 mb-4">انتخاب رنگ پس‌زمینه</h3>
+                <div class="grid grid-cols-4 gap-3">
+                  <button
+                    v-for="color in availableColors"
+                    :key="color.value"
+                    @click="changeColor(color.value)"
+                    :class="[
+                      'w-12 h-12 rounded-xl border-2 transition-all duration-200 hover:scale-105 hover:shadow-md relative group',
+                      list.color === color.value ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-200 hover:border-gray-300'
+                    ]"
+                    :style="{ backgroundColor: color.bg }"
+                    :title="color.name"
+                  >
+                    <span v-if="list.color === color.value" class="absolute inset-0 flex items-center justify-center">
+                      <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                      </svg>
+                    </span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
     
-    <!-- Draggable Tasks -->
-    <div 
-      ref="taskContainer"
-      class="min-h-[20px] transition-all duration-200"
-    >
-      <CardItem 
-        v-for="task in tasks" 
-        :key="task.id" 
-        :card="task" 
-        class="draggable-task"
-      />
-    </div>
+      
+      <!-- Tasks Container -->
+      <div class="px-6 py-4 max-h-96 overflow-y-auto">
+        <div 
+          ref="taskContainer"
+          class="space-y-3 min-h-[60px] transition-all duration-200"
+        >
+          <CardItem 
+            v-for="task in tasks" 
+            :key="task.id" 
+            :card="task" 
+            class="draggable-task"
+          />
+        </div>
+      </div>
 
-    <!-- Add Task Section -->
-    <div v-if="adding" class="mt-2">
-      <input
-        v-model="newTitle"
-        @keyup.enter="submit"
-        @blur="cancel"
-        class="w-full p-2 border rounded"
-        placeholder="عنوان تسک..."
-        autofocus
-      />
+      <!-- Add Task Section -->
+      <div class="px-6 py-4 border-t border-gray-100">
+        <div v-if="adding" class="space-y-3">
+          <input
+            v-model="newTitle"
+            @keyup.enter="submit"
+            @keyup.escape="cancel"
+            ref="newTaskInput"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm placeholder-gray-500"
+            placeholder="عنوان تسک را وارد کنید..."
+            autofocus
+          />
+          <div class="flex space-x-2 space-x-reverse">
+            <button
+              @click="submit"
+              :disabled="!newTitle.trim()"
+              class="flex-1 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+            >
+              افزودن
+            </button>
+            <button
+              @click="cancel"
+              class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+            >
+              انصراف
+            </button>
+          </div>
+        </div>
+        <button
+          v-else
+          @click="adding = true"
+          class="w-full bg-gray-50 hover:bg-gray-100 text-gray-600 hover:text-gray-800 py-3 rounded-lg text-sm font-medium transition-all duration-200 border-2 border-dashed border-gray-200 hover:border-gray-300 flex items-center justify-center space-x-2 space-x-reverse group"
+        >
+          <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          <span>افزودن تسک جدید</span>
+        </button>
+      </div>
     </div>
-    <button
-      v-else
-      @click="adding = true"
-      class="mt-2 w-full bg-gray-300 hover:bg-gray-400 text-sm py-1 rounded"
-    >
-      + Add Task
-    </button>
   </div>
 </template>
 
@@ -175,24 +214,24 @@ const availableColors = [
   { value: 'lime', name: 'لیمویی', bg: '#ecfccb' }
 ];
 
-// Computed property for list background class
-const listBackgroundClass = computed(() => {
+// Computed property for list header accent color
+const listAccentColor = computed(() => {
   const colorMap = {
-    blue: 'bg-blue-100',
-    green: 'bg-green-100', 
-    yellow: 'bg-yellow-100',
-    red: 'bg-red-100',
-    purple: 'bg-purple-100',
-    pink: 'bg-pink-100',
-    indigo: 'bg-indigo-100',
-    gray: 'bg-gray-200',
-    orange: 'bg-orange-100',
-    teal: 'bg-teal-100',
-    cyan: 'bg-cyan-100',
-    lime: 'bg-lime-100'
+    blue: 'border-l-blue-400',
+    green: 'border-l-green-400', 
+    yellow: 'border-l-yellow-400',
+    red: 'border-l-red-400',
+    purple: 'border-l-purple-400',
+    pink: 'border-l-pink-400',
+    indigo: 'border-l-indigo-400',
+    gray: 'border-l-gray-400',
+    orange: 'border-l-orange-400',
+    teal: 'border-l-teal-400',
+    cyan: 'border-l-cyan-400',
+    lime: 'border-l-lime-400'
   };
   
-  return colorMap[props.list.color] || 'bg-gray-200';
+  return colorMap[props.list.color] || 'border-l-gray-400';
 });
 
 // Fetch tasks when component mounts and when list id changes
@@ -228,7 +267,11 @@ function initializeSortable() {
           const taskId = evt.item.getAttribute('data-task-id');
           const newIndex = evt.newIndex;
           console.log('Moving task', taskId, 'to list', props.list.id, 'at position', newIndex + 1);
+          
+          // Refresh the cache first to get accurate positions
+          await fetch();
           await tasksStore.moveTask(parseInt(taskId), props.list.id, newIndex + 1);
+          await fetch(); // Refresh again after move
         } catch (error) {
           console.error('Failed to move task:', error);
           await fetch();
@@ -239,7 +282,9 @@ function initializeSortable() {
           const taskId = evt.item.getAttribute('data-task-id');
           const newIndex = evt.newIndex;
           console.log('Reordering task', taskId, 'to position', newIndex + 1);
+          
           await tasksStore.moveTask(parseInt(taskId), null, newIndex + 1);
+          await fetch(); // Refresh after move
         } catch (error) {
           console.error('Failed to move task:', error);
           await fetch();
@@ -252,6 +297,7 @@ function initializeSortable() {
 // add task state
 const adding = ref(false);
 const newTitle = ref('');
+const newTaskInput = ref();
 
 async function submit() {
   if (!newTitle.value.trim()) {
@@ -266,6 +312,14 @@ function cancel() {
   adding.value = false;
   newTitle.value = '';
 }
+
+// Focus input when adding starts
+watch(adding, async (newVal) => {
+  if (newVal) {
+    await nextTick();
+    newTaskInput.value?.focus();
+  }
+});
 
 // Menu functionality
 function toggleMenu() {

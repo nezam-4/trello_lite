@@ -1,38 +1,194 @@
 <template>
-  <header class="bg-sky-600 text-white">
-    <nav class="container mx-auto flex items-center justify-between p-4">
-      <h1 class="text-xl font-bold">
-        <router-link to="/boards" class="hover:text-sky-200">Trello Lite</router-link>
-      </h1>
-      <ul class="flex gap-4 items-center relative">
-        <li v-if="auth.isAuthenticated">
-          <router-link to="/boards" class="hover:text-sky-200">بردها</router-link>
-        </li>
-        <!-- profile / auth links area -->
-        <li v-if="auth.isAuthenticated" class="relative">
-          <button @click="toggleMenu" class="flex items-center gap-2 focus:outline-none profile-menu">
-            <template v-if="auth.user && auth.user.profile && auth.user.profile.avatar">
-              <img :src="auth.user.profile.avatar" alt="avatar" class="w-8 h-8 rounded-full object-cover" />
-            </template>
-            <template v-else>
-              <span class="bg-white text-sky-600 w-8 h-8 flex items-center justify-center rounded-full font-bold">
-                {{ (auth.user?.first_name || auth.user?.email || '?')[0] }}
-              </span>
-            </template>
-          </button>
-          <!-- dropdown -->
-          <div v-if="showMenu" class="absolute right-0 mt-2 bg-white text-gray-800 rounded shadow w-40 z-20 profile-menu">
-            <router-link to="/profile" class="block px-4 py-2 hover:bg-gray-100">ویرایش پروفایل</router-link>
-            <router-link to="/change-password" class="block px-4 py-2 hover:bg-gray-100">تغییر رمز</router-link>
-            <button @click="logout" class="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600">خروج</button>
+  <header class="bg-white/80 backdrop-blur-md border-b border-gray-200/50 sticky top-0 z-50">
+    <nav class="container mx-auto flex items-center justify-between px-6 py-4">
+      <!-- Logo -->
+      <div class="flex items-center space-x-4 space-x-reverse">
+        <router-link to="/boards" class="flex items-center space-x-2 space-x-reverse group">
+          <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+            </svg>
           </div>
-        </li>
-        <li v-else class="flex gap-4 items-center">
-          <router-link to="/login" class="hover:text-sky-200">ورود</router-link>
-          <router-link to="/register" class="hover:text-sky-200">ثبت نام</router-link>
-        </li>
-      </ul>
+          <h1 class="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent group-hover:from-blue-600 group-hover:to-purple-600 transition-all duration-300">
+            Trello Lite
+          </h1>
+        </router-link>
+      </div>
+
+      <!-- Navigation -->
+      <div class="flex items-center space-x-6 space-x-reverse">
+        <!-- Mobile Menu Button -->
+        <button 
+          v-if="auth.isAuthenticated"
+          @click="showMobileMenu = !showMobileMenu"
+          class="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+        >
+          <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+
+        <!-- Desktop Navigation -->
+        <nav v-if="auth.isAuthenticated" class="hidden md:flex items-center space-x-6 space-x-reverse">
+          <router-link 
+            to="/boards" 
+            class="px-4 py-2 rounded-lg text-gray-700 hover:text-blue-600 hover:bg-blue-50 font-medium transition-all duration-200 flex items-center space-x-2 space-x-reverse"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+            </svg>
+            <span>بردها</span>
+          </router-link>
+        </nav>
+
+        <!-- User Menu -->
+        <div v-if="auth.isAuthenticated" class="relative">
+          <button 
+            @click="toggleMenu" 
+            class="flex items-center space-x-3 space-x-reverse p-2 rounded-xl hover:bg-gray-100 transition-all duration-200 profile-menu group"
+          >
+            <div class="flex flex-col items-end">
+              <span class="text-sm font-medium text-gray-900">{{ auth.user?.first_name || 'کاربر' }}</span>
+              <span class="text-xs text-gray-500">{{ auth.user?.email }}</span>
+            </div>
+            <div class="relative">
+              <template v-if="auth.user && auth.user.profile && auth.user.profile.avatar">
+                <img :src="auth.user.profile.avatar" alt="avatar" class="w-10 h-10 rounded-xl object-cover ring-2 ring-gray-200 group-hover:ring-blue-300 transition-all duration-200" />
+              </template>
+              <template v-else>
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-sm ring-2 ring-gray-200 group-hover:ring-blue-300 transition-all duration-200">
+                  {{ (auth.user?.first_name || auth.user?.email || '?')[0].toUpperCase() }}
+                </div>
+              </template>
+              <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 border-2 border-white rounded-full"></div>
+            </div>
+          </button>
+          
+          <!-- Dropdown Menu -->
+          <div v-if="showMenu" class="absolute left-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-200/50 py-2 z-20 profile-menu">
+            <div class="px-4 py-3 border-b border-gray-100">
+              <p class="text-sm font-medium text-gray-900">{{ auth.user?.first_name || 'کاربر' }}</p>
+              <p class="text-xs text-gray-500">{{ auth.user?.email }}</p>
+            </div>
+            
+            <router-link 
+              to="/profile" 
+              class="flex items-center space-x-3 space-x-reverse px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+              </svg>
+              <span>ویرایش پروفایل</span>
+            </router-link>
+            
+            <router-link 
+              to="/change-password" 
+              class="flex items-center space-x-3 space-x-reverse px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+              </svg>
+              <span>تغییر رمز</span>
+            </router-link>
+            
+            <hr class="my-2">
+            
+            <button 
+              @click="logout" 
+              class="flex items-center space-x-3 space-x-reverse w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+              </svg>
+              <span>خروج</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Auth Links -->
+        <div v-else class="flex items-center space-x-4 space-x-reverse">
+          <router-link 
+            to="/login" 
+            class="px-4 py-2 text-gray-700 hover:text-blue-600 font-medium transition-colors"
+          >
+            ورود
+          </router-link>
+          <router-link 
+            to="/register" 
+            class="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 font-medium shadow-md hover:shadow-lg transition-all duration-200"
+          >
+            ثبت نام
+          </router-link>
+        </div>
+      </div>
     </nav>
+    
+    <!-- Mobile Menu Overlay -->
+    <div 
+      v-if="showMobileMenu && auth.isAuthenticated" 
+      class="md:hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
+      @click="showMobileMenu = false"
+    >
+      <div class="bg-white w-80 h-full shadow-xl" @click.stop>
+        <div class="p-6 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h2 class="text-lg font-bold text-gray-900">منو</h2>
+            <button @click="showMobileMenu = false" class="p-2 hover:bg-gray-100 rounded-lg">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        
+        <div class="p-6 space-y-4">
+          <router-link 
+            to="/boards" 
+            @click="showMobileMenu = false"
+            class="flex items-center space-x-3 space-x-reverse p-3 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+            </svg>
+            <span class="font-medium text-gray-900">بردها</span>
+          </router-link>
+          
+          <router-link 
+            to="/profile" 
+            @click="showMobileMenu = false"
+            class="flex items-center space-x-3 space-x-reverse p-3 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+            <span class="font-medium text-gray-900">پروفایل</span>
+          </router-link>
+          
+          <router-link 
+            to="/change-password" 
+            @click="showMobileMenu = false"
+            class="flex items-center space-x-3 space-x-reverse p-3 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+            </svg>
+            <span class="font-medium text-gray-900">تغییر رمز</span>
+          </router-link>
+          
+          <hr class="my-4">
+          
+          <button 
+            @click="logout; showMobileMenu = false" 
+            class="flex items-center space-x-3 space-x-reverse w-full p-3 rounded-lg hover:bg-red-50 transition-colors text-red-600"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+            </svg>
+            <span class="font-medium">خروج</span>
+          </button>
+        </div>
+      </div>
+    </div>
   </header>
 </template>
 
@@ -44,6 +200,7 @@ import { useRouter } from 'vue-router';
 const auth = useAuthStore();
 const router = useRouter();
 const showMenu = ref(false);
+const showMobileMenu = ref(false);
 
 function handleOutside(e) {
   if (!e.target.closest('.profile-menu')) {

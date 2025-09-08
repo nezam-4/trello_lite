@@ -1,88 +1,210 @@
 <template>
-  <div class="p-6 flex flex-col md:flex-row gap-4" dir="rtl">
-    <!-- Left section -->
-    <div class="flex-[0.7] bg-gray-100 dark:bg-gray-600 p-4 rounded">
-    <div class="flex items-center justify-between mb-2">
-      <h1 class="text-2xl font-bold text-right">بردها</h1>
-      <button @click="showCreateDialog=true" class="bg-sky-600 text-white px-4 py-2 rounded hover:bg-sky-700">ایجاد برد جدید</button>
-    </div>
-    <p v-if="errorMessage" class="text-red-600 mb-4">{{ errorMessage }}</p>
-    <div class="grid gap-4 grid-cols-1 md:grid-cols-3 lg:grid-cols-4">
-      <div
-        v-for="board in boardsStore.boards"
-        :key="board.id"
-        :style="{ backgroundColor: board.color || '#ffffff' }" class="p-4 shadow rounded relative"
-      >
-        <div class="flex justify-between items-start cursor-pointer" @click="goToBoard(board.id)">
-          <span class="font-medium">{{ board.title }}</span>
-          <button @click.stop="toggleMenu(board.id)" class="text-gray-500 hover:text-gray-700 board-menu text-xl p-2 absolute top-2 left-2">
-            ⋮
-          </button>
+  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6" dir="rtl">
+    <div class="max-w-7xl mx-auto">
+      <!-- Header Section -->
+      <div class="container mx-auto px-4 md:px-6 py-6 md:py-8">
+        <div class="mb-6 md:mb-8">
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">بردهای من</h1>
+          <p class="text-gray-600">مدیریت و سازماندهی پروژه‌های خود</p>
         </div>
-        <p class="text-sm text-gray-600 mt-2">اعضا: {{ board.members_count }}</p>
-        <span v-if="board.current_user_role" class="inline-block mt-2 px-2 py-1 rounded-full text-xs font-semibold"
-              :class="{
-                'bg-emerald-100 text-emerald-700': board.current_user_role==='owner',
-                'bg-indigo-100 text-indigo-700': board.current_user_role==='admin',
-                'bg-gray-100 text-gray-700': board.current_user_role==='member'
-              }">
-          {{ board.current_user_role }}
-        </span>
-        <!-- dropdown menu -->
-        <div
-          v-if="openMenuId === board.id"
-          class="absolute left-2 top-8 bg-white border shadow rounded z-10 text-sm w-36 board-menu"
+        <button 
+          @click="showCreateDialog=true" 
+          class="flex items-center space-x-2 space-x-reverse bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-blue-600 hover:to-purple-700 font-medium shadow-lg hover:shadow-xl transition-all duration-200"
         >
-          <button @click="openActivities(board.id)" class="block w-full text-left px-2 py-1 hover:bg-gray-100">تاریخچه</button>
-            <button @click="openMembers(board.id)" class="block w-full text-left px-2 py-1 hover:bg-gray-100">کاربران</button>
-            <button @click="openInvitations(board.id)" class="block w-full text-left px-2 py-1 hover:bg-gray-100">دعوت‌ها</button>
-          <!-- invite/edit for owner or admin -->
-          <template v-if="['owner','admin'].includes(board.current_user_role)">
-            <button @click="openInvite(board.id, 'user')" class="block w-full text-left px-2 py-1 hover:bg-gray-100">دعوت کاربر</button>
-            <button @click="openInvite(board.id, 'email')" class="block w-full text-left px-2 py-1 hover:bg-gray-100">دعوت کاربر جدید</button>
-            <button @click="openEditDialog(board)" class="block w-full text-left px-2 py-1 hover:bg-gray-100">ویرایش</button>
-          </template>
-          <!-- destructive option -->
-          <template v-if="board.current_user_role === 'owner'">
-            <button @click="prepareDelete(board.id)" class="block w-full text-left px-2 py-1 hover:bg-gray-100 text-red-600">حذف برد</button>
-          </template>
-          <template v-else>
-            <button @click="leaveBoard(board.id)" class="block w-full text-left px-2 py-1 hover:bg-gray-100 text-red-600">ترک برد</button>
-          </template>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          <span>ایجاد برد جدید</span>
+        </button>
+      </div>
+
+      <div class="flex flex-col lg:flex-row gap-8">
+        <!-- Boards Section -->
+        <div class="flex-1">
+          <p v-if="errorMessage" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">{{ errorMessage }}</p>
+          <!-- Boards Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+            <div
+              v-for="board in boardsStore.boards"
+              :key="board.id"
+              :data-board-id="board.id"
+              class="group relative bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-visible cursor-pointer"
+              @click="goToBoard(board.id)"
+            >
+              <!-- Board Color Header -->
+              <div 
+                class="h-24 relative"
+                :style="{ background: board.color ? `linear-gradient(135deg, ${board.color}, ${adjustColor(board.color, -20)})` : 'linear-gradient(135deg, #3b82f6, #1d4ed8)' }"
+              >
+                <div class="absolute inset-0 bg-black/10"></div>
+                <button 
+                  @click.stop="toggleMenu(board.id)" 
+                  class="absolute top-3 left-3 w-8 h-8 bg-white/20 hover:bg-white/30 rounded-lg flex items-center justify-center text-white transition-all duration-200 board-menu-button opacity-0 group-hover:opacity-100"
+                >
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Board Content -->
+              <div class="p-6">
+                <h3 class="font-bold text-lg text-gray-900 mb-2 line-clamp-2">{{ board.title }}</h3>
+                
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center space-x-2 space-x-reverse text-sm text-gray-600">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                    </svg>
+                    <span>{{ board.members_count }} عضو</span>
+                  </div>
+                  
+                  <span 
+                    v-if="board.current_user_role" 
+                    class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                    :class="{
+                      'bg-emerald-100 text-emerald-700': board.current_user_role==='owner',
+                      'bg-blue-100 text-blue-700': board.current_user_role==='admin',
+                      'bg-gray-100 text-gray-700': board.current_user_role==='member'
+                    }"
+                  >
+                    {{ getRoleText(board.current_user_role) }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Dropdown Menu -->
+              <Teleport to="body">
+                <div
+                  v-if="openMenuId === board.id"
+                  class="fixed bg-white rounded-xl shadow-2xl border border-gray-200/50 py-2 z-[9999] w-56 board-menu max-h-96 overflow-y-auto"
+                  :style="menuPosition"
+                  @click.stop
+                >
+                <button @click="openActivities(board.id)" class="flex items-center space-x-3 space-x-reverse w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  <span>تاریخچه</span>
+                </button>
+                
+                <button @click="openMembers(board.id)" class="flex items-center space-x-3 space-x-reverse w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                  </svg>
+                  <span>کاربران</span>
+                </button>
+                
+                <button 
+                  v-if="['owner','admin'].includes(board.current_user_role)"
+                  @click="openInvitations(board.id)" 
+                  class="flex items-center space-x-3 space-x-reverse w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                  </svg>
+                  <span>دعوت‌ها</span>
+                </button>
+                
+                <template v-if="['owner','admin'].includes(board.current_user_role)">
+                  <hr class="my-2">
+                  <button @click="openInvite(board.id, 'user')" class="flex items-center space-x-3 space-x-reverse w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                    </svg>
+                    <span>دعوت کاربر</span>
+                  </button>
+                  <button @click="openInvite(board.id, 'email')" class="flex items-center space-x-3 space-x-reverse w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zM12 8v1.5a3.5 3.5 0 017 0V8a3.5 3.5 0 013.5 3.5z"/>
+                    </svg>
+                    <span>دعوت کاربر با ایمیل</span>
+                  </button>
+                  <button @click="openEditDialog(board)" class="flex items-center space-x-3 space-x-reverse w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                    <span>ویرایش</span>
+                  </button>
+                </template>
+                
+                <hr class="my-2">
+                <template v-if="board.current_user_role === 'owner'">
+                  <button @click="prepareDelete(board.id)" class="flex items-center space-x-3 space-x-reverse w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                    <span>حذف برد</span>
+                  </button>
+                </template>
+                <template v-else>
+                  <button @click="leaveBoard(board.id)" class="flex items-center space-x-3 space-x-reverse w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    </svg>
+                    <span>ترک برد</span>
+                  </button>
+                </template>
+                </div>
+              </Teleport>
+            </div>
+          </div>
+        </div>
+        <!-- Invitations Sidebar -->
+        <div class="w-full lg:w-80 bg-white rounded-2xl shadow-sm border border-gray-200/50 p-4 md:p-6">
+          <div class="flex items-center space-x-2 space-x-reverse mb-6">
+            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+            <h2 class="text-lg font-bold text-gray-900">دعوت‌ها</h2>
+          </div>
+          
+          <div v-if="invitationsStore.invitations.length === 0" class="text-center py-8">
+            <svg class="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2 2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+            </svg>
+            <p class="text-gray-500 text-sm">هیچ دعوتی وجود ندارد</p>
+          </div>
+          
+          <div class="space-y-4 max-h-96 overflow-y-auto">
+            <div 
+              v-for="inv in invitationsStore.invitations" 
+              :key="inv.id" 
+              class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 rounded-xl p-4 transition-all duration-200 hover:shadow-md"
+            >
+              <div class="flex items-start justify-between mb-3">
+                <div>
+                  <h3 class="font-semibold text-gray-900 mb-1">{{ inv.board_title }}</h3>
+                  <p class="text-xs text-gray-600">دعوت‌کننده: {{ inv.invited_by_username || 'سیستم' }}</p>
+                </div>
+                <span 
+                  class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+                  :class="{'bg-emerald-100 text-emerald-700': inv.role==='admin', 'bg-blue-100 text-blue-700': inv.role!=='admin'}"
+                >
+                  {{ inv.role === 'admin' ? 'ادمین' : 'عضو' }}
+                </span>
+              </div>
+              
+              <div class="flex space-x-2 space-x-reverse">
+                <button 
+                  @click="respondInvitation(inv.id, 'accept')" 
+                  class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium py-2 px-3 rounded-lg transition-colors"
+                >
+                  پذیرش
+                </button>
+                <button 
+                  @click="respondInvitation(inv.id, 'reject')" 
+                  class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm font-medium py-2 px-3 rounded-lg transition-colors"
+                >
+                  رد
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <BoardEditDialog
-      :visible="showDialog"
-      :board="selectedBoard"
-      :error="dialogError"
-      @cancel="showDialog=false"
-      @save="handleDialogSave"
-    />
-    <CreateBoardDialog
-      :visible="showCreateDialog"
-      :error="createError"
-      @cancel="showCreateDialog=false"
-      @save="handleCreateSave"
-    />
-    </div> <!-- end left section -->
-    <!-- Right section -->
-    <div class="flex-[0.3] bg-gray-50 dark:bg-gray-500 p-4 rounded overflow-y-auto max-h-screen">
-      <h2 class="text-xl font-bold mb-4 text-right">دعوت‌ها</h2>
-      <p v-if="invitationsStore.invitations.length === 0" class="text-gray-600 dark:text-gray-300 text-right">هیچ دعوتی وجود ندارد.</p>
-      <div v-for="inv in invitationsStore.invitations" :key="inv.id" class="bg-white dark:bg-gray-700 shadow rounded p-3 mb-3 flex flex-col gap-2">
-        <div class="flex justify-between items-center">
-          <h3 class="font-semibold">{{ inv.board_title }}</h3>
-          <span class="text-sm" :class="{'text-green-600': inv.role==='admin', 'text-gray-600': inv.role!=='admin'}">{{ inv.role === 'admin' ? 'ادمین' : 'عضو' }}</span>
-        </div>
-        <p class="text-sm text-gray-500 dark:text-gray-300">دعوت‌کننده: {{ inv.invited_by_username || 'سیستم' }}</p>
-        <div class="flex gap-2 self-end">
-          <button @click="respondInvitation(inv.id, 'accept')" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-sm">پذیرش</button>
-          <button @click="respondInvitation(inv.id, 'reject')" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-sm">رد</button>
-        </div>
-      </div>
-    </div>
-  </div> <!-- end root flex container -->
+  </div>
 
   <!-- Delete confirm dialog -->
   <DeleteConfirmDialog
@@ -110,10 +232,25 @@
       @cancel="showInviteDialog=false"
       @submit="handleInviteSubmit"
     />
+  <!-- Create Board Dialog -->
+  <CreateBoardDialog
+    :visible="showCreateDialog"
+    :error="createError"
+    @cancel="showCreateDialog=false"
+    @submit="handleCreateSave"
+  />
+  <!-- Board Edit Dialog -->
+  <BoardEditDialog
+    :visible="showDialog"
+    :board="selectedBoard"
+    :error="dialogError"
+    @cancel="showDialog=false"
+    @save="handleDialogSave"
+  />
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import InviteDialog from '../components/InviteDialog.vue';
 import ActivityDialog from '../components/ActivityDialog.vue';
 import InvitationDialog from '../components/InvitationDialog.vue';
@@ -149,6 +286,7 @@ const inviteError = ref('');
 const inviteSuccess = ref('');
 let inviteBoardId = null;
 const deleteTargetId = ref(null);
+const menuPosition = ref({ top: '0px', left: '0px' });
 
 const handleCreateSave = async (data) => {
   createError.value = '';
@@ -163,6 +301,25 @@ const handleCreateSave = async (data) => {
     errorMessage.value = typeof err === 'string' ? err : (err.detail || JSON.stringify(err));
   }
 };
+
+function toggleMenu(boardId) {
+  if (openMenuId.value === boardId) {
+    openMenuId.value = null;
+  } else {
+    openMenuId.value = boardId;
+    // Calculate menu position based on button position
+    nextTick(() => {
+      const button = document.querySelector(`[data-board-id="${boardId}"] .board-menu-button`);
+      if (button) {
+        const rect = button.getBoundingClientRect();
+        menuPosition.value = {
+          top: `${rect.bottom + 8}px`,
+          left: `${rect.left}px`
+        };
+      }
+    });
+  }
+}
 
 function handleOutsideClick(e) {
   // If the click is not inside a dropdown menu button area, close
@@ -181,14 +338,14 @@ onBeforeUnmount(() => {
   window.removeEventListener('click', handleOutsideClick);
 });
 
-const toggleMenu = (id) => {
-  openMenuId.value = openMenuId.value === id ? null : id;
-};
+// Remove duplicate toggleMenu function - using the one defined above
 
 const openEditDialog = (board) => {
   selectedBoard.value = { ...board };
   dialogError.value = '';
   showDialog.value = true;
+  // Close the board menu when opening edit dialog
+  openMenuId.value = null;
 };
 
 const handleDialogSave = async (data) => {
@@ -227,6 +384,8 @@ const openInvite = (boardId, type) => {
   inviteError.value = '';
   inviteSuccess.value = '';
   showInviteDialog.value = true;
+  // Close the board menu when opening invite dialog
+  openMenuId.value = null;
 };
 
 const handleInviteSubmit = async ({ value, role }) => {
@@ -281,5 +440,32 @@ const leaveBoard = async (id) => {
 
 const goToBoard = (id) => {
   router.push(`/boards/${id}`);
+};
+
+const getRoleText = (role) => {
+  const roleMap = {
+    'owner': 'مالک',
+    'admin': 'ادمین',
+    'member': 'عضو'
+  };
+  return roleMap[role] || role;
+};
+
+const adjustColor = (color, amount) => {
+  if (!color) return '#3b82f6';
+  
+  // Convert hex to RGB
+  const hex = color.replace('#', '');
+  const r = parseInt(hex.substr(0, 2), 16);
+  const g = parseInt(hex.substr(2, 2), 16);
+  const b = parseInt(hex.substr(4, 2), 16);
+  
+  // Adjust brightness
+  const newR = Math.max(0, Math.min(255, r + amount));
+  const newG = Math.max(0, Math.min(255, g + amount));
+  const newB = Math.max(0, Math.min(255, b + amount));
+  
+  // Convert back to hex
+  return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`;
 };
 </script>

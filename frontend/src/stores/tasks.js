@@ -125,28 +125,27 @@ export const useTasksStore = defineStore('tasks', {
         const res = await api.post(`/tasks/tasks/${taskId}/move/`, payload);
         const updated = res.data;
         
-        // Find the task in current cache and remove it
-        let oldListId = null;
+        // Instead of manually updating cache, refresh affected lists
+        // This ensures positions are accurate after backend processing
+        const affectedLists = new Set();
+        
+        // Find old list
         for (const listId in this.tasksByList) {
           const taskIndex = this.tasksByList[listId].findIndex(t => t.id === taskId);
           if (taskIndex !== -1) {
-            oldListId = listId;
-            this.tasksByList[listId].splice(taskIndex, 1);
+            affectedLists.add(listId);
             break;
           }
         }
         
-        // Add to new list if different
-        const targetListId = newListId || oldListId;
-        if (!this.tasksByList[targetListId]) {
-          this.tasksByList[targetListId] = [];
+        // Add new list if different
+        if (newListId) {
+          affectedLists.add(newListId.toString());
         }
         
-        // Insert at correct position or append
-        if (newPosition !== undefined && newPosition < this.tasksByList[targetListId].length) {
-          this.tasksByList[targetListId].splice(newPosition, 0, updated);
-        } else {
-          this.tasksByList[targetListId].push(updated);
+        // Refresh all affected lists
+        for (const listId of affectedLists) {
+          await this.fetchTasks(listId);
         }
         
         return updated;

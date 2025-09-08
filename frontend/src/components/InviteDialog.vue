@@ -39,7 +39,7 @@ const role = ref('member');
 const input = ref('');
 watch(() => props.visible, (v) => { if (v) input.value = ''; });
 
-const title = props.type === 'user' ? 'دعوت کاربر موجود' : 'دعوت کاربر جدید با ایمیل';
+const title = props.type === 'user' ? 'دعوت کاربر موجود' : 'دعوت کاربر با ایمیل';
 const placeholder = props.type === 'user' ? 'نام کاربری' : 'ایمیل';
 
 function cancel() { emit('cancel'); }
