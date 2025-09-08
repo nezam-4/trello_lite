@@ -660,6 +660,102 @@ class UserLimitsView(APIView):
         return Response(limits_info, status=status.HTTP_200_OK)
 
 
+class BoardRemoveMemberView(APIView):
+    """
+    View for removing a member from a board.
+
+    Behaviour:
+    - DELETE: Remove a specific user from the board.
+    - Only the board owner or admins can remove members.
+    - The board owner cannot be removed.
+    - Deletes the user's membership.
+    - Logs the removal activity.
+
+    Endpoint: DELETE /api/v1/boards/{board_id}/members/{user_id}/
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    
+    @swagger_auto_schema(
+        responses={
+            200: 'Member removed successfully',
+            400: 'Bad Request',
+            403: 'Forbidden',
+            404: 'Not Found'
+        }
+    )
+    def delete(self, request, board_id, user_id):
+        user = request.user
+        
+        # Verify board existence and user access
+        try:
+            board = user.all_boards.get(id=board_id)
+        except Board.DoesNotExist:
+            return Response(
+                {"error": _("Board not found or you do not have access.")},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Verify removal permission (owner or admin)
+        if board.owner != user:
+            try:
+                membership = BoardMembership.objects.get(
+                    board=board, user=user, status='accepted'
+                )
+                if membership.role != 'admin':
+                    return Response(
+                        {"error": _("Only the board owner or an admin can remove members.")},
+                        status=status.HTTP_403_FORBIDDEN
+                    )
+            except BoardMembership.DoesNotExist:
+                return Response(
+                    {"error": _("You do not have permission to remove members.")},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+        
+        # Get the target user
+        try:
+            target_user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response(
+                {"error": _("User not found.")},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Cannot remove the board owner
+        if board.owner == target_user:
+            return Response(
+                {"error": _("The board owner cannot be removed from their own board.")},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Check if target user is a member of the board
+        try:
+            target_membership = BoardMembership.objects.get(
+                board=board, user=target_user, status='accepted'
+            )
+        except BoardMembership.DoesNotExist:
+            return Response(
+                {"error": _("User is not a member of this board.")},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Delete membership
+        target_membership.delete()
+        
+        # Log removal activity
+        BoardActivity.objects.create(
+            board=board,
+            action='remove',
+            user=user,
+            description=f"{target_user.username} was removed from the board by {user.username}"
+        )
+        
+        return Response(
+            {"message": _("Member removed successfully")},
+            status=status.HTTP_200_OK
+        )
+
+
 class BoardListsView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     

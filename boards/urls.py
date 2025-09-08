@@ -19,6 +19,9 @@ urlpatterns = [
     # List members of a specific board
     path('<int:board_id>/members/', views.BoardMembersView.as_view(), name='board-members'),
     
+    # Remove a member from a board
+    path('<int:board_id>/members/<int:user_id>/', views.BoardRemoveMemberView.as_view(), name='board-remove-member'),
+    
     # Invite a new user to the board via email
     #List all invitations for a specific board by owner or admin
     path('<int:board_id>/invite/', views.BoardInviteView.as_view(), name='board-invite'),
