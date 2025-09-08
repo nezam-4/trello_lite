@@ -66,6 +66,8 @@ class Task(models.Model):
     
     def move_to_list(self, new_list, new_position=None):
         """Move task to a new list"""
+        from django.db import transaction
+        
         old_list = self.list
         old_position = self.position
         
@@ -73,51 +75,83 @@ class Task(models.Model):
         if new_list.board != old_list.board:
             raise ValidationError('Cannot move task to a list of another board.')
         
-        # Remove from previous position
-        Task.objects.filter(
-            list=old_list,
-            position__gt=old_position
-        ).update(position=models.F('position') - 1)
+        # If moving within the same list, use move_to_position
+        if old_list == new_list:
+            if new_position is not None:
+                self.move_to_position(new_position)
+            return
         
-        # Determine new position
-        if new_position is None:
-            last_position = Task.objects.filter(list=new_list).aggregate(
+        with transaction.atomic():
+            # Step 1: Temporarily set position to a safe value to avoid conflicts
+            temp_position = Task.objects.filter(list=new_list).aggregate(
                 models.Max('position')
-            )['position__max']
-            new_position = (last_position or 0) + 1
-        else:
-            # Shift existing tasks
+            )['position__max'] or 0
+            temp_position += 1000  # Use a high number to avoid conflicts
+            
+            self.position = temp_position
+            self.list = new_list
+            self.save(update_fields=['list', 'position'])
+            
+            # Step 2: Determine final position
+            if new_position is None:
+                last_position = Task.objects.filter(
+                    list=new_list
+                ).exclude(id=self.id).aggregate(
+                    models.Max('position')
+                )['position__max']
+                new_position = (last_position or 0) + 1
+            else:
+                # Shift existing tasks in new list
+                Task.objects.filter(
+                    list=new_list,
+                    position__gte=new_position
+                ).exclude(id=self.id).update(position=models.F('position') + 1)
+            
+            # Step 3: Set final position
+            self.position = new_position
+            self.save(update_fields=['position'])
+            
+            # Step 4: Clean up old list positions
             Task.objects.filter(
-                list=new_list,
-                position__gte=new_position
-            ).update(position=models.F('position') + 1)
-        
-        self.list = new_list
-        self.position = new_position
-        self.save(update_fields=['list', 'position'])
+                list=old_list,
+                position__gt=old_position
+            ).update(position=models.F('position') - 1)
     
     def move_to_position(self, new_position):
         """Move task within the same list"""
+        from django.db import transaction
+        
         old_position = self.position
         if old_position == new_position:
             return
         
-        # Shift other tasks
-        if new_position > old_position:
-            Task.objects.filter(
-                list=self.list,
-                position__gt=old_position,
-                position__lte=new_position
-            ).update(position=models.F('position') - 1)
-        else:
-            Task.objects.filter(
-                list=self.list,
-                position__gte=new_position,
-                position__lt=old_position
-            ).update(position=models.F('position') + 1)
-        
-        self.position = new_position
-        self.save(update_fields=['position'])
+        with transaction.atomic():
+            # Step 1: Temporarily set position to a safe value
+            max_position = Task.objects.filter(list=self.list).aggregate(
+                models.Max('position')
+            )['position__max'] or 0
+            temp_position = max_position + 1000
+            
+            self.position = temp_position
+            self.save(update_fields=['position'])
+            
+            # Step 2: Shift other tasks
+            if new_position > old_position:
+                Task.objects.filter(
+                    list=self.list,
+                    position__gt=old_position,
+                    position__lte=new_position
+                ).exclude(id=self.id).update(position=models.F('position') - 1)
+            else:
+                Task.objects.filter(
+                    list=self.list,
+                    position__gte=new_position,
+                    position__lt=old_position
+                ).exclude(id=self.id).update(position=models.F('position') + 1)
+            
+            # Step 3: Set final position
+            self.position = new_position
+            self.save(update_fields=['position'])
     
     def mark_completed(self):
         """Mark task as completed"""
