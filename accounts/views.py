@@ -172,5 +172,5 @@ class ProfileView(APIView):
 @permission_classes([IsAuthenticated])
 def current_user(request):
     """Get current authenticated user details"""
-    serializer = UserSerializer(request.user)
+    serializer = UserSerializer(request.user, context={'request': request})
     return Response(serializer.data)

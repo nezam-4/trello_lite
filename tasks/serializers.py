@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from .models import Task, TaskComment
 from lists.models import List
 from boards.models import BoardMembership
+from accounts.serilizer import ProfileSerializer
 
 User = get_user_model()
 
@@ -38,7 +39,8 @@ class TaskListSerializer(serializers.ModelSerializer):
                 'id': user.id,
                 'username': user.username,
                 'full_name': user.get_full_name(),
-                'initials': self._get_initials(user)
+                'initials': self._get_initials(user),
+                'profile': ProfileSerializer(user.profile, context=self.context).data if hasattr(user, 'profile') else None
             }
             for user in obj.assigned_to.all()
         ]
@@ -57,6 +59,7 @@ class TaskDetailSerializer(serializers.ModelSerializer):
     - Used on the task details page.
     """
     assigned_to_usernames = serializers.SerializerMethodField()
+    assigned_users = serializers.SerializerMethodField()
     created_by_username = serializers.CharField(source='created_by.username', read_only=True)
     list_title = serializers.CharField(source='list.title', read_only=True)
     comments_count = serializers.SerializerMethodField()
@@ -68,7 +71,7 @@ class TaskDetailSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'title', 'description', 'list', 'list_title',
             'board',
-            'assigned_to', 'assigned_to_usernames', 
+            'assigned_to', 'assigned_to_usernames', 'assigned_users',
             'created_by_username', 'priority', 'due_date', 'position',
             'is_completed', 'completed_at', 'comments_count', 'is_overdue',
             'created_at', 'updated_at'
@@ -76,6 +79,17 @@ class TaskDetailSerializer(serializers.ModelSerializer):
     
     def get_assigned_to_usernames(self, obj):
         return list(obj.assigned_to.values_list('username', flat=True))
+
+    def get_assigned_users(self, obj):
+        """Get assigned users with profile data"""
+        users = obj.assigned_to.all()
+        return [{
+            'id': user.id,
+            'username': user.username,
+            'full_name': user.get_full_name(),
+            'initials': ''.join([p[0] for p in user.get_full_name().split()[:2]]).upper() if user.get_full_name() else user.username[:2].upper(),
+            'profile': ProfileSerializer(user.profile).data if hasattr(user, 'profile') else None
+        } for user in users]
 
     def get_comments_count(self, obj):
         """Calculate task comments count"""

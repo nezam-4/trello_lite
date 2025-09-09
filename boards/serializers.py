@@ -5,6 +5,7 @@ from .models import Board, BoardMembership, BoardInvitation, BoardActivity
 from .utils import check_user_board_limit, check_board_member_limit, check_user_membership_limit
 from rest_framework.validators import UniqueTogetherValidator
 from django.db.models import Q
+from accounts.serilizer import ProfileSerializer
 User = get_user_model()
 
 
@@ -12,17 +13,18 @@ class BoardMemberSerializer(serializers.ModelSerializer):
     """
     Serializer for displaying board members.
     - Shows information about users who are members of a board.
-    - Includes username, email, full name, role and membership status.
+    - Includes username, email, full name, role, membership status and profile data.
     - Read-only.
     """
     user_id = serializers.IntegerField(source='user.id', read_only=True)
     username = serializers.CharField(source='user.username', read_only=True)
     email = serializers.CharField(source='user.email', read_only=True)
     full_name = serializers.CharField(source='user.get_full_name', read_only=True)
+    profile = ProfileSerializer(source='user.profile', read_only=True)
     
     class Meta:
         model = BoardMembership
-        fields = ['id', 'user_id', 'username', 'email', 'full_name', 'role', 'status', 'created_at']
+        fields = ['id', 'user_id', 'username', 'email', 'full_name', 'profile', 'role', 'status', 'created_at']
 
 
 class BoardListSerializer(serializers.ModelSerializer):
