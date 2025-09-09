@@ -1,21 +1,21 @@
 <template>
   <div 
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4"
     @click="closeModal"
   >
     <div 
-      class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden"
+      class="bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-xs sm:max-w-md w-full overflow-hidden"
       @click.stop
     >
       <!-- Header -->
-      <div class="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4">
+      <div class="bg-gradient-to-r from-blue-500 to-purple-600 px-4 sm:px-6 py-3 sm:py-4">
         <div class="flex items-center justify-between">
-          <h3 class="text-xl font-bold text-white">پروفایل عضو</h3>
+          <h3 class="text-lg sm:text-xl font-bold text-white">پروفایل عضو</h3>
           <button 
             @click="closeModal"
-            class="text-white hover:text-gray-200 transition-colors"
+            class="text-white hover:text-gray-200 transition-colors p-1"
           >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
             </svg>
           </button>
@@ -23,10 +23,10 @@
       </div>
 
       <!-- Content -->
-      <div class="p-6" v-if="member">
+      <div class="p-4 sm:p-6" v-if="member">
         <!-- Avatar and Basic Info -->
-        <div class="flex items-center space-x-4 space-x-reverse mb-6">
-          <div class="w-16 h-16 rounded-full bg-blue-600 text-white flex items-center justify-center text-xl font-semibold">
+        <div class="flex items-center space-x-3 sm:space-x-4 space-x-reverse mb-4 sm:mb-6">
+          <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-blue-600 text-white flex items-center justify-center text-lg sm:text-xl font-semibold flex-shrink-0">
             {{ getInitials(member.full_name || member.username) }}
           </div>
           <div class="flex-1">

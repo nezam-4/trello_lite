@@ -1,59 +1,60 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6" dir="rtl">
+  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-2 sm:p-4 md:p-6" dir="rtl">
     <div class="max-w-7xl mx-auto">
       <!-- Header Section -->
-      <div class="container mx-auto px-4 md:px-6 py-6 md:py-8">
-        <div class="mb-6 md:mb-8">
-          <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">بردهای من</h1>
-          <p class="text-gray-600">مدیریت و سازماندهی پروژه‌های خود</p>
+      <div class="px-2 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8">
+        <div class="mb-4 sm:mb-6 md:mb-8">
+          <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2">بردهای من</h1>
+          <p class="text-sm sm:text-base text-gray-600">مدیریت و سازماندهی پروژه‌های خود</p>
         </div>
         <button 
           @click="showCreateDialog=true" 
-          class="flex items-center space-x-2 space-x-reverse bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-blue-600 hover:to-purple-700 font-medium shadow-lg hover:shadow-xl transition-all duration-200"
+          class="flex items-center space-x-2 space-x-reverse bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl hover:from-blue-600 hover:to-purple-700 font-medium shadow-lg hover:shadow-xl transition-all duration-200 text-sm sm:text-base"
         >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
           </svg>
-          <span>ایجاد برد جدید</span>
+          <span class="hidden sm:inline">ایجاد برد جدید</span>
+          <span class="sm:hidden">ایجاد برد</span>
         </button>
       </div>
 
-      <div class="flex flex-col lg:flex-row gap-8">
+      <div class="flex flex-col xl:flex-row gap-4 sm:gap-6 lg:gap-8">
         <!-- Boards Section -->
         <div class="flex-1">
-          <p v-if="errorMessage" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">{{ errorMessage }}</p>
+          <p v-if="errorMessage" class="bg-red-50 border border-red-200 text-red-700 px-3 sm:px-4 py-2 sm:py-3 rounded-lg mb-4 sm:mb-6 text-sm sm:text-base">{{ errorMessage }}</p>
           <!-- Boards Grid -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
             <div
               v-for="board in boardsStore.boards"
               :key="board.id"
               :data-board-id="board.id"
-              class="group relative bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-visible cursor-pointer"
+              class="group relative bg-white rounded-xl sm:rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-visible cursor-pointer"
               @click="goToBoard(board.id)"
             >
               <!-- Board Color Header -->
               <div 
-                class="h-24 relative"
+                class="h-16 sm:h-20 md:h-24 relative"
                 :style="{ background: board.color ? `linear-gradient(135deg, ${board.color}, ${adjustColor(board.color, -20)})` : 'linear-gradient(135deg, #3b82f6, #1d4ed8)' }"
               >
                 <div class="absolute inset-0 bg-black/10"></div>
                 <button 
                   @click.stop="toggleMenu(board.id)" 
-                  class="absolute top-3 left-3 w-8 h-8 bg-white/20 hover:bg-white/30 rounded-lg flex items-center justify-center text-white transition-all duration-200 board-menu-button opacity-0 group-hover:opacity-100"
+                  class="absolute top-2 sm:top-3 left-2 sm:left-3 w-6 h-6 sm:w-8 sm:h-8 bg-white/20 hover:bg-white/30 rounded-md sm:rounded-lg flex items-center justify-center text-white transition-all duration-200 board-menu-button opacity-0 group-hover:opacity-100"
                 >
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
                   </svg>
                 </button>
               </div>
 
               <!-- Board Content -->
-              <div class="p-6">
-                <h3 class="font-bold text-lg text-gray-900 mb-2 line-clamp-2">{{ board.title }}</h3>
+              <div class="p-3 sm:p-4 md:p-6">
+                <h3 class="font-bold text-sm sm:text-base md:text-lg text-gray-900 mb-2 line-clamp-2">{{ board.title }}</h3>
                 
-                <div class="flex items-center justify-between mb-4">
-                  <div class="flex items-center space-x-2 space-x-reverse text-sm text-gray-600">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex items-center justify-between mb-2 sm:mb-4">
+                  <div class="flex items-center space-x-1 sm:space-x-2 space-x-reverse text-xs sm:text-sm text-gray-600">
+                    <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
                     </svg>
                     <span>{{ board.members_count }} عضو</span>
@@ -61,7 +62,7 @@
                   
                   <span 
                     v-if="board.current_user_role" 
-                    class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                    class="inline-flex items-center px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-xs font-medium"
                     :class="{
                       'bg-emerald-100 text-emerald-700': board.current_user_role==='owner',
                       'bg-blue-100 text-blue-700': board.current_user_role==='admin',
@@ -151,34 +152,34 @@
           </div>
         </div>
         <!-- Invitations Sidebar -->
-        <div class="w-full lg:w-80 bg-white rounded-2xl shadow-sm border border-gray-200/50 p-4 md:p-6">
-          <div class="flex items-center space-x-2 space-x-reverse mb-6">
-            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="w-full xl:w-80 bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200/50 p-3 sm:p-4 md:p-6">
+          <div class="flex items-center space-x-2 space-x-reverse mb-4 sm:mb-6">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
             </svg>
-            <h2 class="text-lg font-bold text-gray-900">دعوت‌ها</h2>
+            <h2 class="text-base sm:text-lg font-bold text-gray-900">دعوت‌ها</h2>
           </div>
           
-          <div v-if="invitationsStore.invitations.length === 0" class="text-center py-8">
-            <svg class="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div v-if="invitationsStore.invitations.length === 0" class="text-center py-6 sm:py-8">
+            <svg class="w-8 h-8 sm:w-12 sm:h-12 text-gray-300 mx-auto mb-3 sm:mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2 2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
             </svg>
-            <p class="text-gray-500 text-sm">هیچ دعوتی وجود ندارد</p>
+            <p class="text-gray-500 text-xs sm:text-sm">هیچ دعوتی وجود ندارد</p>
           </div>
           
-          <div class="space-y-4 max-h-96 overflow-y-auto">
+          <div class="space-y-3 sm:space-y-4 max-h-80 sm:max-h-96 overflow-y-auto">
             <div 
               v-for="inv in invitationsStore.invitations" 
               :key="inv.id" 
-              class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 rounded-xl p-4 transition-all duration-200 hover:shadow-md"
+              class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 rounded-lg sm:rounded-xl p-3 sm:p-4 transition-all duration-200 hover:shadow-md"
             >
-              <div class="flex items-start justify-between mb-3">
-                <div>
-                  <h3 class="font-semibold text-gray-900 mb-1">{{ inv.board_title }}</h3>
-                  <p class="text-xs text-gray-600">دعوت‌کننده: {{ inv.invited_by_username || 'سیستم' }}</p>
+              <div class="flex items-start justify-between mb-2 sm:mb-3">
+                <div class="min-w-0 flex-1">
+                  <h3 class="font-semibold text-sm sm:text-base text-gray-900 mb-1 truncate">{{ inv.board_title }}</h3>
+                  <p class="text-xs text-gray-600 truncate">دعوت‌کننده: {{ inv.invited_by_username || 'سیستم' }}</p>
                 </div>
                 <span 
-                  class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+                  class="inline-flex items-center px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium flex-shrink-0 ml-2"
                   :class="{'bg-emerald-100 text-emerald-700': inv.role==='admin', 'bg-blue-100 text-blue-700': inv.role!=='admin'}"
                 >
                   {{ inv.role === 'admin' ? 'ادمین' : 'عضو' }}
@@ -188,13 +189,13 @@
               <div class="flex space-x-2 space-x-reverse">
                 <button 
                   @click="respondInvitation(inv.id, 'accept')" 
-                  class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium py-2 px-3 rounded-lg transition-colors"
+                  class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white text-xs sm:text-sm font-medium py-1.5 sm:py-2 px-2 sm:px-3 rounded-md sm:rounded-lg transition-colors"
                 >
                   پذیرش
                 </button>
                 <button 
                   @click="respondInvitation(inv.id, 'reject')" 
-                  class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm font-medium py-2 px-3 rounded-lg transition-colors"
+                  class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs sm:text-sm font-medium py-1.5 sm:py-2 px-2 sm:px-3 rounded-md sm:rounded-lg transition-colors"
                 >
                   رد
                 </button>

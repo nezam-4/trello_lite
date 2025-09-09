@@ -1,53 +1,54 @@
 <template>
   <div
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-2 sm:p-4"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-1 sm:p-2 md:p-4"
     @click.self="close"
   >
     <div
-      class="bg-white relative rounded-2xl w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden shadow-2xl"
+      class="bg-white relative rounded-xl sm:rounded-2xl w-full max-w-xs sm:max-w-2xl md:max-w-4xl max-h-[98vh] sm:max-h-[95vh] md:max-h-[90vh] overflow-hidden shadow-2xl"
     >
       <!-- Header -->
-      <div class="flex items-center justify-between px-4 sm:px-8 py-4 sm:py-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50">
-        <div class="flex items-center space-x-4 space-x-reverse">
-          <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between px-3 sm:px-6 md:px-8 py-3 sm:py-4 md:py-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50 gap-3 sm:gap-0">
+        <div class="flex items-center space-x-3 sm:space-x-4 space-x-reverse">
+          <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
               <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
           </div>
-          <div>
-            <h2 class="text-2xl font-bold text-gray-900">جزئیات تسک</h2>
-            <p class="text-sm text-gray-600">ویرایش و مدیریت اطلاعات تسک</p>
+          <div class="min-w-0">
+            <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 truncate">جزئیات تسک</h2>
+            <p class="text-xs sm:text-sm text-gray-600 hidden sm:block">ویرایش و مدیریت اطلاعات تسک</p>
           </div>
         </div>
         
-        <div class="flex items-center space-x-3 space-x-reverse">
+        <div class="flex items-center space-x-2 sm:space-x-3 space-x-reverse w-full sm:w-auto justify-between sm:justify-end">
           <!-- Complete Toggle -->
           <button
             @click.stop="toggle"
             :class="[
-              'flex items-center space-x-2 space-x-reverse px-4 py-2 rounded-lg font-medium transition-all duration-200',
+              'flex items-center space-x-1 sm:space-x-2 space-x-reverse px-2 sm:px-3 md:px-4 py-2 rounded-lg font-medium transition-all duration-200 text-xs sm:text-sm flex-shrink-0',
               task.is_completed 
                 ? 'bg-green-100 text-green-700 hover:bg-green-200' 
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             ]"
           >
             <div :class="[
-              'w-5 h-5 border-2 rounded flex items-center justify-center transition-all duration-200',
+              'w-4 h-4 sm:w-5 sm:h-5 border-2 rounded flex items-center justify-center transition-all duration-200',
               task.is_completed ? 'bg-green-500 border-green-500' : 'border-gray-300 hover:border-green-400'
             ]">
-              <svg v-if="task.is_completed" class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <svg v-if="task.is_completed" class="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
               </svg>
             </div>
-            <span>{{ task.is_completed ? 'تکمیل شده' : 'تکمیل کردن' }}</span>
+            <span class="hidden sm:inline">{{ task.is_completed ? 'تکمیل شده' : 'تکمیل کردن' }}</span>
+            <span class="sm:hidden">{{ task.is_completed ? '✓' : 'تکمیل' }}</span>
           </button>
           
           <!-- Close Button -->
           <button
-            class="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-500 hover:text-gray-700"
+            class="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-500 hover:text-gray-700 flex-shrink-0"
             @click="close"
           >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
             </svg>
           </button>

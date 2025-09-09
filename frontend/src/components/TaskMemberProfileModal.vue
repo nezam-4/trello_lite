@@ -1,21 +1,21 @@
 <template>
   <div 
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4"
     @click="closeModal"
   >
     <div 
-      class="bg-white rounded-2xl shadow-2xl max-w-sm w-full mx-4 overflow-hidden"
+      class="bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-xs sm:max-w-sm w-full overflow-hidden"
       @click.stop
     >
       <!-- Header -->
-      <div class="bg-gradient-to-r from-green-500 to-blue-600 px-6 py-4">
+      <div class="bg-gradient-to-r from-green-500 to-blue-600 px-4 sm:px-6 py-3 sm:py-4">
         <div class="flex items-center justify-between">
-          <h3 class="text-lg font-bold text-white">عضو تسک</h3>
+          <h3 class="text-base sm:text-lg font-bold text-white">عضو تسک</h3>
           <button 
             @click="closeModal"
-            class="text-white hover:text-gray-200 transition-colors"
+            class="text-white hover:text-gray-200 transition-colors p-1"
           >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
             </svg>
           </button>
@@ -23,15 +23,15 @@
       </div>
 
       <!-- Content -->
-      <div class="p-6" v-if="member">
+      <div class="p-4 sm:p-6" v-if="member">
         <!-- Avatar and Basic Info -->
-        <div class="flex items-center space-x-3 space-x-reverse mb-4">
-          <div class="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center text-lg font-semibold">
+        <div class="flex items-center space-x-2 sm:space-x-3 space-x-reverse mb-3 sm:mb-4">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm sm:text-lg font-semibold flex-shrink-0">
             {{ getInitials(member.full_name || member.username) }}
           </div>
-          <div class="flex-1">
-            <h4 class="text-base font-semibold text-gray-900">{{ member.full_name || member.username }}</h4>
-            <p class="text-sm text-gray-600">@{{ member.username }}</p>
+          <div class="flex-1 min-w-0">
+            <h4 class="text-sm sm:text-base font-semibold text-gray-900 truncate">{{ member.full_name || member.username }}</h4>
+            <p class="text-xs sm:text-sm text-gray-600 truncate">@{{ member.username }}</p>
           </div>
         </div>
 

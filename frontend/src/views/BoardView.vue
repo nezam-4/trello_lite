@@ -9,54 +9,69 @@
   >
     <!-- Board Header -->
     <div class="bg-white/80 backdrop-blur-md border-b border-gray-200/50 sticky top-16 z-40">
-      <div class="container mx-auto px-6 py-4" v-if="board">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-4 space-x-reverse">
+      <div class="w-full max-w-none px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-5" v-if="board">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3 lg:gap-4">
+          <div class="flex items-center gap-3 sm:gap-4 lg:gap-5 min-w-0 flex-1">
             <div 
-              class="w-12 h-12 rounded-xl flex items-center justify-center shadow-sm"
+              class="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-xl flex items-center justify-center shadow-sm flex-shrink-0"
               :style="{ background: board.color ? `linear-gradient(135deg, ${board.color}, ${adjustColor(board.color, -20)})` : 'linear-gradient(135deg, #3b82f6, #1d4ed8)' }"
             >
-              <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <svg class="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
               </svg>
             </div>
-            <div>
-              <h1 class="text-2xl font-bold text-gray-900">{{ board.title }}</h1>
-              <p class="text-sm text-gray-600">{{ lists.length }} لیست • {{ totalTasks }} تسک</p>
+            <div class="min-w-0 flex-1">
+              <h1 class="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-900 truncate">{{ board.title }}</h1>
+              <div class="flex items-center gap-2 sm:gap-3 mt-1 sm:mt-2">
+                <div class="flex items-center gap-1">
+                  <svg class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                  </svg>
+                  <p class="text-sm sm:text-base text-gray-600">{{ lists.length }} لیست</p>
+                </div>
+                <span class="text-gray-400">•</span>
+                <div class="flex items-center gap-1">
+                  <svg class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                  </svg>
+                  <p class="text-sm sm:text-base text-gray-600">{{ totalTasks }} تسک</p>
+                </div>
+              </div>
             </div>
           </div>
           
-          <div class="flex items-center space-x-3 space-x-reverse">
+          <div class="flex items-center gap-3 sm:gap-4 lg:gap-5 w-full lg:w-auto justify-between lg:justify-end flex-shrink-0">
             <!-- Board Members -->
-            <div class="flex -space-x-2 space-x-reverse">
+            <div class="flex -space-x-1 sm:-space-x-2 space-x-reverse">
               <div 
-                v-for="(member, index) in boardMembers.slice(0, 4)" 
+                v-for="(member, index) in boardMembers.slice(0, 3)" 
                 :key="member.id"
                 @click.stop="openMemberProfile(member)"
-                class="w-8 h-8 rounded-full border-2 border-white bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-medium cursor-pointer hover:scale-110 transition-transform duration-200"
+                class="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full border-2 border-white bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs sm:text-sm lg:text-base font-medium cursor-pointer hover:scale-110 transition-transform duration-200 flex-shrink-0"
                 :title="member.name"
               >
                 {{ member.name ? member.name[0].toUpperCase() : 'U' }}
               </div>
               <div 
-                v-if="boardMembers.length > 4"
+                v-if="boardMembers.length > 3"
                 @click="showAllMembers = true"
-                class="w-8 h-8 rounded-full border-2 border-white bg-gray-400 flex items-center justify-center text-white text-xs font-medium cursor-pointer hover:scale-110 transition-transform duration-200"
-                :title="`${boardMembers.length - 4} عضو دیگر`"
+                class="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full border-2 border-white bg-gray-400 flex items-center justify-center text-white text-xs sm:text-sm lg:text-base font-medium cursor-pointer hover:scale-110 transition-transform duration-200 flex-shrink-0"
+                :title="`${boardMembers.length - 3} عضو دیگر`"
               >
-                +{{ boardMembers.length - 4 }}
+                +{{ boardMembers.length - 3 }}
               </div>
             </div>
             
             <!-- Add List Button -->
             <button 
               @click="showAddListDialog = true"
-              class="flex items-center space-x-2 space-x-reverse bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg border border-gray-200 font-medium transition-all duration-200 shadow-sm hover:shadow-md"
+              class="flex items-center gap-2 sm:gap-3 bg-white hover:bg-gray-50 text-gray-700 px-3 sm:px-4 lg:px-5 py-2 sm:py-3 rounded-lg border border-gray-200 font-medium transition-all duration-200 shadow-sm hover:shadow-md text-sm sm:text-base flex-shrink-0"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
               </svg>
-              <span>افزودن لیست</span>
+              <span class="hidden sm:inline">افزودن لیست</span>
+              <span class="sm:hidden">افزودن</span>
             </button>
           </div>
         </div>
@@ -64,17 +79,18 @@
     </div>
 
     <!-- Board Content -->
-    <div class="container mx-auto px-4 md:px-6 py-4 md:py-6" v-if="board">
+    <div class="w-full px-2 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6" v-if="board">
       <div 
         ref="listsContainer"
-        class="flex space-x-4 md:space-x-6 space-x-reverse overflow-x-auto pb-6" 
-        style="min-height: calc(100vh - 200px);"
+        class="flex gap-3 sm:gap-4 lg:gap-6 overflow-x-auto pb-4 sm:pb-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100" 
+        style="min-height: calc(100vh - 160px); direction: ltr;"
       >
         <div
           v-for="list in lists" 
           :key="list.id"
           :data-list-id="list.id"
-          class="flex-shrink-0 draggable-list"
+          class="flex-shrink-0 draggable-list min-w-0"
+          style="direction: rtl;"
         >
           <ListColumn 
             :list="list" 
@@ -83,22 +99,22 @@
         </div>
         
         <!-- Add List Column -->
-        <div class="flex-shrink-0 w-80">
+        <div class="flex-shrink-0 w-72 sm:w-80 lg:w-96" style="direction: rtl;">
           <div 
             v-if="!showAddListDialog"
             @click="showAddListDialog = true"
-            class="bg-white/60 hover:bg-white/80 border-2 border-dashed border-gray-300 hover:border-blue-400 rounded-2xl p-6 cursor-pointer transition-all duration-200 h-32 flex items-center justify-center group"
+            class="bg-white/60 hover:bg-white/80 border-2 border-dashed border-gray-300 hover:border-blue-400 rounded-xl lg:rounded-2xl p-4 sm:p-5 lg:p-6 cursor-pointer transition-all duration-200 min-h-[120px] sm:min-h-[140px] lg:min-h-[160px] flex items-center justify-center group"
           >
             <div class="text-center">
-              <svg class="w-8 h-8 text-gray-400 group-hover:text-blue-500 mx-auto mb-2 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-gray-400 group-hover:text-blue-500 mx-auto mb-2 sm:mb-3 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
               </svg>
-              <p class="text-gray-600 group-hover:text-blue-600 font-medium transition-colors">افزودن لیست جدید</p>
+              <p class="text-sm sm:text-base lg:text-lg text-gray-600 group-hover:text-blue-600 font-medium transition-colors">افزودن لیست جدید</p>
             </div>
           </div>
           
           <!-- Add List Form -->
-          <div v-else class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4">
+          <div v-else class="bg-white rounded-xl lg:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-5">
             <input 
               v-model="newListTitle"
               @keyup.enter="createList"
@@ -106,19 +122,19 @@
               ref="listTitleInput"
               type="text" 
               placeholder="عنوان لیست را وارد کنید..."
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
             />
-            <div class="flex space-x-2 space-x-reverse mt-3">
+            <div class="flex gap-3 mt-4">
               <button 
                 @click="createList"
                 :disabled="!newListTitle.trim()"
-                class="flex-1 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+                class="flex-1 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white px-4 py-3 rounded-lg text-sm sm:text-base font-medium transition-colors"
               >
                 افزودن
               </button>
               <button 
                 @click="cancelAddList"
-                class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+                class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-3 rounded-lg text-sm sm:text-base font-medium transition-colors"
               >
                 انصراف
               </button>
@@ -529,5 +545,50 @@ const getRoleText = (role) => {
 
 .draggable-list:active {
   cursor: grabbing;
+}
+
+/* Custom scrollbar styles */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db #f3f4f6;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+.scrollbar-thin::-webkit-scrollbar-corner {
+  background: #f3f4f6;
+}
+
+/* Responsive improvements */
+@media (max-width: 640px) {
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
 }
 </style>

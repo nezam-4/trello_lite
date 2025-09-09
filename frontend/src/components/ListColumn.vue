@@ -1,14 +1,14 @@
 <template>
-  <div class="w-72 sm:w-80 flex-shrink-0">
-    <div :class="['bg-white rounded-2xl shadow-sm border border-gray-200/50 overflow-hidden border-l-4', listAccentColor]">
+  <div class="w-72 sm:w-80 lg:w-96 flex-shrink-0 min-w-0">
+    <div :class="['bg-white rounded-xl lg:rounded-2xl shadow-sm border border-gray-200/50 overflow-hidden border-l-4', listAccentColor]">
       <!-- List Header -->
-      <div class="px-6 py-4 border-b border-gray-100">
+      <div class="px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 border-b border-gray-100">
         <div class="flex items-center justify-between">
-          <div class="flex-1">
+          <div class="flex-1 min-w-0">
             <h2 
               v-if="!editing" 
               @click="startEdit"
-              class="font-bold text-gray-900 cursor-pointer hover:bg-gray-100 px-2 py-1 -mx-2 rounded-lg transition-all duration-200 text-lg"
+              class="font-bold text-gray-900 cursor-pointer hover:bg-gray-100 px-2 py-1 -mx-2 rounded-lg transition-all duration-200 text-base sm:text-lg lg:text-xl truncate"
             >
               {{ list.title }}
             </h2>
@@ -19,18 +19,23 @@
               @keyup.enter="saveEdit"
               @blur="saveEdit"
               @keyup.escape="cancelEdit"
-              class="font-bold text-lg bg-white border-2 border-blue-500 px-2 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 w-full"
+              class="font-bold text-base sm:text-lg lg:text-xl bg-white border-2 border-blue-500 px-2 py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 w-full"
             />
-            <p class="text-sm text-gray-500 mt-1">{{ tasks.length }} تسک</p>
+            <div class="flex items-center space-x-1 space-x-reverse mt-1 sm:mt-2">
+              <svg class="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+              </svg>
+              <p class="text-xs sm:text-sm lg:text-base text-gray-500">{{ tasks.length }} تسک</p>
+            </div>
           </div>
           
-          <div class="relative">
+          <div class="relative flex-shrink-0">
             <button 
               @click="toggleMenu"
-              class="p-2 hover:bg-gray-100 rounded-lg transition-all duration-200 text-gray-500 hover:text-gray-700"
+              class="p-2 sm:p-2.5 lg:p-3 hover:bg-gray-100 rounded-lg transition-all duration-200 text-gray-500 hover:text-gray-700"
               :class="{ 'bg-gray-100 text-gray-700': showMenu }"
             >
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
               </svg>
             </button>
@@ -38,7 +43,7 @@
             <!-- Dropdown Menu -->
             <div 
               v-if="showMenu" 
-              class="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-lg border border-gray-200/50 py-2 z-[9999]"
+              class="absolute right-0 mt-2 w-52 sm:w-56 lg:w-60 bg-white rounded-xl shadow-lg border border-gray-200/50 py-2 z-[9999]"
               @click.stop
             >
               <button 
@@ -77,7 +82,7 @@
             <!-- Color Picker Modal -->
             <div 
               v-if="showColorPicker" 
-              class="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-gray-200/50 z-[9999]"
+              class="absolute right-0 mt-2 w-64 sm:w-72 lg:w-80 bg-white rounded-xl shadow-lg border border-gray-200/50 z-[9999]"
               @click.stop
             >
               <div class="p-6">
@@ -109,10 +114,10 @@
     
       
       <!-- Tasks Container -->
-      <div class="px-6 py-4 max-h-96 overflow-y-auto">
+      <div class="px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 max-h-80 sm:max-h-96 lg:max-h-[28rem] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
         <div 
           ref="taskContainer"
-          class="space-y-3 min-h-[60px] transition-all duration-200"
+          class="space-y-2 sm:space-y-3 lg:space-y-4 min-h-[60px] transition-all duration-200"
         >
           <CardItem 
             v-for="task in tasks" 
@@ -125,28 +130,28 @@
       </div>
 
       <!-- Add Task Section -->
-      <div class="px-6 py-4 border-t border-gray-100">
-        <div v-if="adding" class="space-y-3">
+      <div class="px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 border-t border-gray-100">
+        <div v-if="adding" class="space-y-3 sm:space-y-4">
           <input
             v-model="newTitle"
-            @keyup.enter="submit"
+            @keyup.enter="addTask"
             @keyup.escape="cancel"
             ref="newTaskInput"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm placeholder-gray-500"
+            class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base placeholder-gray-500"
             placeholder="عنوان تسک را وارد کنید..."
             autofocus
           />
-          <div class="flex space-x-2 space-x-reverse">
+          <div class="flex gap-3">
             <button
-              @click="submit"
+              @click="addTask"
               :disabled="!newTitle.trim()"
-              class="flex-1 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+              class="flex-1 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-medium transition-colors"
             >
               افزودن
             </button>
             <button
               @click="cancel"
-              class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+              class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-medium transition-colors"
             >
               انصراف
             </button>
@@ -155,9 +160,9 @@
         <button
           v-else
           @click="adding = true"
-          class="w-full bg-gray-50 hover:bg-gray-100 text-gray-600 hover:text-gray-800 py-3 rounded-lg text-sm font-medium transition-all duration-200 border-2 border-dashed border-gray-200 hover:border-gray-300 flex items-center justify-center space-x-2 space-x-reverse group"
+          class="w-full bg-gray-50 hover:bg-gray-100 text-gray-600 hover:text-gray-800 py-3 sm:py-4 rounded-lg text-sm sm:text-base font-medium transition-all duration-200 border-2 border-dashed border-gray-200 hover:border-gray-300 flex items-center justify-center gap-2 sm:gap-3 group"
         >
-          <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
           </svg>
           <span>افزودن تسک جدید</span>
@@ -527,14 +532,18 @@ async function saveEdit() {
     editing.value = false;
   } catch (error) {
     console.error('Failed to update list title:', error);
-    // Optionally show error message to user
-    cancelEdit();
+    cancel();
   }
 }
 
 function cancelEdit() {
   editing.value = false;
   editTitle.value = '';
+}
+
+function cancel() {
+  adding.value = false;
+  newTitle.value = '';
 }
 
 async function deleteList() {
