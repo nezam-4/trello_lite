@@ -24,10 +24,15 @@
 
       <!-- Content -->
       <div class="p-4 sm:p-6" v-if="member">
+        <!-- Debug info (remove in production) -->
+        <div v-if="false" class="mb-4 p-2 bg-gray-100 text-xs">
+          <div>Member: {{ JSON.stringify(member, null, 2) }}</div>
+        </div>
+        
         <!-- Avatar and Basic Info -->
         <div class="flex items-center space-x-3 sm:space-x-4 space-x-reverse mb-4 sm:mb-6">
           <UserAvatar
-            :user="member"
+            :user="formattedMember"
             size="lg"
             :clickable="false"
           />
@@ -110,6 +115,20 @@ const props = defineProps({
     type: Boolean,
     default: false
   }
+});
+
+// Computed property to ensure member data is properly formatted for UserAvatar
+const formattedMember = computed(() => {
+  if (!props.member) return null;
+  
+  return {
+    id: props.member.id || props.member.user_id,
+    username: props.member.username,
+    full_name: props.member.full_name || props.member.name,
+    name: props.member.name || props.member.full_name,
+    email: props.member.email,
+    profile: props.member.profile || null
+  };
 });
 
 const emit = defineEmits(['close', 'sendMessage', 'manageMember', 'removeMember']);

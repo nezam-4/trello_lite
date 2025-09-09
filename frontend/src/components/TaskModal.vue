@@ -462,6 +462,7 @@ function showMemberProfile(user) {
     username: user.username,
     full_name: user.full_name,
     email: user.email || '',
+    profile: user.profile || null, // Include profile data for thumbnail display
     role: 'member', // Default role since AssigneesSelector doesn't have role info
     status: 'accepted'
   };
