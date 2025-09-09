@@ -2,8 +2,11 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from boards.models import Board
 from django.utils import timezone
+from django.core.files.storage import default_storage
+from PIL import Image
 import uuid
 import os
+import io
 
 def avatar_upload_path(instance, filename):
     """Save avatars under avatar/<MM>/filename"""
@@ -50,6 +53,34 @@ class Profile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     preferred_language = models.CharField(max_length=10, default='en')
+    
+    def get_thumbnail_path(self):
+        """Get thumbnail path from avatar path by adding _thumbnail before extension"""
+        if not self.avatar:
+            return None
+        
+        avatar_path = self.avatar.name
+        name, ext = os.path.splitext(avatar_path)
+        return f"{name}_thumbnail{ext}"
+    
+    def save(self, *args, **kwargs):
+        # Check if avatar has changed
+        avatar_changed = False
+        if self.pk:
+            try:
+                old_profile = Profile.objects.get(pk=self.pk)
+                avatar_changed = old_profile.avatar != self.avatar
+            except Profile.DoesNotExist:
+                avatar_changed = bool(self.avatar)
+        else:
+            avatar_changed = bool(self.avatar)
+        
+        super().save(*args, **kwargs)
+        
+        # Create thumbnail asynchronously if avatar changed
+        if avatar_changed and self.avatar:
+            from .tasks import create_avatar_thumbnail
+            create_avatar_thumbnail.delay(self.id)
     
     def __str__(self):
         return f"{self.user.username} Profile"

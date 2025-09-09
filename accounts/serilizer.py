@@ -6,10 +6,27 @@ from .models import CustomUser, Profile
 class ProfileSerializer(serializers.ModelSerializer):
     """Serializer for user profile data"""
     
+    avatar_thumbnail_url = serializers.SerializerMethodField()
+    
     class Meta:
         model = Profile
-        fields = ['avatar', 'bio', 'preferred_language', 'created_at', 'updated_at']
-        read_only_fields = ['created_at', 'updated_at']
+        fields = ['avatar', 'avatar_thumbnail_url', 'bio', 'preferred_language', 'created_at', 'updated_at']
+        read_only_fields = ['avatar_thumbnail_url', 'created_at', 'updated_at']
+    
+    def get_avatar_thumbnail_url(self, obj):
+        """Get thumbnail URL from avatar path"""
+        if not obj.avatar:
+            return None
+        
+        # Get the thumbnail path
+        thumbnail_path = obj.get_thumbnail_path()
+        if thumbnail_path:
+            # Return the URL for the thumbnail
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(f'/media/{thumbnail_path}')
+            return f'/media/{thumbnail_path}'
+        return None
 
 
 class UserSerializer(serializers.ModelSerializer):
