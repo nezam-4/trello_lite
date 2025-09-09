@@ -1,6 +1,6 @@
 <template>
   <div class="w-72 sm:w-80 lg:w-96 flex-shrink-0 min-w-0">
-    <div :class="['bg-white rounded-xl lg:rounded-2xl shadow-sm border border-gray-200/50 overflow-hidden border-l-4', listAccentColor]">
+    <div :class="['bg-white rounded-xl lg:rounded-2xl shadow-sm border border-gray-200/50 overflow-visible border-l-4', listAccentColor]">
       <!-- List Header -->
       <div class="px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-5 border-b border-gray-100">
         <div class="flex items-center justify-between">

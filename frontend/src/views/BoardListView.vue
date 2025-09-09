@@ -1,10 +1,10 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-2 sm:p-4 md:p-6" dir="rtl">
+  <div class="min-h-screen bg-gradient-to-br from-slate-100 to-blue-100 p-2 sm:p-4 md:p-6" dir="rtl">
     <div class="max-w-7xl mx-auto">
       <!-- Header Section -->
       <div class="px-2 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8">
         <div class="mb-4 sm:mb-6 md:mb-8">
-          <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2">بردهای من</h1>
+          <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2">بردهای من - MODAL UPDATED</h1>
           <p class="text-sm sm:text-base text-gray-600">مدیریت و سازماندهی پروژه‌های خود</p>
         </div>
         <button 
@@ -74,80 +74,6 @@
                 </div>
               </div>
 
-              <!-- Dropdown Menu -->
-              <Teleport to="body">
-                <div
-                  v-if="openMenuId === board.id"
-                  class="fixed bg-white rounded-xl shadow-2xl border border-gray-200/50 py-2 z-[9999] w-56 board-menu max-h-96 overflow-y-auto"
-                  :style="menuPosition"
-                  @click.stop
-                >
-                <button @click="openActivities(board.id)" class="flex items-center space-x-3 space-x-reverse w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                  </svg>
-                  <span>تاریخچه</span>
-                </button>
-                
-                <button @click="openMembers(board.id)" class="flex items-center space-x-3 space-x-reverse w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
-                  </svg>
-                  <span>کاربران</span>
-                </button>
-                
-                <button 
-                  v-if="['owner','admin'].includes(board.current_user_role)"
-                  @click="openInvitations(board.id)" 
-                  class="flex items-center space-x-3 space-x-reverse w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                  </svg>
-                  <span>دعوت‌ها</span>
-                </button>
-                
-                <template v-if="['owner','admin'].includes(board.current_user_role)">
-                  <hr class="my-2">
-                  <button @click="openInvite(board.id, 'user')" class="flex items-center space-x-3 space-x-reverse w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-                    </svg>
-                    <span>دعوت کاربر</span>
-                  </button>
-                  <button @click="openInvite(board.id, 'email')" class="flex items-center space-x-3 space-x-reverse w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zM12 8v1.5a3.5 3.5 0 017 0V8a3.5 3.5 0 013.5 3.5z"/>
-                    </svg>
-                    <span>دعوت کاربر با ایمیل</span>
-                  </button>
-                  <button @click="openEditDialog(board)" class="flex items-center space-x-3 space-x-reverse w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                    </svg>
-                    <span>ویرایش</span>
-                  </button>
-                </template>
-                
-                <hr class="my-2">
-                <template v-if="board.current_user_role === 'owner'">
-                  <button @click="prepareDelete(board.id)" class="flex items-center space-x-3 space-x-reverse w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                    </svg>
-                    <span>حذف برد</span>
-                  </button>
-                </template>
-                <template v-else>
-                  <button @click="leaveBoard(board.id)" class="flex items-center space-x-3 space-x-reverse w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                    </svg>
-                    <span>ترک برد</span>
-                  </button>
-                </template>
-                </div>
-              </Teleport>
             </div>
           </div>
         </div>
@@ -248,6 +174,91 @@
     @cancel="showDialog=false"
     @save="handleDialogSave"
   />
+  <!-- Board Menu Modal v2024 -->
+  <div v-if="showBoardMenuModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-end z-[99999]" @click="showBoardMenuModal=false">
+    <div class="bg-white rounded-2xl shadow-2xl w-80 mr-4 max-h-[90vh] overflow-y-auto" @click.stop>
+      <!-- Header -->
+      <div class="px-6 py-4 border-b border-gray-200">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-semibold text-gray-900">تنظیمات برد</h3>
+          <button @click="showBoardMenuModal=false" class="text-gray-400 hover:text-gray-600 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+        <p class="text-sm text-gray-600 mt-1">{{ selectedBoardForMenu?.title }}</p>
+      </div>
+
+      <!-- Menu Options -->
+      <div class="py-2">
+        <button @click="handleMenuActivities(selectedBoardForMenu.id)" class="flex items-center space-x-3 space-x-reverse w-full px-6 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <span>تاریخچه</span>
+        </button>
+        
+        <button @click="handleMenuMembers(selectedBoardForMenu.id)" class="flex items-center space-x-3 space-x-reverse w-full px-6 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+          </svg>
+          <span>کاربران</span>
+        </button>
+        
+        <button 
+          v-if="['owner','admin'].includes(selectedBoardForMenu?.current_user_role)"
+          @click="handleMenuInvitations(selectedBoardForMenu.id)" 
+          class="flex items-center space-x-3 space-x-reverse w-full px-6 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+          <span>دعوت‌ها</span>
+        </button>
+        
+        <template v-if="['owner','admin'].includes(selectedBoardForMenu?.current_user_role)">
+          <hr class="my-2">
+          <button @click="handleMenuInviteUser(selectedBoardForMenu.id)" class="flex items-center space-x-3 space-x-reverse w-full px-6 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+            </svg>
+            <span>دعوت کاربر</span>
+          </button>
+          <button @click="handleMenuInviteEmail(selectedBoardForMenu.id)" class="flex items-center space-x-3 space-x-reverse w-full px-6 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zM12 8v1.5a3.5 3.5 0 017 0V8a3.5 3.5 0 013.5 3.5z"/>
+            </svg>
+            <span>دعوت کاربر با ایمیل</span>
+          </button>
+          <button @click="handleMenuEdit(selectedBoardForMenu)" class="flex items-center space-x-3 space-x-reverse w-full px-6 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+            </svg>
+            <span>ویرایش</span>
+          </button>
+        </template>
+        
+        <hr class="my-2">
+        <template v-if="selectedBoardForMenu?.current_user_role === 'owner'">
+          <button @click="handleMenuDelete(selectedBoardForMenu.id)" class="flex items-center space-x-3 space-x-reverse w-full px-6 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+            <span>حذف برد</span>
+          </button>
+        </template>
+        <template v-else>
+          <button @click="handleMenuLeave(selectedBoardForMenu.id)" class="flex items-center space-x-3 space-x-reverse w-full px-6 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+            </svg>
+            <span>ترک برد</span>
+          </button>
+        </template>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -268,7 +279,6 @@ const invitationsStore = useInvitationsStore();
 const router = useRouter(); // still used for board navigation
 
 const errorMessage = ref('');
-const openMenuId = ref(null);
 const showDialog = ref(false);
 const selectedBoard = ref(null);
 const dialogError = ref('');
@@ -279,6 +289,8 @@ const showInviteDialog = ref(false);
 const showActivitiesDialog = ref(false);
 const showMembersDialog = ref(false);
 const showInvDialog = ref(false);
+const showBoardMenuModal = ref(false);
+const selectedBoardForMenu = ref(null);
 const membersList = ref([]);
 const invitationsList = ref([]);
 const activitiesList = ref([]);
@@ -287,7 +299,6 @@ const inviteError = ref('');
 const inviteSuccess = ref('');
 let inviteBoardId = null;
 const deleteTargetId = ref(null);
-const menuPosition = ref({ top: '0px', left: '0px' });
 
 const handleCreateSave = async (data) => {
   createError.value = '';
@@ -304,39 +315,60 @@ const handleCreateSave = async (data) => {
 };
 
 function toggleMenu(boardId) {
-  if (openMenuId.value === boardId) {
-    openMenuId.value = null;
-  } else {
-    openMenuId.value = boardId;
-    // Calculate menu position based on button position
-    nextTick(() => {
-      const button = document.querySelector(`[data-board-id="${boardId}"] .board-menu-button`);
-      if (button) {
-        const rect = button.getBoundingClientRect();
-        menuPosition.value = {
-          top: `${rect.bottom + 8}px`,
-          left: `${rect.left}px`
-        };
-      }
-    });
+  // FORCE CACHE REFRESH - Find the board and show modal
+  console.log('MODAL SHOULD OPEN NOW!', boardId);
+  const board = boardsStore.boards.find(b => b.id === boardId);
+  if (board) {
+    selectedBoardForMenu.value = board;
+    showBoardMenuModal.value = true;
+    console.log('Modal state:', showBoardMenuModal.value, selectedBoardForMenu.value);
   }
 }
 
-function handleOutsideClick(e) {
-  // If the click is not inside a dropdown menu button area, close
-  if (!e.target.closest('.board-menu')) {
-    openMenuId.value = null;
-  }
-}
+// Modal event handlers
+const handleMenuActivities = async (boardId) => {
+  showBoardMenuModal.value = false;
+  await openActivities(boardId);
+};
+
+const handleMenuMembers = async (boardId) => {
+  showBoardMenuModal.value = false;
+  await openMembers(boardId);
+};
+
+const handleMenuInvitations = async (boardId) => {
+  showBoardMenuModal.value = false;
+  await openInvitations(boardId);
+};
+
+const handleMenuInviteUser = (boardId) => {
+  showBoardMenuModal.value = false;
+  openInvite(boardId, 'user');
+};
+
+const handleMenuInviteEmail = (boardId) => {
+  showBoardMenuModal.value = false;
+  openInvite(boardId, 'email');
+};
+
+const handleMenuEdit = (board) => {
+  showBoardMenuModal.value = false;
+  openEditDialog(board);
+};
+
+const handleMenuDelete = (boardId) => {
+  showBoardMenuModal.value = false;
+  prepareDelete(boardId);
+};
+
+const handleMenuLeave = async (boardId) => {
+  showBoardMenuModal.value = false;
+  await leaveBoard(boardId);
+};
 
 onMounted(() => {
   invitationsStore.fetchInvitations();
   boardsStore.fetchBoards();
-  window.addEventListener('click', handleOutsideClick);
-});
-
-onBeforeUnmount(() => {
-  window.removeEventListener('click', handleOutsideClick);
 });
 
 // Remove duplicate toggleMenu function - using the one defined above
@@ -345,8 +377,6 @@ const openEditDialog = (board) => {
   selectedBoard.value = { ...board };
   dialogError.value = '';
   showDialog.value = true;
-  // Close the board menu when opening edit dialog
-  openMenuId.value = null;
 };
 
 const handleDialogSave = async (data) => {
