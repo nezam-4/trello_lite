@@ -52,18 +52,16 @@
     
     <!-- Assigned users circles -->
     <div v-if="card.assigned_users && card.assigned_users.length > 0" class="flex items-center space-x-1 rtl:space-x-reverse">
-      <div
+      <UserAvatar
         v-for="user in card.assigned_users.slice(0, 3)"
         :key="user.id"
-        class="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white flex items-center justify-center text-[10px] font-semibold border-2 border-white shadow-sm cursor-pointer hover:scale-110 transition-transform duration-200"
-        :title="user.full_name || user.username"
-        @click.stop="handleUserClick(user)"
-      >
-        {{ user.initials }}
-      </div>
+        :user="user"
+        size="sm"
+        @click="handleUserClick(user)"
+      />
       <div 
         v-if="card.assigned_users.length > 3"
-        class="w-6 h-6 rounded-full bg-gray-400 text-white flex items-center justify-center text-[10px] font-semibold border-2 border-white shadow-sm"
+        class="w-8 h-8 rounded-full bg-gray-400 text-white flex items-center justify-center text-xs font-semibold border-2 border-white shadow-sm"
         :title="`${card.assigned_users.length - 3} نفر دیگر`"
       >
         +{{ card.assigned_users.length - 3 }}
@@ -75,6 +73,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useTasksStore } from '../stores/tasks';
+import UserAvatar from './UserAvatar.vue';
 
 const props = defineProps({
   card: {

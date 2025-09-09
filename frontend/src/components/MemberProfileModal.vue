@@ -26,9 +26,11 @@
       <div class="p-4 sm:p-6" v-if="member">
         <!-- Avatar and Basic Info -->
         <div class="flex items-center space-x-3 sm:space-x-4 space-x-reverse mb-4 sm:mb-6">
-          <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-blue-600 text-white flex items-center justify-center text-lg sm:text-xl font-semibold flex-shrink-0">
-            {{ getInitials(member.full_name || member.username) }}
-          </div>
+          <UserAvatar
+            :user="member"
+            size="lg"
+            :clickable="false"
+          />
           <div class="flex-1">
             <h4 class="text-lg font-semibold text-gray-900">{{ member.name || member.username }}</h4>
             <p class="text-gray-600">@{{ member.username }}</p>
@@ -93,6 +95,7 @@
 
 <script setup>
 import { computed } from 'vue';
+import UserAvatar from './UserAvatar.vue';
 
 const props = defineProps({
   isOpen: {

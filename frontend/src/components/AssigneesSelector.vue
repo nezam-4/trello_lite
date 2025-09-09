@@ -1,17 +1,13 @@
 <template>
   <div class="flex items-center space-x-1 rtl:space-x-reverse">
     <!-- Assigned users circles -->
-    <div
+    <UserAvatar
       v-for="user in assignedDetails"
       :key="user.id"
-      class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-semibold cursor-pointer hover:bg-blue-700 transition-colors"
-      :title="user.full_name || user.username"
+      :user="user"
+      size="sm"
       @click="handleUserClick(user)"
-    >
-      <span :title="(user.full_name || user.username)">
-        {{ user.initials }}
-      </span>
-    </div>
+    />
 
     <!-- Plus button -->
     <button
@@ -37,9 +33,12 @@
               class="flex items-center justify-between py-2 border-b text-sm"
             >
               <div class="flex items-center space-x-2 rtl:space-x-reverse">
-                <div class="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs">
-                  {{ getInitials(member) }}
-                </div>
+                <UserAvatar
+                  :user="member"
+                  size="xs"
+                  gradient="indigo"
+                  :clickable="false"
+                />
                 <div class="flex flex-col leading-tight">
                   <span class="font-medium">{{ member.full_name || member.username }}</span>
                   <span class="text-gray-500 text-xs">@{{ member.username }}</span>
@@ -62,6 +61,7 @@
 import { ref, computed } from 'vue';
 import { useBoardsStore } from '../stores/boards';
 import { useTasksStore } from '../stores/tasks';
+import UserAvatar from './UserAvatar.vue';
 
 const props = defineProps({
   task: { type: Object, required: true },
@@ -76,18 +76,26 @@ const members = ref([]);
 const selectedIds = ref([]);
 
 const assignedDetails = computed(() => {
+  // Use assigned_users data from TaskDetailSerializer if available
+  if (props.task.assigned_users && props.task.assigned_users.length > 0) {
+    return props.task.assigned_users;
+  }
+  
+  // Fallback to members data if assigned_users not available
   if (members.value.length) {
-    return members.value.filter((m) => props.task.assigned_to.includes((m.user_id ?? m.id))).map((m) => ({
+    const filtered = members.value.filter((m) => props.task.assigned_to.includes((m.user_id ?? m.id))).map((m) => ({
       ...m,
       id: m.user_id ?? m.id,
       initials: getInitials(m),
       username: m.username || m.user_username,
       full_name: m.full_name,
       email: m.email || '',
-      role: m.role || 'member'
+      role: m.role || 'member',
+      profile: m.profile
     }));
+    return filtered;
   } else {
-    // Fallback when members data is not loaded yet
+    // Final fallback when no data is available
     return props.task.assigned_to_usernames.map((username, idx) => ({
       id: props.task.assigned_to[idx] || idx,
       username,
@@ -132,11 +140,13 @@ function close() {
 
 async function fetchMembers() {
   const list = await boardsStore.fetchMembers(props.task.board);
+  console.log('Fetched members data:', list);
   members.value = list;
 }
 
 function handleUserClick(user) {
   console.log('User clicked:', user);
+  console.log('User profile data:', user.profile);
   emit('userClick', user);
 }
 

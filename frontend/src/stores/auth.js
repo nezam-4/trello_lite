@@ -19,10 +19,11 @@ export const useAuthStore = defineStore('auth', {
         this.refresh = response.data.refresh;
         localStorage.setItem('access', this.access);
         localStorage.setItem('refresh', this.refresh);
+        console.log('Login successful, fetching current user...');
         await this.fetchCurrentUser();
         return true;
       } catch (err) {
-        console.error(err);
+        console.error('Login error:', err);
         return false;
       }
     },
@@ -36,10 +37,12 @@ export const useAuthStore = defineStore('auth', {
     async fetchCurrentUser() {
       if (!this.access) return;
       try {
+        console.log('Fetching current user...');
         const res = await api.get('/users/current/');
+        console.log('Current user response:', res.data);
         this.user = res.data;
       } catch (e) {
-        console.error(e);
+        console.error('Error fetching current user:', e);
       }
     },
     async fetchProfile() {

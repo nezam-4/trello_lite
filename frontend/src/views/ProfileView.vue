@@ -4,11 +4,18 @@
 
     <form @submit.prevent="submit">
       <div class="flex flex-col items-center mb-4">
-        <img
-          :src="avatarPreview"
-          alt="avatar"
-          class="w-24 h-24 rounded-full object-cover mb-2 border"
-        />
+        <div class="w-24 h-24 rounded-full overflow-hidden border mb-2 bg-gray-100 flex items-center justify-center">
+          <img
+            v-if="avatarPreview"
+            :src="avatarPreview"
+            alt="avatar"
+            class="w-full h-full object-cover"
+            @error="onImageError"
+          />
+          <span v-else class="text-gray-500 text-2xl">
+            {{ auth.user?.username?.charAt(0)?.toUpperCase() || 'U' }}
+          </span>
+        </div>
         <input type="file" accept="image/*" @change="onFileChange" />
       </div>
 
@@ -69,11 +76,15 @@ const error = ref('');
 const success = ref('');
 
 onMounted(async () => {
+  console.log('ProfileView mounted - auth.user:', auth.user);
   if (auth.isAuthenticated) {
     try {
+      console.log('Fetching profile data...');
       await auth.fetchProfile();
+      console.log('Profile fetched, user data:', auth.user);
       populate();
     } catch (e) {
+      console.error('Error fetching profile:', e);
       error.value = 'خطا در دریافت پروفایل';
     }
   }
@@ -87,7 +98,17 @@ function populate() {
   form.email = auth.user.email || '';
   form.bio = auth.user.profile?.bio || '';
   form.preferred_language = auth.user.profile?.preferred_language || 'fa';
-  avatarPreview.value = auth.user.profile?.avatar || '';
+  
+  // Use thumbnail URL if available, otherwise use original avatar
+  let avatarUrl = auth.user.profile?.avatar_thumbnail_url || auth.user.profile?.avatar || '';
+  
+  // Ensure we have absolute URL for avatar display
+  if (avatarUrl && !avatarUrl.startsWith('http')) {
+    avatarUrl = `http://127.0.0.1:8000${avatarUrl}`;
+  }
+  
+  avatarPreview.value = avatarUrl;
+  console.log('ProfileView - avatarPreview set to:', avatarPreview.value);
 }
 
 function onFileChange(e) {
@@ -96,6 +117,11 @@ function onFileChange(e) {
     form.avatar = file;
     avatarPreview.value = URL.createObjectURL(file);
   }
+}
+
+function onImageError() {
+  console.log('ProfileView - Image load error for:', avatarPreview.value);
+  avatarPreview.value = '';
 }
 
 async function submit() {
@@ -113,6 +139,8 @@ async function submit() {
   try {
     await auth.updateProfile(data);
     success.value = 'پروفایل با موفقیت به‌روزرسانی شد';
+    // Refresh header by fetching current user
+    await auth.fetchCurrentUser();
   } catch (err) {
     error.value = typeof err === 'string' ? err : (err.detail || JSON.stringify(err));
   }

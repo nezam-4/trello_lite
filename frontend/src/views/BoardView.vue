@@ -43,15 +43,13 @@
           <div class="flex items-center gap-3 sm:gap-4 lg:gap-5 w-full lg:w-auto justify-between lg:justify-end flex-shrink-0">
             <!-- Board Members -->
             <div class="flex -space-x-1 sm:-space-x-2 space-x-reverse">
-              <div 
+              <UserAvatar
                 v-for="(member, index) in boardMembers.slice(0, 3)" 
                 :key="member.id"
-                @click.stop="openMemberProfile(member)"
-                class="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full border-2 border-white bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs sm:text-sm lg:text-base font-medium cursor-pointer hover:scale-110 transition-transform duration-200 flex-shrink-0"
-                :title="member.name"
-              >
-                {{ member.name ? member.name[0].toUpperCase() : 'U' }}
-              </div>
+                :user="member"
+                size="sm"
+                @click="openMemberProfile(member)"
+              />
               <div 
                 v-if="boardMembers.length > 3"
                 @click="showAllMembers = true"
@@ -211,9 +209,11 @@
               @click="openMemberProfile(member)"
               class="flex items-center space-x-3 space-x-reverse p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
             >
-              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-medium">
-                {{ member.name ? member.name[0].toUpperCase() : 'U' }}
-              </div>
+              <UserAvatar
+                :user="member"
+                size="md"
+                @click="openMemberProfile(member)"
+              />
               <div class="flex-1">
                 <h4 class="font-medium text-gray-900">{{ member.name || member.username }}</h4>
                 <p class="text-sm text-gray-600">@{{ member.username }}</p>
@@ -239,6 +239,7 @@ import TaskModal from '../components/TaskModal.vue';
 import MemberProfileModal from '../components/MemberProfileModal.vue';
 import TaskMemberProfileModal from '../components/TaskMemberProfileModal.vue';
 import ConfirmationModal from '../components/ConfirmationModal.vue';
+import UserAvatar from '../components/UserAvatar.vue';
 import { useRoute } from 'vue-router';
 import { useBoardsStore } from '../stores/boards';
 import { useListsStore } from '../stores/lists';
@@ -301,6 +302,7 @@ const boardMembers = computed(() => {
     username: membership.username,
     full_name: membership.full_name,
     email: membership.email,
+    profile: membership.profile,
     role: membership.role,
     status: membership.status
   }));
@@ -444,9 +446,12 @@ const handleRemoveMember = (member) => {
 // Task member profile functions
 function handleTaskUserClick(data) {
   console.log('Task user clicked:', data);
+  console.log('Opening modal with member:', data.user);
+  console.log('Modal state before:', taskMemberProfileModal.isOpen);
   taskMemberProfileModal.isOpen = true;
   taskMemberProfileModal.member = data.user;
   taskMemberProfileModal.task = data.task;
+  console.log('Modal state after:', taskMemberProfileModal.isOpen);
 }
 
 function closeTaskMemberProfile() {

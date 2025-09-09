@@ -45,9 +45,11 @@
         <!-- Member Info (if provided) -->
         <div v-if="memberInfo" class="bg-gray-50 rounded-xl p-4 mb-6">
           <div class="flex items-center space-x-3 space-x-reverse">
-            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-lg font-bold">
-              {{ memberInfo.name ? memberInfo.name[0].toUpperCase() : 'U' }}
-            </div>
+            <UserAvatar
+              :user="memberInfo"
+              size="md"
+              :clickable="false"
+            />
             <div>
               <h4 class="font-semibold text-gray-900">{{ memberInfo.name || memberInfo.username }}</h4>
               <p class="text-sm text-gray-600">@{{ memberInfo.username }}</p>
@@ -76,6 +78,8 @@
 </template>
 
 <script setup>
+import UserAvatar from './UserAvatar.vue';
+
 const props = defineProps({
   isOpen: {
     type: Boolean,

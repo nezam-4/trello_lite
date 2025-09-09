@@ -52,14 +52,14 @@
               <span class="text-xs text-gray-500 truncate max-w-20 lg:max-w-none">{{ auth.user?.email }}</span>
             </div>
             <div class="relative flex-shrink-0">
-              <template v-if="auth.user && auth.user.profile && auth.user.profile.avatar">
-                <img :src="auth.user.profile.avatar" alt="avatar" class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl object-cover ring-2 ring-gray-200 group-hover:ring-blue-300 transition-all duration-200" />
-              </template>
-              <template v-else>
-                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center text-white font-bold text-xs sm:text-sm ring-2 ring-gray-200 group-hover:ring-blue-300 transition-all duration-200">
-                  {{ (auth.user?.first_name || auth.user?.email || '?')[0].toUpperCase() }}
-                </div>
-              </template>
+              <div class="ring-2 ring-gray-200 group-hover:ring-blue-300 transition-all duration-200 rounded-lg sm:rounded-xl overflow-hidden">
+                <UserAvatar
+                  v-if="auth.user"
+                  :user="auth.user"
+                  size="sm"
+                  :clickable="false"
+                />
+              </div>
               <div class="absolute -bottom-0.5 -right-0.5 sm:-bottom-1 sm:-right-1 w-3 h-3 sm:w-4 sm:h-4 bg-green-400 border-2 border-white rounded-full"></div>
             </div>
           </button>
@@ -196,6 +196,7 @@
 import { onMounted, ref, onBeforeUnmount } from 'vue';
 import { useAuthStore } from '../stores/auth';
 import { useRouter } from 'vue-router';
+import UserAvatar from './UserAvatar.vue';
 
 const auth = useAuthStore();
 const router = useRouter();
@@ -208,9 +209,19 @@ function handleOutside(e) {
   }
 }
 
-onMounted(() => {
-  if (auth.isAuthenticated && !auth.user) {
-    auth.fetchCurrentUser();
+onMounted(async () => {
+  console.log('Header mounted - isAuthenticated:', auth.isAuthenticated, 'user:', auth.user);
+  console.log('Access token exists:', !!auth.access);
+  
+  if (auth.isAuthenticated) {
+    // Always fetch current user to ensure we have latest profile data
+    console.log('Calling fetchCurrentUser from Header...');
+    try {
+      await auth.fetchCurrentUser();
+      console.log('fetchCurrentUser completed, user:', auth.user);
+    } catch (error) {
+      console.error('Error in fetchCurrentUser:', error);
+    }
   }
   window.addEventListener('click', handleOutside);
 });
