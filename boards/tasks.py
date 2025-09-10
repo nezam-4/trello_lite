@@ -2,6 +2,7 @@ from celery import shared_task
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 
 
 
@@ -18,16 +19,21 @@ def send_registered_invitation_email(self, invitation_id):
 
         # Only proceed if invitation still valid and linked to a user
         if invitation.is_used or invitation.is_expired or invitation.user is None:
-            return "Invalid or unusable invitation"
+            return _("Invalid or unusable invitation")
 
         site_link = settings.SITE_URL
         user = invitation.user
-        plain_message = (
-            f"Hi {user.first_name or user.username},\n\n"
-            f"You have a new invitation to join the board '{invitation.board.title}'.\n\n"
-            f"Please log in to your dashboard ({site_link}) to accept or reject the invitation.\n\n"
-            f"Regards,\n{invitation.invited_by.username}"
-        )
+        plain_message = _(
+            "Hi %(name)s,\n\n"
+            "You have a new invitation to join the board '%(board_title)s'.\n\n"
+            "Please log in to your dashboard (%(site_link)s) to accept or reject the invitation.\n\n"
+            "Regards,\n%(invited_by)s"
+        ) % {
+            'name': user.first_name or user.username,
+            'board_title': invitation.board.title,
+            'site_link': site_link,
+            'invited_by': invitation.invited_by.username
+        }
         html_message = render_to_string('emails/board_invitation_registered.html', {
             'user': user,
             'board_title': invitation.board.title,
@@ -35,16 +41,16 @@ def send_registered_invitation_email(self, invitation_id):
             'invited_by_name': invitation.invited_by.username,
         })
         send_mail(
-            subject=f"New board invitation: {invitation.board.title}",
+            subject=_("New board invitation: %(board_title)s") % {'board_title': invitation.board.title},
             message=plain_message,
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[user.email],
             html_message=html_message,
             fail_silently=False,
         )
-        return "Notification sent"
+        return _("Notification sent")
     except BoardInvitation.DoesNotExist:
-        return "Invitation does not exist"
+        return _("Invitation does not exist")
     except Exception as exc:
         raise self.retry(exc=exc, countdown=60, max_retries=3)
 
@@ -61,7 +67,7 @@ def send_board_invitation_email(self, invitation_id):
         
         # Check if invitation is still valid
         if invitation.is_used or invitation.is_expired:
-            return f"Invitation {invitation_id} is already used or expired"
+            return _("Invitation %(invitation_id)s is already used or expired") % {'invitation_id': invitation_id}
         
         # Site link (homepage)
         site_link = settings.SITE_URL
@@ -82,7 +88,7 @@ def send_board_invitation_email(self, invitation_id):
         
         # Send email
         send_mail(
-            subject=f'Invitation to join "{invitation.board.title}" board',
+            subject=_("Invitation to join \"%(board_title)s\" board") % {'board_title': invitation.board.title},
             message=plain_message,
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[invitation.invited_email],
@@ -90,10 +96,10 @@ def send_board_invitation_email(self, invitation_id):
             fail_silently=False,
         )
         
-        return f"Email sent successfully to {invitation.invited_email}"
+        return _("Email sent successfully to %(email)s") % {'email': invitation.invited_email}
         
     except BoardInvitation.DoesNotExist:
-        return f"BoardInvitation with id {invitation_id} does not exist"
+        return _("BoardInvitation with id %(invitation_id)s does not exist") % {'invitation_id': invitation_id}
         
     except Exception as exc:
         # Retry the task

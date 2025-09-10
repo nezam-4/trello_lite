@@ -110,7 +110,7 @@ class BoardCreateSerializer(serializers.ModelSerializer):
         
         if not can_create:
             raise serializers.ValidationError(
-                _(f"You have reached the maximum number of boards allowed. You can create {remaining} more.")
+                _("You have reached the maximum number of boards allowed. You can create %(remaining)s more.") % {'remaining': remaining}
             )
         
         return attrs
@@ -199,7 +199,7 @@ class BoardInvitationSerializer(serializers.ModelSerializer):
             can_add_member, remaining_slots = check_board_member_limit(board)
             if not can_add_member:
                 raise serializers.ValidationError(
-                    _(f"Board has reached the maximum number of members. {remaining_slots} slots remaining.")
+                    _("Board has reached the maximum number of members. %(remaining_slots)s slots remaining.") % {'remaining_slots': remaining_slots}
                 )
         return attrs
     
@@ -226,13 +226,13 @@ class BoardUserInvitationSerializer(serializers.Serializer):
         role: str         -> optional, defaults to "member"
     """
     identifier = serializers.CharField(max_length=150)
-    role = serializers.ChoiceField(choices=[('admin', 'Admin'), ('member', 'Member')], default='member')
+    role = serializers.ChoiceField(choices=[('admin', _("Admin")), ('member', _("Member"))], default='member')
 
     def validate(self, attrs):
         identifier = attrs.get('identifier')
         board = self.context.get('board')
         if not board:
-            raise serializers.ValidationError("Board context missing.")
+            raise serializers.ValidationError(_("Board context missing."))
 
         # Find user by username or email
         try:

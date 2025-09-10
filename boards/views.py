@@ -82,7 +82,7 @@ class BoardListView(APIView):
                 board=board,
                 action='create',
                 user=user,
-                description=f"Board '{board.title}' created by {user}"
+                description=_("Board '%(title)s' created by %(user)s") % {'title': board.title, 'user': user}
             )
             
             # Return full board information
@@ -164,7 +164,7 @@ class BoardDetailView(APIView):
                 board=board,
                 action='update',
                 user=user,
-                description=f"Board '{board.title}' updated by {user}"
+                description=_("Board '%(title)s' updated by %(user)s") % {'title': board.title, 'user': user}
             )
             
             response_serializer = BoardDetailSerializer(board)
@@ -194,7 +194,7 @@ class BoardDetailView(APIView):
             board=board,
             action='delete',
             user=user,
-            description=f"Board '{board.title}' deleted by {user}"
+            description=_("Board '%(title)s' deleted by %(user)s") % {'title': board.title, 'user': user}
         )
         
         board.delete()
@@ -364,7 +364,7 @@ class BoardInviteView(APIView):
                 board=board,
                 action='invite',
                 user=user,
-                description=f"{invited_identity} has been invited to the board by {user}"
+                description=_("%(invited_identity)s has been invited to the board by %(user)s") % {'invited_identity': invited_identity, 'user': user}
             )
             # send email with celery
             send_board_invitation_email.delay(invitation.id)
@@ -432,7 +432,7 @@ class BoardUserInviteView(APIView):
                 board=board,
                 action='invite',
                 user=user,
-                description=f"{target_user.username} has been invited to the board by {user}"
+                description=_("%(username)s has been invited to the board by %(user)s") % {'username': target_user.username, 'user': user}
             )
 
             # Send notification email to registered user
@@ -497,7 +497,7 @@ class BoardLeaveView(APIView):
             board=board,
             action='leave',
             user=user,
-            description=f"{user.username} left the board"
+            description=_("%(username)s left the board") % {'username': user.username}
         )
         
         return Response(
@@ -598,7 +598,7 @@ class BoardInvitationRespondView(APIView):
                 board=invitation.board,
                 action='reject',  # treat as declined
                 user=user,
-                description=f"{user.username} rejected the invitation"
+                description=_("%(username)s rejected the invitation") % {'username': user.username}
             )
             return Response({"message": _("Invitation rejected.")}, status=status.HTTP_200_OK)
 
@@ -632,7 +632,7 @@ class BoardInvitationRespondView(APIView):
             board=invitation.board,
             action='join',
             user=user,
-            description=f"{user.username} accepted the invitation"
+            description=_("%(username)s accepted the invitation") % {'username': user.username}
         )
 
         return Response({"message": _("Successfully joined the board.")}, status=status.HTTP_200_OK)
@@ -747,7 +747,7 @@ class BoardRemoveMemberView(APIView):
             board=board,
             action='remove',
             user=user,
-            description=f"{target_user.username} was removed from the board by {user.username}"
+            description=_("%(target_user)s was removed from the board by %(user)s") % {'target_user': target_user.username, 'user': user.username}
         )
         
         return Response(

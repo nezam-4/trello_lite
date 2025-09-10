@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 import uuid
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -21,7 +22,7 @@ class Board(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     owner = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE, related_name='owned_boards')
     members = models.ManyToManyField('accounts.CustomUser', related_name='member_boards', through='BoardMembership',through_fields=('board', 'user'))
-    is_public = models.BooleanField(default=False, verbose_name="Public")
+    is_public = models.BooleanField(default=False, verbose_name=_("Public"))
 
     def clean(self):
         """Validate constraints before saving"""
@@ -33,7 +34,7 @@ class Board(models.Model):
             
             if user_boards_count >= max_boards:
                 raise ValidationError(
-                    f'You cannot create more than {max_boards} boards.'
+                    _("You cannot create more than %(max_boards)s boards.") % {'max_boards': max_boards}
                 )
     
     @property
@@ -61,17 +62,17 @@ class Board(models.Model):
         # بررسی تعداد اعضای بورد
         max_members = getattr(settings, 'MAX_MEMBERS_PER_BOARD', 50)
         if self.active_members_count >= max_members:
-            raise ValidationError(f"This board cannot have more than {max_members} members.")
+            raise ValidationError(_("This board cannot have more than %(max_members)s members.") % {'max_members': max_members})
 
         # بررسی تعداد Membership های کاربر
         max_memberships = getattr(settings, 'MAX_MEMBERSHIPS_PER_USER', 20)
         user_memberships_count = BoardMembership.objects.filter(user=user, status='accepted').count()
         if user_memberships_count >= max_memberships:
-            raise ValidationError(f"{user.username} has reached the membership limit of {max_memberships} boards.")
+            raise ValidationError(_("%(username)s has reached the membership limit of %(max_memberships)s boards.") % {'username': user.username, 'max_memberships': max_memberships})
 
         # بررسی اینکه کاربر قبلاً عضو نبوده
         if BoardMembership.objects.filter(board=self, user=user).exists():
-            raise ValidationError(f"{user.username} is already a member of this board.")
+            raise ValidationError(_("%(username)s is already a member of this board.") % {'username': user.username})
 
         # ایجاد Membership
         membership = BoardMembership.objects.create(
@@ -98,14 +99,14 @@ class Board(models.Model):
  
 class BoardMembership(models.Model):
     ROLE_CHOICES = [
-        ('admin', 'Admin'),
-        ('member', 'Member'),
+        ('admin', _("Admin")),
+        ('member', _("Member")),
     ]
     
     STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('accepted', 'Accepted'),
-        ('rejected', 'Rejected'),
+        ('pending', _("Pending")),
+        ('accepted', _("Accepted")),
+        ('rejected', _("Rejected")),
     ]
     
     board = models.ForeignKey('boards.Board', on_delete=models.CASCADE, related_name='memberships')
@@ -136,7 +137,7 @@ class BoardMembership(models.Model):
             ).exclude(pk=self.pk).count()
             if board_members_count >= max_members:
                 raise ValidationError(
-                    f'This board cannot have more than {max_members} members.'
+                    _("This board cannot have more than %(max_members)s members.") % {'max_members': max_members}
                 )
 
             user_memberships_count = BoardMembership.objects.filter(
@@ -145,7 +146,7 @@ class BoardMembership(models.Model):
             ).exclude(pk=self.pk).count()
             if user_memberships_count >= max_memberships:
                 raise ValidationError(
-                    f'You cannot be a member of more than {max_memberships} boards.'
+                    _("You cannot be a member of more than %(max_memberships)s boards.") % {'max_memberships': max_memberships}
                 )
     
     def accept(self):
@@ -162,7 +163,7 @@ class BoardMembership(models.Model):
         
         if board_members_count >= max_members:
             raise ValidationError(
-                f'This board has reached the limit of {max_members} members.'
+                _("This board has reached the limit of %(max_members)s members.") % {'max_members': max_members}
             )
         
         # Check user membership limit
@@ -173,7 +174,7 @@ class BoardMembership(models.Model):
         
         if user_memberships_count >= max_memberships:
             raise ValidationError(
-                f'You have reached the membership limit of {max_memberships}.'
+                _("You have reached the membership limit of %(max_memberships)s.") % {'max_memberships': max_memberships}
             )
         
         self.status = 'accepted'
@@ -191,13 +192,17 @@ class BoardMembership(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.user.username} - {self.board.title} ({self.get_role_display()})"
+        return _("%(username)s - %(board_title)s (%(role)s)") % {
+            'username': self.user.username,
+            'board_title': self.board.title,
+            'role': self.get_role_display()
+        }
 
 
 class BoardInvitation(models.Model):# invitation with email
     ROLE_CHOICES = [
-        ('admin', 'Admin'),
-        ('member', 'Member'),
+        ('admin', _("Admin")),
+        ('member', _("Member")),
     ]
     # use signal whene this model created to send invitation email
     board = models.ForeignKey('boards.Board', on_delete=models.CASCADE, related_name='invitations')
@@ -211,9 +216,9 @@ class BoardInvitation(models.Model):# invitation with email
 
     # Invitation status management
     STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('accepted', 'Accepted'),
-        ('rejected', 'Rejected'),
+        ('pending', _("Pending")),
+        ('accepted', _("Accepted")),
+        ('rejected', _("Rejected")),
     ]
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     expires_at = models.DateTimeField(default=default_invitation_expiry)
@@ -233,7 +238,7 @@ class BoardInvitation(models.Model):# invitation with email
             
             if board_members_count >= max_members:
                 raise ValidationError(
-                    f'This board has reached the limit of {max_members} members and cannot send new invitations.'
+                    _("This board has reached the limit of %(max_members)s members and cannot send new invitations.") % {'max_members': max_members}
                 )
     
     @property
@@ -246,21 +251,24 @@ class BoardInvitation(models.Model):# invitation with email
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Invitation for {self.invited_email} to {self.board.title}"
+        return _("Invitation for %(email)s to %(board_title)s") % {
+            'email': self.invited_email,
+            'board_title': self.board.title
+        }
 
     class Meta:
         unique_together = ['board', 'invited_email']
 
 class BoardActivity(models.Model):
     ACTION_CHOICES = [
-        ('create', 'Create'),
-        ('update', 'Update'),
-        ('delete', 'Delete'),
-        ('join', 'Join'),
-        ('leave', 'Leave'),
-        ('reject', 'Reject'),
-        ('accept', 'Accept'),
-        ('invite','Invite')
+        ('create', _("Create")),
+        ('update', _("Update")),
+        ('delete', _("Delete")),
+        ('join', _("Join")),
+        ('leave', _("Leave")),
+        ('reject', _("Reject")),
+        ('accept', _("Accept")),
+        ('invite', _("Invite"))
     ]
     
     board = models.ForeignKey('boards.Board', on_delete=models.CASCADE, related_name='activities')
@@ -275,4 +283,8 @@ class BoardActivity(models.Model):
        
 
     def __str__(self):
-        return f"{self.user.username} {self.get_action_display()} {self.board.title}"
+        return _("%(username)s %(action)s %(board_title)s") % {
+            'username': self.user.username,
+            'action': self.get_action_display(),
+            'board_title': self.board.title
+        }
