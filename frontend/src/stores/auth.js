@@ -28,6 +28,19 @@ export const useAuthStore = defineStore('auth', {
       }
     },
     async logout() {
+      try {
+        // Call backend logout endpoint to blacklist refresh token
+        if (this.refresh) {
+          await api.post('/users/auth/logout/', { 
+            refresh_token: this.refresh 
+          });
+        }
+      } catch (error) {
+        console.error('Logout API error:', error);
+        // Continue with local logout even if API call fails
+      }
+      
+      // Clear local storage and state
       this.access = null;
       this.refresh = null;
       this.user = null;

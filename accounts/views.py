@@ -5,6 +5,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
 from rest_framework.decorators import api_view, permission_classes
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -190,6 +191,47 @@ class ProfileView(APIView):
             p_serializer.save()
             return Response({"user": u_serializer.data, "profile": p_serializer.data}, status=status.HTTP_200_OK)
         return Response({"user": u_serializer.errors, "profile": p_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LogoutView(APIView):
+    """Logout user by blacklisting refresh token"""
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_summary=_('Logout user and blacklist refresh token'),
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'refresh_token': openapi.Schema(type=openapi.TYPE_STRING, description=_('Refresh token to blacklist'))
+            },
+            required=['refresh_token']
+        ),
+        responses={
+            200: openapi.Response(description=_('Successfully logged out')),
+            400: openapi.Response(description=_('Invalid token'))
+        }
+    )
+    def post(self, request):
+        try:
+            refresh_token = request.data.get("refresh_token")
+            if not refresh_token:
+                return Response(
+                    {"detail": _("Refresh token is required")},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            
+            return Response(
+                {"message": _("Successfully logged out")},
+                status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            return Response(
+                {"detail": _("Invalid token")},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 @api_view(['GET'])

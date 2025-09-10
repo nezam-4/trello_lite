@@ -2,7 +2,7 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from accounts.views import (
     RegisterView, UserListView, UserDetailView, 
-    ChangePasswordView, ProfileView, current_user
+    ChangePasswordView, ProfileView, current_user, LogoutView
 )
 
 urlpatterns = [
@@ -10,6 +10,7 @@ urlpatterns = [
     path("auth/register/", RegisterView.as_view(), name="register"),
     path("auth/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("auth/logout/", LogoutView.as_view(), name="logout"),
     
     # User management endpoints
     path("", UserListView.as_view(), name="user_list"),  # GET: list all users (admin only)
