@@ -18,7 +18,28 @@ The system automatically sends invitation emails when a `BoardInvitation` model 
 pip install -r requirements.txt
 ```
 
-### 2. Install and Start Redis
+### 2. Install Node.js and npm
+
+**Required versions:**
+- Node.js >= 16.0.0
+- npm >= 8.0.0
+
+```bash
+# Ubuntu/Debian
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# macOS
+brew install node
+
+# Verify installation (check versions)
+node --version  # Should be >= 16.0.0
+npm --version   # Should be >= 8.0.0
+
+# Or download from: https://nodejs.org/
+```
+
+### 3. Install and Start Redis
 
 ```bash
 # Ubuntu/Debian
