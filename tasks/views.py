@@ -61,7 +61,7 @@ class TaskListView(APIView):
     
     @swagger_auto_schema(
         request_body=TaskCreateSerializer,
-        responses={201: TaskDetailSerializer, 400: 'Bad Request'}
+        responses={201: TaskDetailSerializer, 400: _("Bad Request")}
     )
     def post(self, request, list_id):
         """Create a new task in the list"""
@@ -117,7 +117,7 @@ class TaskDetailView(APIView):
         serializer = TaskDetailSerializer(task)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
-    @swagger_auto_schema(request_body=TaskUpdateSerializer, responses={200: TaskDetailSerializer, 400: 'Bad Request'})
+    @swagger_auto_schema(request_body=TaskUpdateSerializer, responses={200: TaskDetailSerializer, 400: _("Bad Request")})
     def patch(self, request, pk):
         """Update task information"""
         task = self.get_task_with_access_check(pk, request.user)
@@ -131,7 +131,7 @@ class TaskDetailView(APIView):
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    @swagger_auto_schema(responses={204: 'No Content', 403: 'Forbidden'})
+    @swagger_auto_schema(responses={204: _("No Content"), 403: _("Forbidden")})
     def delete(self, request, pk):
         """Delete task (creator or board owner/admin only)"""
         task = self.get_task_with_access_check(pk, request.user)
@@ -254,7 +254,7 @@ class TaskCommentsView(APIView):
     
     @swagger_auto_schema(
         request_body=TaskCommentSerializer,
-        responses={201: TaskCommentSerializer, 400: 'Bad Request'}
+        responses={201: TaskCommentSerializer, 400: _("Bad Request")}
     )
     def post(self, request, task_id):
         """Create a new comment on the task"""
@@ -448,7 +448,7 @@ class TaskCommentDetailView(APIView):
         serializer = TaskCommentSerializer(comment)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
-    @swagger_auto_schema(request_body=TaskCommentUpdateSerializer, responses={200: TaskCommentSerializer, 400: 'Bad Request', 403: 'Forbidden'})
+    @swagger_auto_schema(request_body=TaskCommentUpdateSerializer, responses={200: TaskCommentSerializer, 400: _("Bad Request"), 403: _("Forbidden")})
     def patch(self, request, pk):
         """Update comment content (author only)"""
         comment = self.get_comment_with_access_check(pk, request.user)
@@ -468,7 +468,7 @@ class TaskCommentDetailView(APIView):
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    @swagger_auto_schema(responses={204: 'No Content', 403: 'Forbidden'})
+    @swagger_auto_schema(responses={204: _("No Content"), 403: _("Forbidden")})
     def delete(self, request, pk):
         """Delete comment (author or board owner/admin only)"""
         comment = self.get_comment_with_access_check(pk, request.user)

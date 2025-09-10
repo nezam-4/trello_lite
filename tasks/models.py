@@ -5,6 +5,7 @@ from django.utils import timezone
 from datetime import timedelta
 from django.db import transaction
 from django.db.models import F
+from django.utils.translation import gettext_lazy as _
 
 def get_default_due_date():
     """Return default due date: 7 days from now"""
@@ -13,10 +14,10 @@ def get_default_due_date():
 
 class Task(models.Model):
     PRIORITY_CHOICES = [
-        ('low', 'Low'),
-        ('medium', 'Medium'),
-        ('high', 'High'),
-        ('urgent', 'Urgent'),
+        ('low', _('Low')),
+        ('medium', _('Medium')),
+        ('high', _('High')),
+        ('urgent', _('Urgent')),
     ]
     
     title = models.CharField(max_length=255)
@@ -45,7 +46,7 @@ class Task(models.Model):
         board = self.list.board
         invalid_users = [user for user in self.assigned_to.all() if not board.active_members.filter(user_id=user.id).exists()]
         if invalid_users:
-            raise ValidationError('All assigned users must be members of this board.')
+            raise ValidationError(_('All assigned users must be members of this board.'))
     
     def save(self, *args, **kwargs):
         if not self.position:
@@ -98,7 +99,7 @@ class Task(models.Model):
         """Move task to a different list"""
         # Validate same board
         if new_list.board_id != self.list.board_id:
-            raise ValidationError('Cannot move task between different boards')
+            raise ValidationError(_('Cannot move task between different boards'))
         
         # If same list, just change position
         if self.list_id == new_list.id:
@@ -159,7 +160,10 @@ class Task(models.Model):
         return self.list.board
     
     def __str__(self):
-        return f"{self.list.title} - {self.title}"
+        return _("%(list_title)s - %(task_title)s") % {
+            'list_title': self.list.title,
+            'task_title': self.title
+        }
 
 
 class TaskComment(models.Model):
@@ -175,11 +179,14 @@ class TaskComment(models.Model):
     def clean(self):
         """Validate that the user is a member of the board"""
         if not self.task.board.active_members.filter(id=self.user.id).exists():
-            raise ValidationError('Only board members can comment.')
+            raise ValidationError(_('Only board members can comment.'))
     
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
     
     def __str__(self):
-        return f"{self.user.username} - {self.task.title}"
+        return _("%(username)s - %(task_title)s") % {
+            'username': self.user.username,
+            'task_title': self.task.title
+        }
