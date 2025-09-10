@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 class List(models.Model):
     title = models.CharField(max_length=255)
@@ -69,4 +70,7 @@ class List(models.Model):
         return self.tasks.count()
     
     def __str__(self):
-        return f"{self.board.title} - {self.title}"
+        return _("%(board_title)s - %(list_title)s") % {
+            'board_title': self.board.title,
+            'list_title': self.title
+        }
