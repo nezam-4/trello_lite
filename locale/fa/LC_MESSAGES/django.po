@@ -1,0 +1,819 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Trello Lite 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-09-10 19:39+0000\n"
+"PO-Revision-Date: 2025-09-10 19:41+0000\n"
+"Last-Translator: Trello Lite Team\n"
+"Language-Team: Persian <fa@li.org>\n"
+"Language: fa\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: accounts/admin.py:17
+msgid "Personal info"
+msgstr "اطلاعات شخصی"
+
+#: accounts/admin.py:20
+msgid "Permissions"
+msgstr "مجوزها"
+
+#: accounts/admin.py:23
+msgid "Important dates"
+msgstr "تاریخ‌های مهم"
+
+#: accounts/admin.py:40
+msgid "Preferences"
+msgstr "تنظیمات"
+
+#: accounts/admin.py:43
+msgid "Timestamps"
+msgstr "زمان‌بندی"
+
+#: accounts/apps.py:8
+msgid "Accounts"
+msgstr "حساب‌های کاربری"
+
+#: accounts/models.py:24
+msgid "Username"
+msgstr "نام کاربری"
+
+#: accounts/models.py:25
+msgid "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."
+msgstr "الزامی. حداکثر ۱۵۰ کاراکتر. فقط حروف، اعداد و @/./+/-/_ مجاز است."
+
+#: accounts/models.py:29
+msgid "Email address"
+msgstr "آدرس ایمیل"
+
+#: accounts/models.py:30
+msgid "Required. Enter a valid email address."
+msgstr "الزامی. یک آدرس ایمیل معتبر وارد کنید."
+
+#: accounts/models.py:34 accounts/models.py:116
+msgid "Created at"
+msgstr "تاریخ ایجاد"
+
+#: accounts/models.py:35
+msgid "Date and time when the user was created"
+msgstr "تاریخ و زمان ایجاد کاربر"
+
+#: accounts/models.py:39 accounts/models.py:121
+msgid "Updated at"
+msgstr "تاریخ بروزرسانی"
+
+#: accounts/models.py:40
+msgid "Date and time when the user was last updated"
+msgstr "تاریخ و زمان آخرین بروزرسانی کاربر"
+
+#: accounts/models.py:44
+msgid "Active"
+msgstr "فعال"
+
+#: accounts/models.py:45
+msgid ""
+"Designates whether this user should be treated as active. Unselect this "
+"instead of deleting accounts."
+msgstr "تعیین می‌کند که آیا این کاربر باید به عنوان فعال در نظر گرفته شود. به جای حذف حساب، این گزینه را غیرفعال کنید."
+
+#: accounts/models.py:51
+msgid "First name"
+msgstr "نام"
+
+#: accounts/models.py:52
+msgid "User's first name"
+msgstr "نام کاربر"
+
+#: accounts/models.py:58
+msgid "Last name"
+msgstr "نام خانوادگی"
+
+#: accounts/models.py:59
+msgid "User's last name"
+msgstr "نام خانوادگی کاربر"
+
+#: accounts/models.py:73 accounts/models.py:98
+msgid "User"
+msgstr "کاربر"
+
+#: accounts/models.py:74
+msgid "Users"
+msgstr "کاربران"
+
+#: accounts/models.py:90
+msgid "English"
+msgstr "انگلیسی"
+
+#: accounts/models.py:91
+msgid "Persian"
+msgstr "فارسی"
+
+#: accounts/models.py:99
+msgid "The user this profile belongs to"
+msgstr "کاربری که این پروفایل متعلق به اوست"
+
+#: accounts/models.py:105
+msgid "Avatar"
+msgstr "تصویر پروفایل"
+
+#: accounts/models.py:106
+msgid "User profile picture"
+msgstr "عکس پروفایل کاربر"
+
+#: accounts/models.py:111
+msgid "Biography"
+msgstr "بیوگرافی"
+
+#: accounts/models.py:112
+msgid "Tell us about yourself"
+msgstr "درباره خودتان بگویید"
+
+#: accounts/models.py:117
+msgid "Date and time when the profile was created"
+msgstr "تاریخ و زمان ایجاد پروفایل"
+
+#: accounts/models.py:122
+msgid "Date and time when the profile was last updated"
+msgstr "تاریخ و زمان آخرین بروزرسانی پروفایل"
+
+#: accounts/models.py:128
+msgid "Preferred language"
+msgstr "زبان ترجیحی"
+
+#: accounts/models.py:129
+msgid "Your preferred language for the interface"
+msgstr "زبان ترجیحی شما برای رابط کاربری"
+
+#: accounts/models.py:164
+msgid "Profile"
+msgstr "پروفایل"
+
+#: accounts/models.py:165
+msgid "Profiles"
+msgstr "پروفایل‌ها"
+
+#: accounts/serilizer.py:71
+msgid "A user with this email already exists."
+msgstr "کاربری با این ایمیل از قبل وجود دارد."
+
+#: accounts/serilizer.py:78
+msgid "A user with this username already exists."
+msgstr "کاربری با این نام کاربری از قبل وجود دارد."
+
+#: accounts/serilizer.py:100
+msgid "Passwords do not match."
+msgstr "رمزهای عبور مطابقت ندارند."
+
+#: accounts/serilizer.py:132
+msgid "Old password is incorrect."
+msgstr "رمز عبور قدیمی اشتباه است."
+
+#: accounts/serilizer.py:142
+msgid "New passwords do not match."
+msgstr "رمزهای عبور جدید مطابقت ندارند."
+
+#: accounts/tasks.py:20
+msgid "No avatar found for profile {}"
+msgstr "هیچ تصویر پروفایلی برای پروفایل {} یافت نشد"
+
+#: accounts/tasks.py:57
+msgid "Thumbnail created successfully for profile {}"
+msgstr "تصویر کوچک با موفقیت برای پروفایل {} ایجاد شد"
+
+#: accounts/tasks.py:60
+msgid "Profile {} not found"
+msgstr "پروفایل {} یافت نشد"
+
+#: accounts/tasks.py:62
+msgid "Error creating thumbnail for profile {}: {}"
+msgstr "خطا در ایجاد تصویر کوچک برای پروفایل {}: {}"
+
+#: accounts/views.py:24
+msgid "Register a new user"
+msgstr "ثبت‌نام کاربر جدید"
+
+#: accounts/views.py:26 accounts/views.py:95 accounts/views.py:125
+#: accounts/views.py:172 lists/views.py:67 lists/views.py:107
+#: lists/views.py:133
+msgid "Validation Error"
+msgstr "خطای اعتبارسنجی"
+
+#: accounts/views.py:34
+msgid "User registered successfully"
+msgstr "کاربر با موفقیت ثبت‌نام شد"
+
+#: accounts/views.py:49
+msgid "List all users (Admin only)"
+msgstr "فهرست تمام کاربران (فقط مدیر)"
+
+#: accounts/views.py:56
+msgid "You do not have permission to perform this action."
+msgstr "شما مجوز انجام این عمل را ندارید."
+
+#: accounts/views.py:73
+msgid "Retrieve a user detail"
+msgstr "دریافت جزئیات کاربر"
+
+#: accounts/views.py:85
+msgid "You do not have permission to view this user."
+msgstr "شما مجوز مشاهده این کاربر را ندارید."
+
+#: accounts/views.py:93
+msgid "Partially update a user"
+msgstr "بروزرسانی جزئی کاربر"
+
+#: accounts/views.py:106
+msgid "You do not have permission to update this user."
+msgstr "شما مجوز بروزرسانی این کاربر را ندارید."
+
+#: accounts/views.py:123
+msgid "Change current user's password"
+msgstr "تغییر رمز عبور کاربر فعلی"
+
+#: accounts/views.py:125
+msgid "Password changed"
+msgstr "رمز عبور تغییر یافت"
+
+#: accounts/views.py:135
+msgid "Password changed successfully"
+msgstr "رمز عبور با موفقیت تغییر یافت"
+
+#: accounts/views.py:150
+msgid "Retrieve a user's profile"
+msgstr "دریافت پروفایل کاربر"
+
+#: accounts/views.py:161
+msgid "You do not have permission to view this profile."
+msgstr "شما مجوز مشاهده این پروفایل را ندارید."
+
+#: accounts/views.py:170
+msgid "Partially update a profile"
+msgstr "بروزرسانی جزئی پروفایل"
+
+#: accounts/views.py:182
+msgid "You do not have permission to update this profile."
+msgstr "شما مجوز بروزرسانی این پروفایل را ندارید."
+
+#: accounts/views.py:201
+msgid "Logout user and blacklist refresh token"
+msgstr "خروج کاربر و قرار دادن توکن تازه سازی در لیست سیاه"
+
+#: accounts/views.py:205
+msgid "Refresh token to blacklist"
+msgstr "قرار دادن توکن تازه سازی در لیست سیاه"
+
+#: accounts/views.py:210 accounts/views.py:227
+msgid "Successfully logged out"
+msgstr "با موفقیت خارج شدید"
+
+#: accounts/views.py:211 accounts/views.py:232
+msgid "Invalid token"
+msgstr "توکن نامعتبر"
+
+#: accounts/views.py:219
+msgid "Refresh token is required"
+msgstr "توکن تازه‌سازی الزامی است"
+
+#: accounts/views.py:239
+msgid "Get current authenticated user"
+msgstr "دریافت کاربر احراز هویت شده فعلی"
+
+#: boards/models.py:25
+msgid "Public"
+msgstr "عمومی"
+
+#: boards/models.py:37
+#, python-format
+msgid "You cannot create more than %(max_boards)s boards."
+msgstr "شما نمی‌توانید بیش از %(max_boards)s تابلو ایجاد کنید."
+
+#: boards/models.py:65 boards/models.py:140
+#, python-format
+msgid "This board cannot have more than %(max_members)s members."
+msgstr "این تابلو نمی‌تواند بیش از %(max_members)s عضو داشته باشد."
+
+#: boards/models.py:71
+#, python-format
+msgid ""
+"%(username)s has reached the membership limit of %(max_memberships)s boards."
+msgstr "%(username)s به حد عضویت %(max_memberships)s تابلو رسیده است."
+
+#: boards/models.py:75
+#, python-format
+msgid "%(username)s is already a member of this board."
+msgstr "%(username)s از قبل عضو این تابلو است."
+
+#: boards/models.py:102 boards/models.py:204 boards/serializers.py:229
+msgid "Admin"
+msgstr "مدیر"
+
+#: boards/models.py:103 boards/models.py:205 boards/serializers.py:229
+msgid "Member"
+msgstr "عضو"
+
+#: boards/models.py:107 boards/models.py:219
+msgid "Pending"
+msgstr "در انتظار"
+
+#: boards/models.py:108 boards/models.py:220
+msgid "Accepted"
+msgstr "پذیرفته شده"
+
+#: boards/models.py:109 boards/models.py:221
+msgid "Rejected"
+msgstr "رد شده"
+
+#: boards/models.py:149
+#, python-format
+msgid "You cannot be a member of more than %(max_memberships)s boards."
+msgstr "شما نمی‌توانید عضو بیش از %(max_memberships)s تابلو باشید."
+
+#: boards/models.py:166
+#, python-format
+msgid "This board has reached the limit of %(max_members)s members."
+msgstr "این تابلو به حد %(max_members)s عضو رسیده است."
+
+#: boards/models.py:177
+#, python-format
+msgid "You have reached the membership limit of %(max_memberships)s."
+msgstr "شما به حد عضویت %(max_memberships)s رسیده‌اید."
+
+#: boards/models.py:195
+#, python-format
+msgid "%(username)s - %(board_title)s (%(role)s)"
+msgstr "%(username)s - %(board_title)s (%(role)s)"
+
+#: boards/models.py:241
+#, python-format
+msgid ""
+"This board has reached the limit of %(max_members)s members and cannot send "
+"new invitations."
+msgstr "این تابلو به حد %(max_members)s عضو رسیده و نمی‌تواند دعوت‌نامه جدید ارسال کند."
+
+#: boards/models.py:254
+#, python-format
+msgid "Invitation for %(email)s to %(board_title)s"
+msgstr "دعوت‌نامه برای %(email)s به %(board_title)s"
+
+#: boards/models.py:264
+msgid "Create"
+msgstr "ایجاد"
+
+#: boards/models.py:265
+msgid "Update"
+msgstr "بروزرسانی"
+
+#: boards/models.py:266
+msgid "Delete"
+msgstr "حذف"
+
+#: boards/models.py:267
+msgid "Join"
+msgstr "پیوستن"
+
+#: boards/models.py:268
+msgid "Leave"
+msgstr "ترک کردن"
+
+#: boards/models.py:269
+msgid "Reject"
+msgstr "رد کردن"
+
+#: boards/models.py:270
+msgid "Accept"
+msgstr "پذیرفتن"
+
+#: boards/models.py:271
+msgid "Invite"
+msgstr "دعوت"
+
+#: boards/models.py:286
+#, python-format
+msgid "%(username)s %(action)s %(board_title)s"
+msgstr "%(username)s %(action)s %(board_title)s"
+
+#: boards/serializers.py:113
+#, python-format
+msgid ""
+"You have reached the maximum number of boards allowed. You can create "
+"%(remaining)s more."
+msgstr "شما به حداکثر تعداد تابلوهای مجاز رسیده‌اید. شما می‌توانید %(remaining)s تابلو دیگر ایجاد کنید."
+
+#: boards/serializers.py:179
+msgid "This user is already signed up"
+msgstr "این کاربر از قبل ثبت‌نام کرده است"
+
+#: boards/serializers.py:195
+msgid "An invitation has already been sent to this email for this board."
+msgstr "قبلاً دعوت‌نامه‌ای برای این ایمیل به این تابلو ارسال شده است."
+
+#: boards/serializers.py:202
+#, python-format
+msgid ""
+"Board has reached the maximum number of members. %(remaining_slots)s slots "
+"remaining."
+msgstr "تابلو به حداکثر تعداد اعضا رسیده است. %(remaining_slots)s جای باقی مانده است."
+
+#: boards/serializers.py:235
+msgid "Board context missing."
+msgstr "زمینه تابلو موجود نیست."
+
+#: boards/serializers.py:241
+msgid "No registered user with this username or email was found."
+msgstr "هیچ کاربر ثبت‌نام شده‌ای با این نام کاربری یا ایمیل یافت نشد."
+
+#: boards/serializers.py:245
+msgid "This user is already a member of the board."
+msgstr "این کاربر از قبل عضو تابلو است."
+
+#: boards/serializers.py:249
+msgid "An invitation has already been sent to this user."
+msgstr "قبلاً دعوت‌نامه‌ای برای این کاربر ارسال شده است."
+
+#: boards/serializers.py:254 boards/views.py:609
+msgid "Board has reached the maximum number of members."
+msgstr "تابلو به حداکثر تعداد اعضا رسیده است."
+
+#: boards/serializers.py:259
+msgid "The user has reached their maximum number of board memberships."
+msgstr "کاربر به حداکثر تعداد عضویت در تابلوها رسیده است."
+
+#: boards/signals.py:15
+msgid "Todo"
+msgstr "انجام شود"
+
+#: boards/signals.py:15
+msgid "Doing"
+msgstr "در حال انجام"
+
+#: boards/signals.py:15
+msgid "Done"
+msgstr "انجام شده"
+
+#: boards/tasks.py:22
+msgid "Invalid or unusable invitation"
+msgstr "دعوت‌نامه نامعتبر یا غیرقابل استفاده"
+
+#: boards/tasks.py:27
+#, python-format
+msgid ""
+"Hi %(name)s,\n"
+"\n"
+"You have a new invitation to join the board '%(board_title)s'.\n"
+"\n"
+"Please log in to your dashboard (%(site_link)s) to accept or reject the "
+"invitation.\n"
+"\n"
+"Regards,\n"
+"%(invited_by)s"
+msgstr "سلام %(name)s،\n\nشما دعوت‌نامه جدیدی برای پیوستن به تابلو '%(board_title)s' دارید.\n\nلطفاً وارد داشبورد خود شوید (%(site_link)s) تا دعوت‌نامه را بپذیرید یا رد کنید.\n\nبا احترام،\n%(invited_by)s"
+
+#: boards/tasks.py:44
+#, python-format
+msgid "New board invitation: %(board_title)s"
+msgstr "دعوت‌نامه جدید تابلو: %(board_title)s"
+
+#: boards/tasks.py:51
+msgid "Notification sent"
+msgstr "اعلان ارسال شد"
+
+#: boards/tasks.py:53
+msgid "Invitation does not exist"
+msgstr "دعوت‌نامه وجود ندارد"
+
+#: boards/tasks.py:70
+#, python-format
+msgid "Invitation %(invitation_id)s is already used or expired"
+msgstr "دعوت‌نامه %(invitation_id)s قبلاً استفاده شده یا منقضی شده است"
+
+#: boards/tasks.py:91
+#, python-format
+msgid "Invitation to join \"%(board_title)s\" board"
+msgstr "دعوت‌نامه برای پیوستن به تابلو \"%(board_title)s\""
+
+#: boards/tasks.py:99
+#, python-format
+msgid "Email sent successfully to %(email)s"
+msgstr "ایمیل با موفقیت به %(email)s ارسال شد"
+
+#: boards/tasks.py:102
+#, python-format
+msgid "BoardInvitation with id %(invitation_id)s does not exist"
+msgstr "دعوت‌نامه تابلو با شناسه %(invitation_id)s وجود ندارد"
+
+#: boards/views.py:73
+msgid "You have reached the maximum number of boards allowed."
+msgstr "شما به حداکثر تعداد تابلوهای مجاز رسیده‌اید."
+
+#: boards/views.py:85
+#, python-format
+msgid "Board '%(title)s' created by %(user)s"
+msgstr "تابلو '%(title)s' توسط %(user)s ایجاد شد"
+
+#: boards/views.py:121 boards/views.py:249 boards/views.py:310
+#: boards/views.py:331 boards/views.py:403 boards/views.py:470
+#: boards/views.py:532 boards/views.py:694
+msgid "Board not found or you do not have access."
+msgstr "تابلو یافت نشد یا شما دسترسی ندارید."
+
+#: boards/views.py:148
+msgid "Only the board owner or an admin can edit the board."
+msgstr "فقط مالک تابلو یا مدیر می‌تواند تابلو را ویرایش کند."
+
+#: boards/views.py:153
+msgid "You do not have permission to edit this board."
+msgstr "شما مجوز ویرایش این تابلو را ندارید."
+
+#: boards/views.py:167
+#, python-format
+msgid "Board '%(title)s' updated by %(user)s"
+msgstr "تابلو '%(title)s' توسط %(user)s بروزرسانی شد"
+
+#: boards/views.py:188
+msgid "Only the board owner can delete the board."
+msgstr "فقط مالک تابلو می‌تواند تابلو را حذف کند."
+
+#: boards/views.py:197
+#, python-format
+msgid "Board '%(title)s' deleted by %(user)s"
+msgstr "تابلو '%(title)s' توسط %(user)s حذف شد"
+
+#: boards/views.py:202
+msgid "Board deleted successfully"
+msgstr "تابلو با موفقیت حذف شد"
+
+#: boards/views.py:296
+msgid "Only the board owner or an admin can view invitations."
+msgstr "فقط مالک تابلو یا مدیر می‌تواند دعوت‌نامه‌ها را مشاهده کند."
+
+#: boards/views.py:301
+msgid "You do not have permission to view invitations."
+msgstr "شما مجوز مشاهده دعوت‌نامه‌ها را ندارید."
+
+#: boards/views.py:343 boards/views.py:410
+msgid "Only the board owner or an admin can invite a new member."
+msgstr "فقط مالک تابلو یا مدیر می‌تواند عضو جدید دعوت کند."
+
+#: boards/views.py:348 boards/views.py:412
+msgid "You do not have permission to invite a new member."
+msgstr "شما مجوز دعوت عضو جدید را ندارید."
+
+#: boards/views.py:367
+#, python-format
+msgid "%(invited_identity)s has been invited to the board by %(user)s"
+msgstr "%(invited_identity)s توسط %(user)s به تابلو دعوت شده است"
+
+#: boards/views.py:435
+#, python-format
+msgid "%(username)s has been invited to the board by %(user)s"
+msgstr "%(username)s توسط %(user)s به تابلو دعوت شده است"
+
+#: boards/views.py:477
+msgid "The board owner cannot leave their own board."
+msgstr "مالک تابلو نمی‌تواند تابلو خود را ترک کند."
+
+#: boards/views.py:488
+msgid "You are not a member of this board."
+msgstr "شما عضو این تابلو نیستید."
+
+#: boards/views.py:500
+#, python-format
+msgid "%(username)s left the board"
+msgstr "%(username)s تابلو را ترک کرد"
+
+#: boards/views.py:504
+msgid "Left the board successfully"
+msgstr "با موفقیت تابلو را ترک کردید"
+
+#: boards/views.py:579
+msgid "Action must be 'accept' or 'reject'."
+msgstr "عمل باید 'accept' یا 'reject' باشد."
+
+#: boards/views.py:584
+msgid "Invitation not found or already processed."
+msgstr "دعوت‌نامه یافت نشد یا قبلاً پردازش شده است."
+
+#: boards/views.py:588
+msgid "This invitation is not for you."
+msgstr "این دعوت‌نامه برای شما نیست."
+
+#: boards/views.py:591
+msgid "Invitation has expired."
+msgstr "دعوت‌نامه منقضی شده است."
+
+#: boards/views.py:601
+#, python-format
+msgid "%(username)s rejected the invitation"
+msgstr "%(username)s دعوت‌نامه را رد کرد"
+
+#: boards/views.py:603
+msgid "Invitation rejected."
+msgstr "دعوت‌نامه رد شد."
+
+#: boards/views.py:611
+msgid "You have reached the maximum number of board memberships."
+msgstr "شما به حداکثر تعداد عضویت در تابلوها رسیده‌اید."
+
+#: boards/views.py:624
+msgid "You are already a member of this board."
+msgstr "شما از قبل عضو این تابلو هستید."
+
+#: boards/views.py:635
+#, python-format
+msgid "%(username)s accepted the invitation"
+msgstr "%(username)s دعوت‌نامه را پذیرفت"
+
+#: boards/views.py:638
+msgid "Successfully joined the board."
+msgstr "با موفقیت به تابلو پیوستید."
+
+#: boards/views.py:706
+msgid "Only the board owner or an admin can remove members."
+msgstr "فقط مالک تابلو یا مدیر می‌تواند اعضا را حذف کند."
+
+#: boards/views.py:711
+msgid "You do not have permission to remove members."
+msgstr "شما مجوز حذف اعضا را ندارید."
+
+#: boards/views.py:720
+msgid "User not found."
+msgstr "کاربر یافت نشد."
+
+#: boards/views.py:727
+msgid "The board owner cannot be removed from their own board."
+msgstr "مالک تابلو نمی‌تواند از تابلو خود حذف شود."
+
+#: boards/views.py:738
+msgid "User is not a member of this board."
+msgstr "کاربر عضو این تابلو نیست."
+
+#: boards/views.py:750
+#, python-format
+msgid "%(target_user)s was removed from the board by %(user)s"
+msgstr "%(target_user)s توسط %(user)s از تابلو حذف شد"
+
+#: boards/views.py:754
+msgid "Member removed successfully"
+msgstr "عضو با موفقیت حذف شد"
+
+#: lists/models.py:73
+#, python-format
+msgid "%(board_title)s - %(list_title)s"
+msgstr "%(board_title)s - %(list_title)s"
+
+#: lists/views.py:39 lists/views.py:52
+msgid "You don't have permission to access this board."
+msgstr "شما مجوز دسترسی به این تابلو را ندارید."
+
+#: lists/views.py:58
+msgid "List all lists in a board"
+msgstr "فهرست تمام لیست‌ها در تابلو"
+
+#: lists/views.py:67
+msgid "Create a new list in a board"
+msgstr "ایجاد لیست جدید در تابلو"
+
+#: lists/views.py:91 lists/views.py:98
+msgid "You don't have permission to access this list."
+msgstr "شما مجوز دسترسی به این لیست را ندارید."
+
+#: lists/views.py:101
+msgid "Retrieve a list"
+msgstr "دریافت لیست"
+
+#: lists/views.py:107
+msgid "Partially update a list"
+msgstr "بروزرسانی جزئی لیست"
+
+#: lists/views.py:116
+msgid "Delete a list"
+msgstr "حذف لیست"
+
+#: lists/views.py:116 tasks/views.py:134 tasks/views.py:471
+msgid "No Content"
+msgstr "بدون محتوا"
+
+#: lists/views.py:130
+msgid "You don't have permission to move this list."
+msgstr "شما مجوز جابه‌جایی این لیست را ندارید."
+
+#: lists/views.py:133
+msgid "Move list to new position"
+msgstr "جابه‌جایی لیست به موقعیت جدید"
+
+#: tasks/models.py:17
+msgid "Low"
+msgstr "کم"
+
+#: tasks/models.py:18
+msgid "Medium"
+msgstr "متوسط"
+
+#: tasks/models.py:19
+msgid "High"
+msgstr "زیاد"
+
+#: tasks/models.py:20
+msgid "Urgent"
+msgstr "فوری"
+
+#: tasks/models.py:49 tasks/serializers.py:151
+msgid "All assigned users must be members of this board."
+msgstr "تمام کاربران منصوب شده باید عضو این تابلو باشند."
+
+#: tasks/models.py:102
+msgid "Cannot move task between different boards"
+msgstr "نمی‌توان وظیفه را بین تابلوهای مختلف جابه‌جا کرد"
+
+#: tasks/models.py:163
+#, python-format
+msgid "%(list_title)s - %(task_title)s"
+msgstr "%(list_title)s - %(task_title)s"
+
+#: tasks/models.py:182
+msgid "Only board members can comment."
+msgstr "فقط اعضای تابلو می‌توانند نظر بدهند."
+
+#: tasks/models.py:189
+#, python-format
+msgid "%(username)s - %(task_title)s"
+msgstr "%(username)s - %(task_title)s"
+
+#: tasks/serializers.py:120 tasks/serializers.py:178 tasks/views.py:47
+msgid "You don't have access to this list."
+msgstr "شما دسترسی به این لیست ندارید."
+
+#: tasks/serializers.py:189
+msgid "Either new_list or new_position must be provided."
+msgstr "یا new_list یا new_position باید ارائه شود."
+
+#: tasks/serializers.py:222 tasks/views.py:107 tasks/views.py:240
+#: tasks/views.py:318 tasks/views.py:398
+msgid "You don't have access to this task."
+msgstr "شما دسترسی به این وظیفه ندارید."
+
+#: tasks/views.py:51
+msgid "List not found."
+msgstr "لیست یافت نشد."
+
+#: tasks/views.py:64 tasks/views.py:120 tasks/views.py:257 tasks/views.py:451
+msgid "Bad Request"
+msgstr "درخواست نامعتبر"
+
+#: tasks/views.py:111 tasks/views.py:244 tasks/views.py:307 tasks/views.py:387
+msgid "Task not found."
+msgstr "وظیفه یافت نشد."
+
+#: tasks/views.py:134 tasks/views.py:451 tasks/views.py:471
+msgid "Forbidden"
+msgstr "ممنوع"
+
+#: tasks/views.py:158
+msgid "Only the task creator, board owner, or admin can delete this task."
+msgstr "فقط سازنده وظیفه، مالک تابلو یا مدیر می‌تواند این وظیفه را حذف کند."
+
+#: tasks/views.py:164
+msgid "Task deleted successfully"
+msgstr "وظیفه با موفقیت حذف شد"
+
+#: tasks/views.py:333
+msgid "Cannot move task to a list in a different board."
+msgstr "نمی‌توان وظیفه را به لیستی در تابلو متفاوت جابه‌جا کرد."
+
+#: tasks/views.py:404
+msgid "Task marked as incomplete"
+msgstr "وظیفه به عنوان ناکامل علامت‌گذاری شد"
+
+#: tasks/views.py:407
+msgid "Task marked as completed"
+msgstr "وظیفه به عنوان کامل علامت‌گذاری شد"
+
+#: tasks/views.py:438
+msgid "You don't have access to this comment."
+msgstr "شما دسترسی به این نظر ندارید."
+
+#: tasks/views.py:442
+msgid "Comment not found."
+msgstr "نظر یافت نشد."
+
+#: tasks/views.py:458
+msgid "Only the comment author can edit this comment."
+msgstr "فقط نویسنده نظر می‌تواند این نظر را ویرایش کند."
+
+#: tasks/views.py:495
+msgid "Only the comment author, board owner, or admin can delete this comment."
+msgstr "فقط نویسنده نظر، مالک تابلو یا مدیر می‌تواند این نظر را حذف کند."
+
+#: tasks/views.py:501
+msgid "Comment deleted successfully"
+msgstr "نظر با موفقیت حذف شد"
+
+#~ msgid "this is test message"
+#~ msgstr "ای یه پیام تست هسته هههه"
