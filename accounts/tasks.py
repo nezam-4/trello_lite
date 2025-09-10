@@ -1,5 +1,6 @@
 from celery import shared_task
 from django.core.files.storage import default_storage
+from django.utils.translation import gettext as _
 from PIL import Image
 import io
 import os
@@ -16,7 +17,7 @@ def create_avatar_thumbnail(profile_id):
         profile = Profile.objects.get(id=profile_id)
         
         if not profile.avatar:
-            return f"No avatar found for profile {profile_id}"
+            return _("No avatar found for profile {}").format(profile_id)
             
         # Open the image
         image = Image.open(profile.avatar)
@@ -53,9 +54,9 @@ def create_avatar_thumbnail(profile_id):
         # Save the thumbnail alongside the original avatar
         default_storage.save(thumbnail_path, thumb_io)
         
-        return f"Thumbnail created successfully for profile {profile_id}"
+        return _("Thumbnail created successfully for profile {}").format(profile_id)
         
     except Profile.DoesNotExist:
-        return f"Profile {profile_id} not found"
+        return _("Profile {} not found").format(profile_id)
     except Exception as e:
-        return f"Error creating thumbnail for profile {profile_id}: {str(e)}"
+        return _("Error creating thumbnail for profile {}: {}").format(profile_id, str(e))

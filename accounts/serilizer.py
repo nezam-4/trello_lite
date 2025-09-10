@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
+from django.utils.translation import gettext_lazy as _
 from .models import CustomUser, Profile
 
 
@@ -67,14 +68,14 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         """Ensure email uniqueness excluding current user"""
         user = self.instance
         if CustomUser.objects.exclude(pk=user.pk).filter(email=value).exists():
-            raise serializers.ValidationError("A user with this email already exists.")
+            raise serializers.ValidationError(_("A user with this email already exists."))
         return value
     
     def validate_username(self, value):
         """Ensure username uniqueness excluding current user"""
         user = self.instance
         if CustomUser.objects.exclude(pk=user.pk).filter(username=value).exists():
-            raise serializers.ValidationError("A user with this username already exists.")
+            raise serializers.ValidationError(_("A user with this username already exists."))
         return value
 
 
@@ -96,7 +97,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         
         # Check if passwords match
         if pwd1 != pwd2:
-            raise serializers.ValidationError({"password2": "Passwords do not match."})
+            raise serializers.ValidationError({"password2": _("Passwords do not match.")})
         
         # Validate password complexity using Django's validators
         validate_password(pwd1)
@@ -128,7 +129,7 @@ class ChangePasswordSerializer(serializers.Serializer):
         """Verify the current password is correct"""
         user = self.context['request'].user
         if not user.check_password(value):
-            raise serializers.ValidationError("Old password is incorrect.")
+            raise serializers.ValidationError(_("Old password is incorrect."))
         return value
     
     def validate(self, attrs):
@@ -138,7 +139,7 @@ class ChangePasswordSerializer(serializers.Serializer):
         
         # Check if new passwords match
         if pwd1 != pwd2:
-            raise serializers.ValidationError({"new_password2": "New passwords do not match."})
+            raise serializers.ValidationError({"new_password2": _("New passwords do not match.")})
         
         # Validate new password complexity
         validate_password(pwd1)
