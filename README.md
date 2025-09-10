@@ -29,8 +29,6 @@ sudo systemctl start redis-server
 brew install redis
 brew services start redis
 
-# Or use Docker
-docker run -d -p 6379:6379 redis:alpine
 ```
 
 ### 3. Configure Email Settings
@@ -73,13 +71,51 @@ celery -A core worker --loglevel=info
 python manage.py runserver
 ```
 
-## Testing the System
+### 7. Setup and Start Frontend (Vue.js)
 
-### Method 1: Using Management Command
+First, install Node.js if not already installed:
 
 ```bash
-python manage.py test_invitation_email --email recipient@example.com
+# Ubuntu/Debian
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# macOS
+brew install node
+
+# Or download from: https://nodejs.org/
 ```
+
+Navigate to frontend directory and install dependencies:
+
+```bash
+cd frontend
+npm install
+```
+
+Start the frontend development server:
+
+```bash
+npm run dev
+```
+
+The frontend will be available at `http://localhost:5173`
+
+**Alternative**: Use the restart script from project root:
+
+```bash
+chmod +x restart_frontend.sh
+./restart_frontend.sh
+```
+
+### 8. Access the Application
+
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:8000
+- **API Documentation**: http://localhost:8000/swagger/
+
+## Testing the System
+
 
 ### Method 2: Using API
 
