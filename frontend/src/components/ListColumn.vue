@@ -393,12 +393,10 @@ async function addTask() {
   if (!newTitle.value.trim()) return;
   
   try {
-    await tasksStore.createTask({
-      title: newTitle.value,
-      list: props.list.id,
-    });
+    await tasksStore.createTask(props.list.id, newTitle.value);
     newTitle.value = '';
     adding.value = false;
+    await fetch(); // Refresh tasks to show the new task
   } catch (error) {
     console.error('Failed to create task:', error);
   }
