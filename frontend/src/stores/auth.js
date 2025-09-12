@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import api from '../api';
+import { useErrorsStore } from './errors';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -24,6 +25,37 @@ export const useAuthStore = defineStore('auth', {
         return true;
       } catch (err) {
         console.error('Login error:', err);
+        // Extract server-provided message if available
+        const errorsStore = useErrorsStore();
+        let message = 'خطا در ورود';
+        const data = err?.response?.data;
+        if (data) {
+          if (typeof data === 'string') {
+            message = data;
+          } else if (data.detail) {
+            message = data.detail;
+          } else if (data.non_field_errors) {
+            message = Array.isArray(data.non_field_errors) ? data.non_field_errors.join('، ') : String(data.non_field_errors);
+          } else if (data.error) {
+            message = Array.isArray(data.error) ? data.error.join('، ') : String(data.error);
+          } else if (typeof data === 'object') {
+            // Flatten first few field errors
+            const parts = [];
+            for (const [key, val] of Object.entries(data)) {
+              const text = Array.isArray(val) ? val.join('، ') : String(val);
+              parts.push(`${key}: ${text}`);
+              if (parts.length >= 3) break;
+            }
+            if (parts.length) {
+              message = parts.join(' | ');
+            } else {
+              message = JSON.stringify(data);
+            }
+          }
+        } else if (err?.message) {
+          message = err.message;
+        }
+        errorsStore.setError(message);
         return false;
       }
     },

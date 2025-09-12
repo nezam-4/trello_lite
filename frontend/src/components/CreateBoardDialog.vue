@@ -29,6 +29,11 @@
 
       <!-- Content -->
       <div class="flex-1 overflow-y-auto">
+        <div v-if="error" class="p-6 pt-6">
+          <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+            {{ error }}
+          </div>
+        </div>
         <form @submit.prevent="submit" class="p-6 space-y-6">
         <div>
           <label class="block text-sm font-semibold text-gray-700 mb-2">عنوان برد</label>
@@ -39,6 +44,9 @@
             placeholder="نام برد را وارد کنید..."
             required 
           />
+          <p v-if="errors && errors.title" class="mt-2 text-sm text-red-600">
+            {{ formatErr(errors.title) }}
+          </p>
         </div>
         
         <div>
@@ -49,6 +57,9 @@
             class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all duration-200"
             placeholder="توضیحات برد (اختیاری)..."
           ></textarea>
+          <p v-if="errors && errors.description" class="mt-2 text-sm text-red-600">
+            {{ formatErr(errors.description) }}
+          </p>
         </div>
         
         <div>
@@ -83,6 +94,9 @@
               class="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" 
             />
           </div>
+          <p v-if="errors && errors.color" class="mt-2 text-sm text-red-600">
+            {{ formatErr(errors.color) }}
+          </p>
         </div>
         
         <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-xl border border-blue-100">
@@ -108,10 +122,9 @@
             </div>
           </div>
         </div>
-        
-        <div v-if="error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
-          {{ error }}
-        </div>
+        <p v-if="errors && errors.is_public" class="text-sm text-red-600">
+          {{ formatErr(errors.is_public) }}
+        </p>
         
         </form>
       </div>
@@ -144,7 +157,8 @@ import { reactive } from 'vue';
 
 const props = defineProps({
   visible: { type: Boolean, default: false },
-  error: { type: String, default: '' }
+  error: { type: String, default: '' },
+  errors: { type: Object, default: null }
 });
 const emit = defineEmits(['submit', 'cancel']);
 
@@ -177,5 +191,11 @@ function submit() {
   form.description = '';
   form.color = '#3B82F6';
   form.is_public = false;
+}
+
+function formatErr(val) {
+  if (!val) return '';
+  if (Array.isArray(val)) return val.join('، ');
+  return typeof val === 'string' ? val : String(val);
 }
 </script>

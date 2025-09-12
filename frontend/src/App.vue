@@ -1,6 +1,5 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-    <ErrorAlert />
     <Header />
     <main class="transition-all duration-300">
       <router-view />
@@ -10,7 +9,6 @@
 
 <script setup>
 import Header from './components/Header.vue';
-import ErrorAlert from './components/ErrorAlert.vue';
 </script>
 
 <style>

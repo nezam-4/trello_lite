@@ -18,19 +18,23 @@
         <button @click="cancel" class="px-3 py-1 bg-gray-300 rounded">انصراف</button>
         <button @click="save" class="px-3 py-1 bg-blue-600 text-white rounded">ارسال</button>
       </div>
-      <p v-if="error" class="text-red-600 mt-2 text-sm">{{ error }}</p>
+      <div v-if="errorMessages.length" class="mt-3 bg-red-50 border border-red-200 rounded p-2">
+        <ul class="list-disc pr-5 text-red-700 text-sm space-y-1">
+          <li v-for="(msg, idx) in errorMessages" :key="idx">{{ msg }}</li>
+        </ul>
+      </div>
       <p v-if="success" class="text-green-600 mt-2 text-sm">{{ success }}</p>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 
 const props = defineProps({
   visible: Boolean,
   type: { type: String, default: 'user' }, // 'user' or 'email'
-  error: String,
+  error: { type: [String, Object, Array], default: '' },
   success: String,
 });
 const emit = defineEmits(['cancel', 'submit']);
@@ -41,6 +45,32 @@ watch(() => props.visible, (v) => { if (v) input.value = ''; });
 
 const title = props.type === 'user' ? 'دعوت کاربر موجود' : 'دعوت کاربر با ایمیل';
 const placeholder = props.type === 'user' ? 'نام کاربری' : 'ایمیل';
+
+const errorMessages = computed(() => flattenErrors(props.error));
+
+function flattenErrors(err) {
+  if (!err) return [];
+  // If string, try to parse JSON, otherwise return as single message
+  if (typeof err === 'string') {
+    const s = err.trim();
+    if ((s.startsWith('{') && s.endsWith('}')) || (s.startsWith('[') && s.endsWith(']'))) {
+      try { return flattenErrors(JSON.parse(s)); } catch { return [s]; }
+    }
+    return [s];
+  }
+  // If array, flatten nested and stringify values
+  if (Array.isArray(err)) {
+    return err.flatMap(item => flattenErrors(item));
+  }
+  // If object, collect values (ignore keys)
+  if (typeof err === 'object') {
+    const vals = Object.values(err);
+    if (!vals.length) return [];
+    return vals.flatMap(v => flattenErrors(v));
+  }
+  // Fallback
+  return [String(err)];
+}
 
 function cancel() { emit('cancel'); }
 function save() { emit('submit', { value: input.value.trim(), role: role.value }); }

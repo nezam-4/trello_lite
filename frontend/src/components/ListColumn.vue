@@ -254,6 +254,14 @@
         </div>
       </div>
     </div>
+
+    <!-- Delete Confirm Dialog -->
+    <DeleteConfirmDialog
+      :visible="showDeleteDialog"
+      :message="`آیا از حذف لیست «${list.title}» مطمئن هستید؟`"
+      @cancel="cancelDeleteList"
+      @confirm="confirmDeleteList"
+    />
   </div>
 </template>
 
@@ -262,6 +270,7 @@ import { onMounted, computed, watch, ref, nextTick, onUnmounted } from 'vue';
 import { useTasksStore } from '../stores/tasks';
 import { useListsStore } from '../stores/lists';
 import CardItem from './CardItem.vue';
+import DeleteConfirmDialog from './DeleteConfirmDialog.vue';
 
 const props = defineProps({
   list: {
@@ -280,6 +289,7 @@ const showColorPicker = ref(false);
 const editing = ref(false);
 const editTitle = ref('');
 const editInput = ref();
+const showDeleteDialog = ref(false);
 
 // Modal editing state
 const showEditModal = ref(false);
@@ -544,16 +554,23 @@ function cancel() {
   newTitle.value = '';
 }
 
-async function deleteList() {
+function deleteList() {
   closeMenu();
-  if (confirm(`آیا مطمئن هستید که می‌خواهید لیست "${props.list.title}" را حذف کنید؟`)) {
-    try {
-      await listsStore.deleteList(props.list.id);
-    } catch (error) {
-      console.error('Failed to delete list:', error);
-      // Optionally show error message to user
-    }
+  showDeleteDialog.value = true;
+}
+
+async function confirmDeleteList() {
+  try {
+    await listsStore.deleteList(props.list.id);
+  } catch (error) {
+    console.error('Failed to delete list:', error);
+  } finally {
+    showDeleteDialog.value = false;
   }
+}
+
+function cancelDeleteList() {
+  showDeleteDialog.value = false;
 }
 
 // Close menu when clicking outside

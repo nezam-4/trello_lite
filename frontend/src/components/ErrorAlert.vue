@@ -1,10 +1,11 @@
 <template>
-  <div v-if="message" class="fixed top-4 inset-x-0 flex justify-center z-50">
-    <div class="bg-red-500 text-white px-4 py-2 rounded shadow-lg flex items-center space-x-3 rtl:space-x-reverse max-w-lg w-full mx-4">
-      <span class="flex-1">{{ message }}</span>
-      <button @click="clear" class="text-white hover:text-gray-200">✕</button>
+  <div v-if="message" class="fixed inset-0 z-50 flex items-center justify-center">
+    <div class="bg-red-500 text-white px-4 py-3 rounded shadow-lg max-w-lg w-[90%] mx-auto flex items-center gap-3">
+      <span class="flex-1 text-center">{{ message }}</span>
+      <button @click="clear" class="text-white/90 hover:text-white">✕</button>
     </div>
   </div>
+  
 </template>
 
 <script setup>

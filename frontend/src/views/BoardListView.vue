@@ -39,7 +39,7 @@
               >
                 <div class="absolute inset-0 bg-black/10"></div>
                 <button 
-                  @click.stop="toggleMenu(board.id)" 
+                  @click.stop="toggleMenu(board, $event)" 
                   class="absolute top-2 sm:top-3 left-2 sm:left-3 w-6 h-6 sm:w-8 sm:h-8 bg-white/20 hover:bg-white/30 rounded-md sm:rounded-lg flex items-center justify-center text-white transition-all duration-200 board-menu-button opacity-0 group-hover:opacity-100"
                 >
                   <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -115,17 +115,22 @@
               <div class="flex gap-2">
                 <button 
                   @click="respondInvitation(inv.id, 'accept')" 
-                  class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white text-xs sm:text-sm font-medium py-1.5 sm:py-2 px-2 sm:px-3 rounded-md sm:rounded-lg transition-colors"
+                  :disabled="invitationLoading[inv.id]"
+                  class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white text-xs sm:text-sm font-medium py-1.5 sm:py-2 px-2 sm:px-3 rounded-md sm:rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   پذیرش
                 </button>
                 <button 
                   @click="respondInvitation(inv.id, 'reject')" 
-                  class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs sm:text-sm font-medium py-1.5 sm:py-2 px-2 sm:px-3 rounded-md sm:rounded-lg transition-colors"
+                  :disabled="invitationLoading[inv.id]"
+                  class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs sm:text-sm font-medium py-1.5 sm:py-2 px-2 sm:px-3 rounded-md sm:rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   رد
                 </button>
               </div>
+              <p v-if="invitationErrors[inv.id]" class="mt-2 text-xs text-red-700 bg-red-50 border border-red-200 rounded px-2 py-1">
+                {{ invitationErrors[inv.id] }}
+              </p>
             </div>
           </div>
         </div>
@@ -163,6 +168,7 @@
   <CreateBoardDialog
     :visible="showCreateDialog"
     :error="createError"
+    :errors="createFieldErrors"
     @cancel="showCreateDialog=false"
     @submit="handleCreateSave"
   />
@@ -171,98 +177,92 @@
     :visible="showDialog"
     :board="selectedBoard"
     :error="dialogError"
+    :errors="dialogFieldErrors"
     @cancel="showDialog=false"
     @save="handleDialogSave"
   />
-  <!-- Board Menu Modal v2024 -->
-  <div v-if="showBoardMenuModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-end z-[99999] p-4" @click="showBoardMenuModal=false">
-    <div class="bg-gradient-to-br from-blue-50 via-white to-purple-50 rounded-xl sm:rounded-2xl shadow-2xl w-72 sm:w-80 max-h-[85vh] sm:max-h-[90vh] overflow-y-auto border border-gray-200/50" @click.stop>
-      <!-- Header -->
-      <div class="bg-gradient-to-r from-blue-500 to-purple-600 px-4 sm:px-6 py-3 sm:py-4">
-        <div class="flex items-center justify-between">
-          <h3 class="text-base sm:text-lg font-bold text-white">تنظیمات برد</h3>
-          <button @click="showBoardMenuModal=false" class="p-1 hover:bg-white/20 rounded-lg transition-colors">
-            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-          </button>
-        </div>
-        <p class="text-xs sm:text-sm text-white/90 mt-1">{{ selectedBoardForMenu?.title }}</p>
+  <!-- Board Menu Popover (next to board) -->
+  <div v-if="showBoardMenuPopover" class="fixed inset-0 z-[99998]" @click="closeMenu"></div>
+  <div 
+    v-if="showBoardMenuPopover" 
+    class="fixed z-[99999] w-72 sm:w-80 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden"
+    :style="{ top: popoverPos.top + 'px', left: popoverPos.left + 'px' }"
+    @click.stop
+  >
+    <div class="px-4 sm:px-5 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm sm:text-base font-bold">تنظیمات برد</h3>
+        <button @click="closeMenu" class="p-1 hover:bg-white/20 rounded-lg transition-colors">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
       </div>
-
-      <!-- Menu Options -->
-      <div class="p-3 sm:p-4 space-y-1 bg-white/80 backdrop-blur-sm">
-        <button @click="handleMenuActivities(selectedBoardForMenu.id)" class="flex items-center gap-3 w-full px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-gray-700 bg-white/60 hover:bg-blue-50 rounded-lg transition-colors">
+      <p class="text-xs sm:text-sm text-white/90 mt-1 truncate">{{ selectedBoardForMenu?.title }}</p>
+    </div>
+    <div class="p-2 sm:p-3 bg-white">
+      <button @click="handleMenuActivities(selectedBoardForMenu.id)" class="flex items-center gap-3 w-full px-3 py-2.5 text-xs sm:text-sm text-gray-700 hover:bg-blue-50 rounded-lg transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span>تاریخچه</span>
+      </button>
+      <button @click="handleMenuMembers(selectedBoardForMenu.id)" class="flex items-center gap-3 w-full px-3 py-2.5 text-xs sm:text-sm text-gray-700 hover:bg-blue-50 rounded-lg transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+        </svg>
+        <span>کاربران</span>
+      </button>
+      <button v-if="['owner','admin'].includes(selectedBoardForMenu?.current_user_role)" @click="handleMenuInvitations(selectedBoardForMenu.id)" class="flex items-center gap-3 w-full px-3 py-2.5 text-xs sm:text-sm text-gray-700 hover:bg-blue-50 rounded-lg transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+        </svg>
+        <span>دعوت‌ها</span>
+      </button>
+      <template v-if="['owner','admin'].includes(selectedBoardForMenu?.current_user_role)">
+        <div class="my-2 border-t border-gray-200"></div>
+        <button @click="handleMenuInviteUser(selectedBoardForMenu.id)" class="flex items-center gap-3 w-full px-3 py-2.5 text-xs sm:text-sm text-gray-700 hover:bg-blue-50 rounded-lg transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
           </svg>
-          <span>تاریخچه</span>
+          <span>دعوت کاربر</span>
         </button>
-        
-        <button @click="handleMenuMembers(selectedBoardForMenu.id)" class="flex items-center gap-3 w-full px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-gray-700 bg-white/60 hover:bg-blue-50 rounded-lg transition-colors">
+        <button @click="handleMenuInviteEmail(selectedBoardForMenu.id)" class="flex items-center gap-3 w-full px-3 py-2.5 text-xs sm:text-sm text-gray-700 hover:bg-blue-50 rounded-lg transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zM12 8v1.5a3.5 3.5 0 017 0V8a3.5 3.5 0 013.5 3.5z"/>
           </svg>
-          <span>کاربران</span>
+          <span>دعوت کاربر با ایمیل</span>
         </button>
-        
-        <button 
-          v-if="['owner','admin'].includes(selectedBoardForMenu?.current_user_role)"
-          @click="handleMenuInvitations(selectedBoardForMenu.id)" 
-          class="flex items-center gap-3 w-full px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-gray-700 bg-white/60 hover:bg-blue-50 rounded-lg transition-colors"
-        >
+        <button @click="handleMenuEdit(selectedBoardForMenu)" class="flex items-center gap-3 w-full px-3 py-2.5 text-xs sm:text-sm text-gray-700 hover:bg-blue-50 rounded-lg transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
           </svg>
-          <span>دعوت‌ها</span>
+          <span>ویرایش</span>
         </button>
-        
-        <template v-if="['owner','admin'].includes(selectedBoardForMenu?.current_user_role)">
-          <hr class="my-2">
-          <button @click="handleMenuInviteUser(selectedBoardForMenu.id)" class="flex items-center gap-3 w-full px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-gray-700 bg-white/60 hover:bg-blue-50 rounded-lg transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-            </svg>
-            <span>دعوت کاربر</span>
-          </button>
-          <button @click="handleMenuInviteEmail(selectedBoardForMenu.id)" class="flex items-center gap-3 w-full px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-gray-700 bg-white/60 hover:bg-blue-50 rounded-lg transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zM12 8v1.5a3.5 3.5 0 017 0V8a3.5 3.5 0 013.5 3.5z"/>
-            </svg>
-            <span>دعوت کاربر با ایمیل</span>
-          </button>
-          <button @click="handleMenuEdit(selectedBoardForMenu)" class="flex items-center gap-3 w-full px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-gray-700 bg-white/60 hover:bg-blue-50 rounded-lg transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-            </svg>
-            <span>ویرایش</span>
-          </button>
-        </template>
-        
-        <hr class="my-2">
-        <template v-if="selectedBoardForMenu?.current_user_role === 'owner'">
-          <button @click="handleMenuDelete(selectedBoardForMenu.id)" class="flex items-center gap-3 w-full px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-red-600 bg-white/60 hover:bg-red-50 rounded-lg transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-            </svg>
-            <span>حذف برد</span>
-          </button>
-        </template>
-        <template v-else>
-          <button @click="handleMenuLeave(selectedBoardForMenu.id)" class="flex items-center gap-3 w-full px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-red-600 bg-white/60 hover:bg-red-50 rounded-lg transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-            </svg>
-            <span>ترک برد</span>
-          </button>
-        </template>
-      </div>
+      </template>
+      <div class="my-2 border-t border-gray-200"></div>
+      <template v-if="selectedBoardForMenu?.current_user_role === 'owner'">
+        <button @click="handleMenuDelete(selectedBoardForMenu.id)" class="flex items-center gap-3 w-full px-3 py-2.5 text-xs sm:text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+          <span>حذف برد</span>
+        </button>
+      </template>
+      <template v-else>
+        <button @click="handleMenuLeave(selectedBoardForMenu.id)" class="flex items-center gap-3 w-full px-3 py-2.5 text-xs sm:text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+          </svg>
+          <span>ترک برد</span>
+        </button>
+      </template>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import { ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue';
 import InviteDialog from '../components/InviteDialog.vue';
 import ActivityDialog from '../components/ActivityDialog.vue';
 import InvitationDialog from '../components/InvitationDialog.vue';
@@ -282,14 +282,17 @@ const errorMessage = ref('');
 const showDialog = ref(false);
 const selectedBoard = ref(null);
 const dialogError = ref('');
+const dialogFieldErrors = ref(null);
 const showCreateDialog = ref(false);
 const createError = ref('');
+const createFieldErrors = ref(null);
 const showDeleteDialog = ref(false);
 const showInviteDialog = ref(false);
 const showActivitiesDialog = ref(false);
 const showMembersDialog = ref(false);
 const showInvDialog = ref(false);
-const showBoardMenuModal = ref(false);
+const showBoardMenuPopover = ref(false);
+const popoverPos = ref({ top: 0, left: 0 });
 const selectedBoardForMenu = ref(null);
 const membersList = ref([]);
 const invitationsList = ref([]);
@@ -300,69 +303,107 @@ const inviteSuccess = ref('');
 let inviteBoardId = null;
 const deleteTargetId = ref(null);
 
+// Per-invitation UI state
+const invitationErrors = ref({}); // { [invId]: message }
+const invitationLoading = ref({}); // { [invId]: boolean }
+
 const handleCreateSave = async (data) => {
   createError.value = '';
+  createFieldErrors.value = null;
   try {
     const newBoard = await boardsStore.createBoard(data);
     showCreateDialog.value = false;
     // optionally navigate to board
     // router.push(`/boards/${newBoard.id}`);
   } catch (err) {
-    createError.value = typeof err === 'string' ? err : (err.detail || JSON.stringify(err));
-    // err may be string or object from backend
-    errorMessage.value = typeof err === 'string' ? err : (err.detail || JSON.stringify(err));
+    // err may be a string or an object from backend (e.g., {title: [...], detail: ...})
+    let msg = typeof err === 'string' ? err : (err?.detail || err?.non_field_errors?.join('، ') || 'خطا در ایجاد برد');
+    let fields = null;
+    if (err && typeof err === 'object' && !Array.isArray(err)) {
+      const { detail, non_field_errors, ...rest } = err;
+      if (Object.keys(rest).length) fields = rest;
+      if (!msg && (detail || non_field_errors)) {
+        msg = detail || (Array.isArray(non_field_errors) ? non_field_errors.join('، ') : String(non_field_errors));
+      }
+    }
+    // Fallback to JSON string if still empty
+    if (!msg && err) msg = JSON.stringify(err);
+
+    createError.value = msg;
+    createFieldErrors.value = fields;
+    // Auto-clear after 5 seconds if unchanged (one-time)
+    setTimeout(() => { if (createError.value === msg) createError.value = ''; }, 5000);
+    setTimeout(() => { if (createFieldErrors.value === fields) createFieldErrors.value = null; }, 5000);
   }
 };
 
-function toggleMenu(boardId) {
-  // FORCE CACHE REFRESH - Find the board and show modal
-  console.log('MODAL SHOULD OPEN NOW!', boardId);
-  const board = boardsStore.boards.find(b => b.id === boardId);
-  if (board) {
-    selectedBoardForMenu.value = board;
-    showBoardMenuModal.value = true;
-    console.log('Modal state:', showBoardMenuModal.value, selectedBoardForMenu.value);
+// Clear create error each time the dialog opens
+watch(showCreateDialog, (visible) => {
+  if (visible) {
+    createError.value = '';
+    createFieldErrors.value = null;
   }
+});
+
+function toggleMenu(board, evt) {
+  selectedBoardForMenu.value = board;
+  // Position popover near the clicked button
+  const rect = (evt?.currentTarget || evt?.target)?.getBoundingClientRect?.() || { left: 0, right: 0, bottom: 0 };
+  const menuWidth = 320; // px (approx for sm:w-80)
+  const padding = 8;
+  let left = rect.left; // align to left of button (RTL layout still ok)
+  if (left + menuWidth + padding > window.innerWidth) {
+    left = Math.max(padding, window.innerWidth - menuWidth - padding);
+  }
+  let top = rect.bottom + padding;
+  // Prevent going off bottom; keep some space
+  if (top > window.innerHeight - 200) top = Math.max(padding, window.innerHeight - 200);
+  popoverPos.value = { top, left };
+  showBoardMenuPopover.value = true;
+}
+
+function closeMenu() {
+  showBoardMenuPopover.value = false;
 }
 
 // Modal event handlers
 const handleMenuActivities = async (boardId) => {
-  showBoardMenuModal.value = false;
+  showBoardMenuPopover.value = false;
   await openActivities(boardId);
 };
 
 const handleMenuMembers = async (boardId) => {
-  showBoardMenuModal.value = false;
+  showBoardMenuPopover.value = false;
   await openMembers(boardId);
 };
 
 const handleMenuInvitations = async (boardId) => {
-  showBoardMenuModal.value = false;
+  showBoardMenuPopover.value = false;
   await openInvitations(boardId);
 };
 
 const handleMenuInviteUser = (boardId) => {
-  showBoardMenuModal.value = false;
+  showBoardMenuPopover.value = false;
   openInvite(boardId, 'user');
 };
 
 const handleMenuInviteEmail = (boardId) => {
-  showBoardMenuModal.value = false;
+  showBoardMenuPopover.value = false;
   openInvite(boardId, 'email');
 };
 
 const handleMenuEdit = (board) => {
-  showBoardMenuModal.value = false;
+  showBoardMenuPopover.value = false;
   openEditDialog(board);
 };
 
 const handleMenuDelete = (boardId) => {
-  showBoardMenuModal.value = false;
+  showBoardMenuPopover.value = false;
   prepareDelete(boardId);
 };
 
 const handleMenuLeave = async (boardId) => {
-  showBoardMenuModal.value = false;
+  showBoardMenuPopover.value = false;
   await leaveBoard(boardId);
 };
 
@@ -376,6 +417,7 @@ onMounted(() => {
 const openEditDialog = (board) => {
   selectedBoard.value = { ...board };
   dialogError.value = '';
+  dialogFieldErrors.value = null;
   showDialog.value = true;
 };
 
@@ -386,7 +428,19 @@ const handleDialogSave = async (data) => {
     showDialog.value = false;
     selectedBoard.value = null;
   } catch (err) {
-    dialogError.value = typeof err === 'string' ? err : (err.detail || JSON.stringify(err));
+    // Split error into general message and field-specific errors
+    let msg = typeof err === 'string' ? err : (err?.detail || err?.non_field_errors?.join('، ') || 'خطا در بروزرسانی برد');
+    let fields = null;
+    if (err && typeof err === 'object' && !Array.isArray(err)) {
+      const { detail, non_field_errors, ...rest } = err;
+      if (Object.keys(rest).length) fields = rest;
+      if (!msg && (detail || non_field_errors)) {
+        msg = detail || (Array.isArray(non_field_errors) ? non_field_errors.join('، ') : String(non_field_errors));
+      }
+    }
+    if (!msg && err) msg = JSON.stringify(err);
+    dialogError.value = msg;
+    dialogFieldErrors.value = fields;
   }
 };
 
@@ -400,7 +454,7 @@ const confirmDelete = async () => {
   if (!deleteTargetId.value) return;
   try {
     await boardsStore.deleteBoard(deleteTargetId.value);
-    openMenuId.value = null;
+    showBoardMenuPopover.value = false;
     showDeleteDialog.value = false;
     deleteTargetId.value = null;
   } catch (err) {
@@ -416,7 +470,7 @@ const openInvite = (boardId, type) => {
   inviteSuccess.value = '';
   showInviteDialog.value = true;
   // Close the board menu when opening invite dialog
-  openMenuId.value = null;
+  showBoardMenuPopover.value = false;
 };
 
 const handleInviteSubmit = async ({ value, role }) => {
@@ -431,7 +485,8 @@ const handleInviteSubmit = async ({ value, role }) => {
     }
     inviteSuccess.value = 'دعوت ارسال شد.';
   } catch (e) {
-    inviteError.value = typeof e === 'string' ? e : (e.detail || JSON.stringify(e));
+    // pass raw error (object/array/string) so InviteDialog can flatten and render without keys
+    inviteError.value = e;
   }
 };
 
@@ -439,7 +494,7 @@ const openActivities = async (id) => {
   try {
     activitiesList.value = await boardsStore.fetchActivities(id);
     showActivitiesDialog.value = true;
-    openMenuId.value = null;
+    showBoardMenuPopover.value = false;
   } catch (e) { /* handled globally */ }
 };
 
@@ -447,7 +502,7 @@ const openMembers = async (id) => {
   try {
     membersList.value = await boardsStore.fetchMembers(id);
     showMembersDialog.value = true;
-    openMenuId.value = null;
+    showBoardMenuPopover.value = false;
   } catch (e) { /* ignore */ }
 };
 
@@ -455,14 +510,50 @@ const openInvitations = async (id) => {
   try {
     invitationsList.value = await boardsStore.fetchInvitations(id);
     showInvDialog.value = true;
-    openMenuId.value = null;
+    showBoardMenuPopover.value = false;
   } catch (e) { /* ignore */ }
 };
 
+function formatError(err) {
+  let msg = typeof err === 'string' ? err : (
+    err?.detail ||
+    (Array.isArray(err?.non_field_errors) ? err.non_field_errors.join('، ') : (err?.non_field_errors || ''))
+  );
+  if (!msg && err && typeof err === 'object') {
+    if (Array.isArray(err)) {
+      msg = err.join('، ');
+    } else {
+      const restKeys = Object.keys(err).filter(k => !['detail', 'non_field_errors'].includes(k));
+      if (restKeys.length) {
+        msg = restKeys.map(k => Array.isArray(err[k]) ? err[k].join('، ') : String(err[k])).join(' | ');
+      }
+    }
+  }
+  if (!msg && err) msg = JSON.stringify(err);
+  return msg || 'خطایی رخ داد. لطفاً دوباره تلاش کنید.';
+}
+
 const respondInvitation = async (id, action) => {
-  await invitationsStore.respondInvitation(id, action);
-  // Refresh boards list in case user joined a new board
-  boardsStore.fetchBoards();
+  // Reset error and set loading for this invitation
+  invitationErrors.value = { ...invitationErrors.value, [id]: '' };
+  invitationLoading.value = { ...invitationLoading.value, [id]: true };
+  try {
+    await invitationsStore.respondInvitation(id, action);
+    // Refresh boards list in case user joined a new board
+    boardsStore.fetchBoards();
+  } catch (err) {
+    const msg = formatError(err);
+    invitationErrors.value = { ...invitationErrors.value, [id]: msg };
+    // Auto-clear error after 5s if unchanged
+    setTimeout(() => {
+      if (invitationErrors.value[id] === msg) {
+        const { [id]: _omit, ...rest } = invitationErrors.value;
+        invitationErrors.value = rest;
+      }
+    }, 5000);
+  } finally {
+    invitationLoading.value = { ...invitationLoading.value, [id]: false };
+  }
 };
 
 const leaveBoard = async (id) => {
