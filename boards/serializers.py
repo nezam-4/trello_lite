@@ -254,9 +254,9 @@ class BoardUserInvitationSerializer(serializers.Serializer):
             raise serializers.ValidationError(_("Board has reached the maximum number of members."))
 
         # Check user membership limit
-        can_join, remaining_memberships = check_user_membership_limit(target_user)
-        if not can_join:
-            raise serializers.ValidationError(_("The user has reached their maximum number of board memberships."))
+        # can_join, remaining_memberships = check_user_membership_limit(target_user)
+        # if not can_join:
+        #     raise serializers.ValidationError(_("The user has reached their maximum number of board memberships."))
 
         attrs['target_user'] = target_user
         return attrs

@@ -9,6 +9,7 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from datetime import timedelta
+from .utils import check_board_member_limit, check_user_membership_limit
 
 from .models import Board, BoardMembership, BoardInvitation, BoardActivity
 from .serializers import (
@@ -590,6 +591,9 @@ class BoardInvitationRespondView(APIView):
         if invitation.is_expired:
             return Response({"error": _("Invitation has expired.")}, status=status.HTTP_400_BAD_REQUEST)
 
+        if not check_user_membership_limit(user):
+            return Response({"error": _("You have reached the maximum number of board memberships.")}, status=status.HTTP_400_BAD_REQUEST)
+        
         if action == 'reject':
             invitation.status = 'rejected'
             invitation.is_used = True
