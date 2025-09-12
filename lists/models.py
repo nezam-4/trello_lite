@@ -11,7 +11,7 @@ class List(models.Model):
     
     class Meta:
         ordering = ['position', 'created_at']
-        unique_together = ['board', 'position']
+
     
     def save(self, *args, **kwargs):
         if not self.position:
@@ -25,8 +25,17 @@ class List(models.Model):
         super().save(*args, **kwargs)
     
     def move_to_position(self, new_position):
-        """Move list to a new position using high temporary positions to avoid constraint violations"""
+        """Move list to a new position safely on SQLite/SQLite-like DBs.
+
+        This implementation avoids transient UNIQUE(board, position) conflicts by:
+        1) Temporarily moving the current list to a high position out of the active range
+        2) Shifting affected sibling rows one-by-one in a safe order
+        3) Placing the current list at its final position
+        """
         old_position = self.position
+        # Clamp to at least 1 early
+        if new_position < 1:
+            new_position = 1
         if old_position == new_position:
             return
         
@@ -34,33 +43,40 @@ class List(models.Model):
         from django.db import transaction
         
         with transaction.atomic():
-            # Find a safe temporary position (higher than any existing position)
-            max_position = List.objects.filter(board=self.board).aggregate(
-                models.Max('position')
-            )['position__max'] or 0
+            # Determine bounds and a safe temporary position (higher than any existing position)
+            board_qs = List.objects.filter(board=self.board)
+            total_lists = board_qs.count()
+            # Clamp to the end of the board
+            if new_position > total_lists:
+                new_position = total_lists
+            max_position = board_qs.aggregate(models.Max('position'))['position__max'] or 0
             temp_position = max_position + 1000  # Use a high temporary position
             
-            # Step 1: Move this list to temporary position to avoid conflicts
+            # Step 1: Move this list to a temporary position
             self.position = temp_position
             self.save(update_fields=['position'])
             
-            # Step 2: Shift other lists
+            # Step 2: Shift other lists without violating UNIQUE(board, position)
             if new_position > old_position:
                 # Moving down: shift lists up (decrease their positions)
-                List.objects.filter(
-                    board=self.board,
-                    position__gt=old_position,
-                    position__lte=new_position
-                ).update(position=models.F('position') - 1)
+                affected_ids = (board_qs
+                                .filter(position__gt=old_position, position__lte=new_position)
+                                .order_by('position')
+                                .values_list('pk', flat=True))
+                for pk in affected_ids:
+                    # Update each row individually to avoid transient duplicates
+                    List.objects.filter(pk=pk).update(position=models.F('position') - 1)
             else:
                 # Moving up: shift lists down (increase their positions)
-                List.objects.filter(
-                    board=self.board,
-                    position__gte=new_position,
-                    position__lt=old_position
-                ).update(position=models.F('position') + 1)
+                affected_ids = (board_qs
+                                .filter(position__gte=new_position, position__lt=old_position)
+                                .order_by('-position')
+                                .values_list('pk', flat=True))
+                for pk in affected_ids:
+                    # Update each row individually to avoid transient duplicates
+                    List.objects.filter(pk=pk).update(position=models.F('position') + 1)
             
-            # Step 3: Move this list to its final position
+            # Step 3: Place this list at its final position
             self.position = new_position
             self.save(update_fields=['position'])
     
