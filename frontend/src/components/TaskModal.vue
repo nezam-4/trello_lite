@@ -250,7 +250,7 @@
               
               <!-- Delete Button -->
               <button
-                @click="deleteTask"
+                @click="openDeleteDialog"
                 class="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-3 sm:px-4 lg:px-6 py-2 sm:py-2.5 lg:py-3 rounded-lg sm:rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center space-x-1 sm:space-x-2 space-x-reverse text-sm sm:text-base"
               >
                 <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -300,6 +300,14 @@
       :member="selectedMember"
       @close="closeMemberProfile"
     />
+
+    <!-- Delete Confirm Dialog -->
+    <DeleteConfirmDialog
+      :visible="showDeleteDialog"
+      :message="`آیا از حذف تسک «${task?.title || ''}» مطمئن هستید؟`"
+      @cancel="cancelDelete"
+      @confirm="confirmDelete"
+    />
   </div>
 </template>
 
@@ -307,6 +315,7 @@
 import { reactive, watch, computed, ref, nextTick } from 'vue';
 import AssigneesSelector from './AssigneesSelector.vue';
 import MemberProfileModal from './MemberProfileModal.vue';
+import DeleteConfirmDialog from './DeleteConfirmDialog.vue';
 import { storeToRefs } from 'pinia';
 import { useTasksStore } from '../stores/tasks';
 
@@ -320,6 +329,7 @@ const form = reactive({
 const showDatePicker = ref(false);
 const showMemberProfileModal = ref(false);
 const selectedMember = ref(null);
+const showDeleteDialog = ref(false);
 
 // Priority options with modern styling
 const priorityOptions = [
@@ -484,6 +494,31 @@ async function toggle() {
   if (!task.value) return;
   const updated = await tasksStore.toggleComplete(task.value.id);
   Object.assign(task.value, updated);
+}
+
+// Delete confirm dialog handlers
+function openDeleteDialog() {
+  showDeleteDialog.value = true;
+}
+
+function cancelDelete() {
+  showDeleteDialog.value = false;
+}
+
+async function confirmDelete() {
+  if (!task.value) return;
+  try {
+    await tasksStore.deleteTask(task.value.id);
+  } catch (e) {
+    console.error('Failed to delete task:', e);
+  } finally {
+    showDeleteDialog.value = false;
+  }
+}
+
+// Backward-compatible function name if referenced
+function deleteTask() {
+  openDeleteDialog();
 }
 
 </script>

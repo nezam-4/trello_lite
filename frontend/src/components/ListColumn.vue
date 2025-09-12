@@ -29,8 +29,9 @@
             </div>
           </div>
           
-          <div class="relative flex-shrink-0">
+          <div ref="menuWrapper" class="relative flex-shrink-0">
             <button 
+              ref="menuButton"
               @click="toggleMenu"
               class="p-2 sm:p-2.5 lg:p-3 hover:bg-gray-100 rounded-lg transition-all duration-200 text-gray-500 hover:text-gray-700"
               :class="{ 'bg-gray-100 text-gray-700': showMenu }"
@@ -43,7 +44,12 @@
             <!-- Dropdown Menu -->
             <div 
               v-if="showMenu" 
-              class="absolute right-0 mt-2 w-52 sm:w-56 lg:w-60 bg-white rounded-xl shadow-lg border border-gray-200/50 py-2 z-[9999]"
+              ref="menuEl"
+              :class="[
+                'absolute z-[9999] w-52 sm:w-56 lg:w-60 bg-white rounded-xl shadow-lg border border-gray-200/50 py-2',
+                menuAlignLeft ? 'left-0' : 'right-0',
+                menuDropUp ? 'bottom-full mb-2' : 'top-full mt-2'
+              ]"
               @click.stop
             >
               <button 
@@ -82,7 +88,12 @@
             <!-- Color Picker Modal -->
             <div 
               v-if="showColorPicker" 
-              class="absolute right-0 mt-2 w-64 sm:w-72 lg:w-80 bg-white rounded-xl shadow-lg border border-gray-200/50 z-[9999]"
+              ref="colorPickerEl"
+              :class="[
+                'absolute z-[9999] w-64 sm:w-72 lg:w-80 bg-white rounded-xl shadow-lg border border-gray-200/50',
+                colorPickerAlignLeft ? 'left-0' : 'right-0',
+                colorPickerDropUp ? 'bottom-full mb-2' : 'top-full mt-2'
+              ]"
               @click.stop
             >
               <div class="p-6">
@@ -291,6 +302,16 @@ const editTitle = ref('');
 const editInput = ref();
 const showDeleteDialog = ref(false);
 
+// Refs and placement state for dropdowns
+const menuWrapper = ref();
+const menuButton = ref();
+const menuEl = ref();
+const colorPickerEl = ref();
+const menuAlignLeft = ref(false);
+const menuDropUp = ref(false);
+const colorPickerAlignLeft = ref(false);
+const colorPickerDropUp = ref(false);
+
 // Modal editing state
 const showEditModal = ref(false);
 const modalEditTitle = ref('');
@@ -426,12 +447,42 @@ watch(adding, async (newVal) => {
 
 // Menu functionality
 function toggleMenu() {
+  showColorPicker.value = false;
   showMenu.value = !showMenu.value;
+  if (showMenu.value) {
+    nextTick(() => {
+      positionMenu();
+    });
+  }
 }
 
 function closeMenu() {
   showMenu.value = false;
   showColorPicker.value = false;
+}
+
+// Calculate dropdown placement to keep it within viewport
+function positionMenu() {
+  try {
+    const btn = menuButton.value;
+    const el = menuEl.value;
+    if (!btn || !el) return;
+    // Defaults
+    menuAlignLeft.value = false;
+    menuDropUp.value = false;
+    const btnRect = btn.getBoundingClientRect();
+    const menuRect = el.getBoundingClientRect();
+    const vw = window.innerWidth || document.documentElement.clientWidth;
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+    // Horizontal: if not enough space on the left, open to the right
+    const overflowLeft = (btnRect.left - menuRect.width) < 8;
+    const hasRoomRight = (btnRect.right + menuRect.width) <= (vw - 8);
+    menuAlignLeft.value = overflowLeft && hasRoomRight;
+    // Vertical: if not enough space below, open upwards
+    const overflowBottom = (btnRect.bottom + menuRect.height + 12) > vh;
+    const hasRoomAbove = btnRect.top >= (menuRect.height + 12);
+    menuDropUp.value = overflowBottom && hasRoomAbove;
+  } catch (_) {}
 }
 
 // Menu actions
@@ -444,6 +495,36 @@ async function refreshList() {
 function toggleColorPicker() {
   showMenu.value = false;
   showColorPicker.value = !showColorPicker.value;
+  if (showColorPicker.value) {
+    nextTick(() => {
+      positionColorPicker();
+    });
+  }
+}
+
+function positionColorPicker() {
+  try {
+    const btn = menuButton.value;
+    const el = colorPickerEl.value;
+    if (!btn || !el) return;
+    colorPickerAlignLeft.value = false;
+    colorPickerDropUp.value = false;
+    const btnRect = btn.getBoundingClientRect();
+    const pickerRect = el.getBoundingClientRect();
+    const vw = window.innerWidth || document.documentElement.clientWidth;
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+    const overflowLeft = (btnRect.left - pickerRect.width) < 8;
+    const hasRoomRight = (btnRect.right + pickerRect.width) <= (vw - 8);
+    colorPickerAlignLeft.value = overflowLeft && hasRoomRight;
+    const overflowBottom = (btnRect.bottom + pickerRect.height + 12) > vh;
+    const hasRoomAbove = btnRect.top >= (pickerRect.height + 12);
+    colorPickerDropUp.value = overflowBottom && hasRoomAbove;
+  } catch (_) {}
+}
+
+function handleWindowResize() {
+  if (showMenu.value) nextTick(() => positionMenu());
+  if (showColorPicker.value) nextTick(() => positionColorPicker());
 }
 
 async function changeColor(colorValue) {
@@ -573,19 +654,27 @@ function cancelDeleteList() {
   showDeleteDialog.value = false;
 }
 
-// Close menu when clicking outside
+// Close menu when clicking outside (scoped to this component only)
 function handleClickOutside(event) {
-  if ((showMenu.value || showColorPicker.value) && !event.target.closest('.relative')) {
+  if (!(showMenu.value || showColorPicker.value)) return;
+  const wrapper = menuWrapper.value;
+  if (!wrapper) {
+    closeMenu();
+    return;
+  }
+  if (!wrapper.contains(event.target)) {
     closeMenu();
   }
 }
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside);
+  window.addEventListener('resize', handleWindowResize);
 });
 
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside);
+  window.removeEventListener('resize', handleWindowResize);
 });
 </script>
 

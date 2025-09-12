@@ -111,6 +111,36 @@ export const useTasksStore = defineStore('tasks', {
       }
     },
 
+    async deleteTask(id) {
+      try {
+        await api.delete(`/tasks/tasks/${id}/`);
+        // Determine the list that contains this task
+        let listId = null;
+        if (this.currentTask && this.currentTask.id === id) {
+          listId = this.currentTask.list;
+        } else {
+          for (const key in this.tasksByList) {
+            if (this.tasksByList[key]?.some?.(t => t.id === id)) {
+              listId = key;
+              break;
+            }
+          }
+        }
+        // Remove from cache if found
+        if (listId !== null && this.tasksByList[listId]) {
+          this.tasksByList[listId] = this.tasksByList[listId].filter(t => t.id !== id);
+        }
+        // Close modal if this was the open task
+        if (this.currentTask && this.currentTask.id === id) {
+          this.closeTask();
+        }
+        return true;
+      } catch (e) {
+        console.error('Failed to delete task', e);
+        throw e.response?.data || e;
+      }
+    },
+
     closeTask() {
       this.modalOpen = false;
       this.currentTask = null;
