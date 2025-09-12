@@ -182,15 +182,18 @@ class ProfileView(APIView):
                     {"detail": _("You do not have permission to update this profile.")},
                     status=status.HTTP_403_FORBIDDEN
                 )
-        u_serializer=UserUpdateSerializer(user, data=request.data, partial=True)
-        if u_serializer.is_valid():
-            u_serializer.save()
+        # Validate both user and profile updates; if either has errors, return 400
         profile = self.get_object(user)
+        u_serializer = UserUpdateSerializer(user, data=request.data, partial=True)
         p_serializer = ProfileSerializer(profile, data=request.data, partial=True)
-        if p_serializer.is_valid():
-            p_serializer.save()
-            return Response({"user": u_serializer.data, "profile": p_serializer.data}, status=status.HTTP_200_OK)
-        return Response({"user": u_serializer.errors, "profile": p_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        u_valid = u_serializer.is_valid()
+        p_valid = p_serializer.is_valid()
+        if not u_valid or not p_valid:
+            return Response({"user": u_serializer.errors, "profile": p_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        # Both serializers are valid; save and return updated representations
+        u_serializer.save()
+        p_serializer.save()
+        return Response({"user": u_serializer.data, "profile": p_serializer.data}, status=status.HTTP_200_OK)
 
 
 class LogoutView(APIView):

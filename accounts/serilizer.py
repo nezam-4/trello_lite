@@ -63,13 +63,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['username', 'first_name', 'last_name', 'email']
-    
-    def validate_email(self, value):
-        """Ensure email uniqueness excluding current user"""
-        user = self.instance
-        if CustomUser.objects.exclude(pk=user.pk).filter(email=value).exists():
-            raise serializers.ValidationError(_("A user with this email already exists."))
-        return value
+        read_only_fields = ['email']
     
     def validate_username(self, value):
         """Ensure username uniqueness excluding current user"""
