@@ -56,41 +56,41 @@
       </div>
 
       <!-- Content -->
-      <div class="flex flex-col lg:flex-row max-h-[calc(95vh-120px)] sm:max-h-[calc(90vh-120px)] overflow-hidden">
+      <div class="flex flex-col lg:flex-row max-h-[calc(98vh-100px)] sm:max-h-[calc(95vh-110px)] lg:max-h-[calc(90vh-120px)] overflow-hidden">
         <!-- Left column -->
-        <div class="flex-1 p-4 sm:p-8 overflow-y-auto">
+        <div class="flex-1 p-3 sm:p-5 lg:p-8 overflow-y-auto">
           <!-- Title Section -->
-          <div class="mb-8">
-            <label class="block text-sm font-semibold text-gray-700 mb-3">عنوان تسک</label>
+          <div class="mb-4 sm:mb-6 lg:mb-8">
+            <label class="block text-xs sm:text-sm font-semibold text-gray-700 mb-2 sm:mb-3">عنوان تسک</label>
             <input 
               v-model="form.title" 
-              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg font-medium transition-all duration-200" 
+              class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base sm:text-lg font-medium transition-all duration-200" 
               placeholder="عنوان تسک را وارد کنید..."
             />
           </div>
 
           <!-- Assignees Section -->
-          <div class="mb-8">
-            <label class="block text-sm font-semibold text-gray-700 mb-3">اعضای مسئول</label>
-            <div class="bg-gray-50 rounded-xl p-4">
+          <div class="mb-4 sm:mb-6 lg:mb-8">
+            <label class="block text-xs sm:text-sm font-semibold text-gray-700 mb-2 sm:mb-3">اعضای مسئول</label>
+            <div class="bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4">
               <AssigneesSelector :task="task" @updated="reloadTask" @userClick="showMemberProfile" />
             </div>
           </div>
 
           <!-- Description Section -->
-          <div class="mb-8">
-            <label class="block text-sm font-semibold text-gray-700 mb-3">توضیحات</label>
+          <div class="mb-4 sm:mb-6 lg:mb-8">
+            <label class="block text-xs sm:text-sm font-semibold text-gray-700 mb-2 sm:mb-3">توضیحات</label>
             <textarea
               v-model="form.description"
               rows="5"
-              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all duration-200"
+              class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all duration-200"
               placeholder="توضیحات تسک را وارد کنید..."
             ></textarea>
           </div>
 
           <!-- Priority Section -->
-          <div class="mb-8">
-            <label class="block text-sm font-semibold text-gray-700 mb-3">اولویت</label>
+          <div class="mb-4 sm:mb-6 lg:mb-8">
+            <label class="block text-xs sm:text-sm font-semibold text-gray-700 mb-2 sm:mb-3">اولویت</label>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <button
                 v-for="priority in priorityOptions"
@@ -117,28 +117,28 @@
           </div>
 
           <!-- Due Date Section -->
-          <div class="mb-8">
-            <label class="block text-sm font-semibold text-gray-700 mb-3">تاریخ سررسید</label>
+          <div class="mb-4 sm:mb-6 lg:mb-8">
+            <label class="block text-xs sm:text-sm font-semibold text-gray-700 mb-2 sm:mb-3">تاریخ سررسید</label>
             
             <!-- Due Date Display -->
             <div 
               @click="openDatePicker"
               :class="[
-                'flex items-center justify-between px-6 py-4 rounded-xl border-2 cursor-pointer transition-all duration-200 hover:shadow-md group',
+                'flex items-center justify-between px-3 sm:px-4 lg:px-6 py-3 sm:py-4 rounded-lg sm:rounded-xl border-2 cursor-pointer transition-all duration-200 hover:shadow-md group',
                 task.due_date 
                   ? (isOverdue ? 'bg-red-50 border-red-200 hover:border-red-300' : 'bg-blue-50 border-blue-200 hover:border-blue-300')
                   : 'bg-gray-50 border-gray-200 hover:border-blue-300'
               ]"
             >
-              <div class="flex items-center space-x-4 space-x-reverse">
+              <div class="flex items-center space-x-2 sm:space-x-3 lg:space-x-4 space-x-reverse">
                 <div :class="[
-                  'w-12 h-12 rounded-xl flex items-center justify-center',
+                  'w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center',
                   task.due_date 
                     ? (isOverdue ? 'bg-red-100' : 'bg-blue-100')
                     : 'bg-gray-100 group-hover:bg-blue-100'
                 ]">
                   <svg :class="[
-                    'w-6 h-6',
+                    'w-5 h-5 sm:w-6 sm:h-6',
                     task.due_date 
                       ? (isOverdue ? 'text-red-600' : 'text-blue-600')
                       : 'text-gray-500 group-hover:text-blue-600'
@@ -147,22 +147,22 @@
                   </svg>
                 </div>
                 <div>
-                  <div v-if="task.due_date" :class="isOverdue ? 'text-red-700 font-semibold text-lg' : 'text-blue-700 font-semibold text-lg'">
+                  <div v-if="task.due_date" :class="isOverdue ? 'text-red-700 font-semibold text-sm sm:text-base lg:text-lg' : 'text-blue-700 font-semibold text-sm sm:text-base lg:text-lg'">
                     {{ formatDueDateDisplay(task.due_date) }}
                   </div>
-                  <div v-else class="text-gray-600 font-medium">
+                  <div v-else class="text-gray-600 font-medium text-sm sm:text-base">
                     انتخاب تاریخ سررسید
                   </div>
-                  <div v-if="isOverdue" class="flex items-center text-red-500 text-sm mt-1">
+                  <div v-if="isOverdue" class="flex items-center text-red-500 text-xs sm:text-sm mt-1">
                     <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
                     </svg>
                     گذشته از زمان مقرر
                   </div>
-                  <div v-else-if="task.due_date" class="text-gray-500 text-sm mt-1">
+                  <div v-else-if="task.due_date" class="text-gray-500 text-xs sm:text-sm mt-1">
                     کلیک کنید تا تغییر دهید
                   </div>
-                  <div v-else class="text-gray-400 text-sm mt-1">
+                  <div v-else class="text-gray-400 text-xs sm:text-sm mt-1">
                     کلیک کنید تا تاریخ انتخاب کنید
                   </div>
                 </div>
@@ -176,10 +176,10 @@
           </div>
           
           <!-- Date Picker Modal -->
-          <div v-if="showDatePicker" class="fixed inset-0 z-60 flex items-center justify-center bg-black/60 backdrop-blur-sm" @click.self="closeDatePicker">
-            <div class="bg-white rounded-2xl p-8 w-96 shadow-2xl">
-              <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-bold text-gray-900">انتخاب تاریخ سررسید</h3>
+          <div v-if="showDatePicker" class="fixed inset-0 z-60 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" @click.self="closeDatePicker">
+            <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 w-full max-w-xs sm:max-w-sm lg:max-w-md shadow-2xl">
+              <div class="flex items-center justify-between mb-4 sm:mb-6">
+                <h3 class="text-base sm:text-lg lg:text-xl font-bold text-gray-900">انتخاب تاریخ سررسید</h3>
                 <button @click="closeDatePicker" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
                   <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -221,28 +221,28 @@
         </div>
 
         <!-- Right column: Activity and Operations -->
-        <div class="flex">
-          <!-- Activity -->
-          <div class="w-1/3 border-l pl-4">
+        <div class="flex flex-col lg:flex-row">
+          <!-- Activity - Hidden on mobile, shown on lg+ -->
+          <div class="hidden lg:block w-1/3 border-l pl-4">
             <h3 class="font-semibold mb-2">Activity</h3>
             <p class="text-sm text-gray-500">(به‌زودی)</p>
           </div>
           <!-- Right Sidebar -->
-          <div class="w-full lg:w-80 bg-gray-50 border-t lg:border-t-0 lg:border-l border-gray-200 p-4 sm:p-6 overflow-y-auto max-h-60 lg:max-h-none">
-            <h3 class="font-bold text-gray-900 mb-6 flex items-center">
-              <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="w-full lg:w-80 bg-gray-50 border-t lg:border-t-0 lg:border-l border-gray-200 p-3 sm:p-4 lg:p-6 overflow-y-auto max-h-40 sm:max-h-60 lg:max-h-none">
+            <h3 class="font-bold text-gray-900 mb-3 sm:mb-4 lg:mb-6 flex items-center text-sm sm:text-base">
+              <svg class="w-4 h-4 sm:w-5 sm:h-5 ml-1 sm:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
               </svg>
               عملیات
             </h3>
             
-            <div class="space-y-4">
+            <div class="space-y-2 sm:space-y-3 lg:space-y-4">
               <!-- Save Button -->
               <button
                 @click="save"
-                class="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center space-x-2 space-x-reverse"
+                class="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-3 sm:px-4 lg:px-6 py-2 sm:py-2.5 lg:py-3 rounded-lg sm:rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center space-x-1 sm:space-x-2 space-x-reverse text-sm sm:text-base"
               >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                 </svg>
                 <span>ذخیره تغییرات</span>
@@ -251,18 +251,18 @@
               <!-- Delete Button -->
               <button
                 @click="deleteTask"
-                class="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center space-x-2 space-x-reverse"
+                class="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-3 sm:px-4 lg:px-6 py-2 sm:py-2.5 lg:py-3 rounded-lg sm:rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center space-x-1 sm:space-x-2 space-x-reverse text-sm sm:text-base"
               >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                 </svg>
                 <span>حذف تسک</span>
               </button>
               
               <!-- Task Info -->
-              <div class="mt-8 p-4 bg-white rounded-xl border border-gray-200">
-                <h4 class="font-semibold text-gray-900 mb-3">اطلاعات تسک</h4>
-                <div class="space-y-3 text-sm">
+              <div class="mt-4 sm:mt-6 lg:mt-8 p-3 sm:p-4 bg-white rounded-lg sm:rounded-xl border border-gray-200">
+                <h4 class="font-semibold text-gray-900 mb-2 sm:mb-3 text-sm sm:text-base">اطلاعات تسک</h4>
+                <div class="space-y-2 sm:space-y-3 text-xs sm:text-sm">
                   <div class="flex justify-between">
                     <span class="text-gray-600">وضعیت:</span>
                     <span :class="task.is_completed ? 'text-green-600 font-medium' : 'text-yellow-600 font-medium'">

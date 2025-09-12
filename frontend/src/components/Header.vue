@@ -65,7 +65,7 @@
           </button>
           
           <!-- Dropdown Menu -->
-          <div v-if="showMenu" class="absolute left-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-200/50 py-2 z-20 profile-menu">
+          <div v-if="showMenu" class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-200/50 py-2 z-20 profile-menu divide-y divide-gray-100">
             <div class="px-4 py-3 border-b border-gray-100">
               <p class="text-sm font-medium text-gray-900">{{ auth.user?.first_name || 'کاربر' }}</p>
               <p class="text-xs text-gray-500">{{ auth.user?.email }}</p>
@@ -91,8 +91,7 @@
               <span>تغییر رمز</span>
             </router-link>
             
-            <hr class="my-2">
-            
+                        
             <button 
               @click="logout" 
               class="flex items-center space-x-3 space-x-reverse w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
@@ -126,65 +125,78 @@
     <!-- Mobile Menu Overlay -->
     <div 
       v-if="showMobileMenu && auth.isAuthenticated" 
-      class="md:hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
+      class="md:hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
       @click="showMobileMenu = false"
     >
-      <div class="bg-white w-72 sm:w-80 h-full shadow-xl" @click.stop>
-        <div class="p-4 sm:p-6 border-b border-gray-200">
+      <div class="bg-white w-72 sm:w-80 h-full shadow-2xl transform transition-transform duration-300 translate-x-0 ml-auto" @click.stop>
+        <div class="bg-gradient-to-r from-blue-500 to-purple-600 p-4 sm:p-6">
           <div class="flex items-center justify-between">
-            <h2 class="text-base sm:text-lg font-bold text-gray-900">منو</h2>
-            <button @click="showMobileMenu = false" class="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg">
-              <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <h2 class="text-lg sm:text-xl font-bold text-white">منو</h2>
+            <button @click="showMobileMenu = false" class="p-2 hover:bg-white/20 rounded-lg transition-colors">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
               </svg>
             </button>
           </div>
+          <div class="mt-4">
+            <div class="flex items-center space-x-3 space-x-reverse">
+              <UserAvatar
+                v-if="auth.user"
+                :user="auth.user"
+                size="md"
+                :clickable="false"
+              />
+              <div>
+                <p class="text-white font-medium">{{ auth.user?.first_name || 'کاربر' }}</p>
+                <p class="text-white/80 text-sm">{{ auth.user?.email }}</p>
+              </div>
+            </div>
+          </div>
         </div>
         
-        <div class="p-4 sm:p-6 space-y-3 sm:space-y-4">
+        <div class="px-4 sm:px-6 py-4 space-y-0 bg-white rounded-xl divide-y divide-gray-100 flex flex-col">
           <router-link 
             to="/boards" 
             @click="showMobileMenu = false"
-            class="flex items-center space-x-2 sm:space-x-3 space-x-reverse p-2 sm:p-3 rounded-lg hover:bg-gray-100 transition-colors"
+            class="flex items-center space-x-3 space-x-reverse p-3 hover:bg-blue-50 transition-all duration-200 group"
           >
-            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 text-gray-600 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
             </svg>
-            <span class="font-medium text-gray-900 text-sm sm:text-base">بردها</span>
+            <span class="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">بردها</span>
           </router-link>
           
           <router-link 
             to="/profile" 
             @click="showMobileMenu = false"
-            class="flex items-center space-x-2 sm:space-x-3 space-x-reverse p-2 sm:p-3 rounded-lg hover:bg-gray-100 transition-colors"
+            class="flex items-center space-x-3 space-x-reverse p-3 hover:bg-blue-50 transition-all duration-200 group"
           >
-            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 text-gray-600 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
             </svg>
-            <span class="font-medium text-gray-900 text-sm sm:text-base">پروفایل</span>
+            <span class="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">پروفایل</span>
           </router-link>
           
           <router-link 
             to="/change-password" 
             @click="showMobileMenu = false"
-            class="flex items-center space-x-2 sm:space-x-3 space-x-reverse p-2 sm:p-3 rounded-lg hover:bg-gray-100 transition-colors"
+            class="flex items-center space-x-3 space-x-reverse p-3 hover:bg-blue-50 transition-all duration-200 group"
           >
-            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 text-gray-600 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
             </svg>
-            <span class="font-medium text-gray-900 text-sm sm:text-base">تغییر رمز</span>
+            <span class="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">تغییر رمز</span>
           </router-link>
           
-          <hr class="my-3 sm:my-4">
-          
+                    
           <button 
             @click="logout; showMobileMenu = false" 
-            class="flex items-center space-x-2 sm:space-x-3 space-x-reverse w-full p-2 sm:p-3 rounded-lg hover:bg-red-50 transition-colors text-red-600"
+            class="flex items-center space-x-3 space-x-reverse w-full p-3 hover:bg-red-50 transition-all duration-200 text-red-600 group"
           >
-            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
             </svg>
-            <span class="font-medium text-sm sm:text-base">خروج</span>
+            <span class="font-medium">خروج</span>
           </button>
         </div>
       </div>

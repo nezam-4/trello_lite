@@ -1,39 +1,39 @@
 <template>
-  <div class="p-4 max-w-lg mx-auto" v-if="task">
-    <h2 class="text-xl font-bold mb-4">جزئیات تسک</h2>
+  <div class="p-3 sm:p-4 lg:p-6 max-w-lg mx-auto" v-if="task">
+    <h2 class="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4">جزئیات تسک</h2>
 
-    <label class="block text-sm font-medium mb-1">عنوان</label>
-    <input v-model="form.title" class="w-full p-2 border rounded mb-4" />
+    <label class="block text-xs sm:text-sm font-medium mb-1">عنوان</label>
+    <input v-model="form.title" class="w-full p-2 sm:p-3 border rounded-lg mb-3 sm:mb-4 text-sm sm:text-base" />
 
-    <label class="block text-sm font-medium mb-1">توضیحات</label>
-    <textarea v-model="form.description" rows="4" class="w-full p-2 border rounded mb-4"></textarea>
+    <label class="block text-xs sm:text-sm font-medium mb-1">توضیحات</label>
+    <textarea v-model="form.description" rows="4" class="w-full p-2 sm:p-3 border rounded-lg mb-3 sm:mb-4 text-sm sm:text-base"></textarea>
 
-    <label class="block text-sm font-medium mb-1">اولویت</label>
-    <select v-model="form.priority" class="w-full p-2 border rounded mb-4">
+    <label class="block text-xs sm:text-sm font-medium mb-1">اولویت</label>
+    <select v-model="form.priority" class="w-full p-2 sm:p-3 border rounded-lg mb-3 sm:mb-4 text-sm sm:text-base">
       <option value="low">کم</option>
       <option value="medium">متوسط</option>
       <option value="high">زیاد</option>
       <option value="urgent">فوری</option>
     </select>
 
-    <label class="block text-sm font-medium mb-1">تاریخ سررسید</label>
+    <label class="block text-xs sm:text-sm font-medium mb-1">تاریخ سررسید</label>
     <input 
       v-model="form.due_date" 
       type="date" 
-      class="w-full p-2 border rounded mb-2"
+      class="w-full p-2 sm:p-3 border rounded-lg mb-2 text-sm sm:text-base"
       :class="{ 'border-red-500 bg-red-50': isOverdue }"
     />
-    <div v-if="task.due_date" class="text-sm text-gray-600 mb-2">
+    <div v-if="task.due_date" class="text-xs sm:text-sm text-gray-600 mb-2">
       {{ formatDueDateDisplay(task.due_date) }}
     </div>
-    <div v-if="isOverdue" class="text-red-500 text-sm mb-4 flex items-center">
+    <div v-if="isOverdue" class="text-red-500 text-xs sm:text-sm mb-3 sm:mb-4 flex items-center">
       <span class="mr-1">⚠️</span>
       این تسک از تاریخ سررسید گذشته است
     </div>
 
     <div class="flex space-x-2 space-x-reverse">
-      <button @click="save" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">ذخیره</button>
-      <router-link :to="backUrl" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">بازگشت</router-link>
+      <button @click="save" class="px-3 sm:px-4 py-2 sm:py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm sm:text-base">ذخیره</button>
+      <router-link :to="backUrl" class="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-300 rounded-lg hover:bg-gray-400 text-sm sm:text-base">بازگشت</router-link>
     </div>
   </div>
   <div v-else class="flex items-center justify-center h-screen">در حال بارگیری...</div>

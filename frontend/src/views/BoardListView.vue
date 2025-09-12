@@ -1,15 +1,15 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-slate-100 to-blue-100 p-2 sm:p-4 md:p-6" dir="rtl">
-    <div class="max-w-7xl mx-auto">
+    <div class="w-full">
       <!-- Header Section -->
       <div class="px-2 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8">
         <div class="mb-4 sm:mb-6 md:mb-8">
-          <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2">بردهای من - MODAL UPDATED</h1>
+          <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2">بردهای من</h1>
           <p class="text-sm sm:text-base text-gray-600">مدیریت و سازماندهی پروژه‌های خود</p>
         </div>
         <button 
           @click="showCreateDialog=true" 
-          class="flex items-center space-x-2 space-x-reverse bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl hover:from-blue-600 hover:to-purple-700 font-medium shadow-lg hover:shadow-xl transition-all duration-200 text-sm sm:text-base"
+          class="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-lg sm:rounded-xl hover:from-blue-600 hover:to-purple-700 font-medium shadow-lg hover:shadow-xl transition-all duration-200 text-sm sm:text-base"
         >
           <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -53,7 +53,7 @@
                 <h3 class="font-bold text-sm sm:text-base md:text-lg text-gray-900 mb-2 line-clamp-2">{{ board.title }}</h3>
                 
                 <div class="flex items-center justify-between mb-2 sm:mb-4">
-                  <div class="flex items-center space-x-1 sm:space-x-2 space-x-reverse text-xs sm:text-sm text-gray-600">
+                  <div class="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-gray-600">
                     <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
                     </svg>
@@ -78,8 +78,8 @@
           </div>
         </div>
         <!-- Invitations Sidebar -->
-        <div class="w-full xl:w-80 bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200/50 p-3 sm:p-4 md:p-6">
-          <div class="flex items-center space-x-2 space-x-reverse mb-4 sm:mb-6">
+        <div class="w-full xl:w-80 flex-shrink-0 bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200/50 p-3 sm:p-4 md:p-6">
+          <div class="flex items-center gap-2 mb-3 sm:mb-4 md:mb-6">
             <svg class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
             </svg>
@@ -101,7 +101,7 @@
             >
               <div class="flex items-start justify-between mb-2 sm:mb-3">
                 <div class="min-w-0 flex-1">
-                  <h3 class="font-semibold text-sm sm:text-base text-gray-900 mb-1 truncate">{{ inv.board_title }}</h3>
+                  <h3 class="font-semibold text-xs sm:text-sm md:text-base text-gray-900 mb-1 truncate">{{ inv.board_title }}</h3>
                   <p class="text-xs text-gray-600 truncate">دعوت‌کننده: {{ inv.invited_by_username || 'سیستم' }}</p>
                 </div>
                 <span 
@@ -112,7 +112,7 @@
                 </span>
               </div>
               
-              <div class="flex space-x-2 space-x-reverse">
+              <div class="flex gap-2">
                 <button 
                   @click="respondInvitation(inv.id, 'accept')" 
                   class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white text-xs sm:text-sm font-medium py-1.5 sm:py-2 px-2 sm:px-3 rounded-md sm:rounded-lg transition-colors"
@@ -175,31 +175,31 @@
     @save="handleDialogSave"
   />
   <!-- Board Menu Modal v2024 -->
-  <div v-if="showBoardMenuModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-end z-[99999]" @click="showBoardMenuModal=false">
-    <div class="bg-white rounded-2xl shadow-2xl w-80 mr-4 max-h-[90vh] overflow-y-auto" @click.stop>
+  <div v-if="showBoardMenuModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-end z-[99999] p-4" @click="showBoardMenuModal=false">
+    <div class="bg-gradient-to-br from-blue-50 via-white to-purple-50 rounded-xl sm:rounded-2xl shadow-2xl w-72 sm:w-80 max-h-[85vh] sm:max-h-[90vh] overflow-y-auto border border-gray-200/50" @click.stop>
       <!-- Header -->
-      <div class="px-6 py-4 border-b border-gray-200">
+      <div class="bg-gradient-to-r from-blue-500 to-purple-600 px-4 sm:px-6 py-3 sm:py-4">
         <div class="flex items-center justify-between">
-          <h3 class="text-lg font-semibold text-gray-900">تنظیمات برد</h3>
-          <button @click="showBoardMenuModal=false" class="text-gray-400 hover:text-gray-600 transition-colors">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <h3 class="text-base sm:text-lg font-bold text-white">تنظیمات برد</h3>
+          <button @click="showBoardMenuModal=false" class="p-1 hover:bg-white/20 rounded-lg transition-colors">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
             </svg>
           </button>
         </div>
-        <p class="text-sm text-gray-600 mt-1">{{ selectedBoardForMenu?.title }}</p>
+        <p class="text-xs sm:text-sm text-white/90 mt-1">{{ selectedBoardForMenu?.title }}</p>
       </div>
 
       <!-- Menu Options -->
-      <div class="py-2">
-        <button @click="handleMenuActivities(selectedBoardForMenu.id)" class="flex items-center space-x-3 space-x-reverse w-full px-6 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+      <div class="p-3 sm:p-4 space-y-1 bg-white/80 backdrop-blur-sm">
+        <button @click="handleMenuActivities(selectedBoardForMenu.id)" class="flex items-center gap-3 w-full px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-gray-700 bg-white/60 hover:bg-blue-50 rounded-lg transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
           <span>تاریخچه</span>
         </button>
         
-        <button @click="handleMenuMembers(selectedBoardForMenu.id)" class="flex items-center space-x-3 space-x-reverse w-full px-6 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+        <button @click="handleMenuMembers(selectedBoardForMenu.id)" class="flex items-center gap-3 w-full px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-gray-700 bg-white/60 hover:bg-blue-50 rounded-lg transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
           </svg>
@@ -209,7 +209,7 @@
         <button 
           v-if="['owner','admin'].includes(selectedBoardForMenu?.current_user_role)"
           @click="handleMenuInvitations(selectedBoardForMenu.id)" 
-          class="flex items-center space-x-3 space-x-reverse w-full px-6 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+          class="flex items-center gap-3 w-full px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-gray-700 bg-white/60 hover:bg-blue-50 rounded-lg transition-colors"
         >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
@@ -219,19 +219,19 @@
         
         <template v-if="['owner','admin'].includes(selectedBoardForMenu?.current_user_role)">
           <hr class="my-2">
-          <button @click="handleMenuInviteUser(selectedBoardForMenu.id)" class="flex items-center space-x-3 space-x-reverse w-full px-6 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+          <button @click="handleMenuInviteUser(selectedBoardForMenu.id)" class="flex items-center gap-3 w-full px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-gray-700 bg-white/60 hover:bg-blue-50 rounded-lg transition-colors">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
             </svg>
             <span>دعوت کاربر</span>
           </button>
-          <button @click="handleMenuInviteEmail(selectedBoardForMenu.id)" class="flex items-center space-x-3 space-x-reverse w-full px-6 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+          <button @click="handleMenuInviteEmail(selectedBoardForMenu.id)" class="flex items-center gap-3 w-full px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-gray-700 bg-white/60 hover:bg-blue-50 rounded-lg transition-colors">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zM12 8v1.5a3.5 3.5 0 017 0V8a3.5 3.5 0 013.5 3.5z"/>
             </svg>
             <span>دعوت کاربر با ایمیل</span>
           </button>
-          <button @click="handleMenuEdit(selectedBoardForMenu)" class="flex items-center space-x-3 space-x-reverse w-full px-6 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+          <button @click="handleMenuEdit(selectedBoardForMenu)" class="flex items-center gap-3 w-full px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-gray-700 bg-white/60 hover:bg-blue-50 rounded-lg transition-colors">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
             </svg>
@@ -241,7 +241,7 @@
         
         <hr class="my-2">
         <template v-if="selectedBoardForMenu?.current_user_role === 'owner'">
-          <button @click="handleMenuDelete(selectedBoardForMenu.id)" class="flex items-center space-x-3 space-x-reverse w-full px-6 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors">
+          <button @click="handleMenuDelete(selectedBoardForMenu.id)" class="flex items-center gap-3 w-full px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-red-600 bg-white/60 hover:bg-red-50 rounded-lg transition-colors">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
             </svg>
@@ -249,7 +249,7 @@
           </button>
         </template>
         <template v-else>
-          <button @click="handleMenuLeave(selectedBoardForMenu.id)" class="flex items-center space-x-3 space-x-reverse w-full px-6 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors">
+          <button @click="handleMenuLeave(selectedBoardForMenu.id)" class="flex items-center gap-3 w-full px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-red-600 bg-white/60 hover:bg-red-50 rounded-lg transition-colors">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
             </svg>

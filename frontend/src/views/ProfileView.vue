@@ -1,10 +1,10 @@
 <template>
-  <div class="max-w-xl mx-auto p-6" dir="rtl">
-    <h2 class="text-2xl font-bold mb-4 text-center">ویرایش پروفایل</h2>
+  <div class="max-w-xl mx-auto p-4 sm:p-6" dir="rtl">
+    <h2 class="text-xl sm:text-2xl font-bold mb-4 text-center">ویرایش پروفایل</h2>
 
     <form @submit.prevent="submit">
       <div class="flex flex-col items-center mb-4">
-        <div class="w-24 h-24 rounded-full overflow-hidden border mb-2 bg-gray-100 flex items-center justify-center">
+        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border mb-2 bg-gray-100 flex items-center justify-center">
           <img
             v-if="avatarPreview"
             :src="avatarPreview"
@@ -20,28 +20,28 @@
       </div>
 
       <div class="mb-3">
-        <label class="block text-sm mb-1">نام کاربری</label>
-        <input v-model="form.username" type="text" class="w-full border rounded px-2 py-1" />
+        <label class="block text-xs sm:text-sm mb-1">نام کاربری</label>
+        <input v-model="form.username" type="text" class="w-full border rounded-lg px-3 py-2 text-sm sm:text-base" />
       </div>
       <div class="mb-3">
-        <label class="block text-sm mb-1">نام</label>
-        <input v-model="form.first_name" type="text" class="w-full border rounded px-2 py-1" />
+        <label class="block text-xs sm:text-sm mb-1">نام</label>
+        <input v-model="form.first_name" type="text" class="w-full border rounded-lg px-3 py-2 text-sm sm:text-base" />
       </div>
       <div class="mb-3">
-        <label class="block text-sm mb-1">نام خانوادگی</label>
-        <input v-model="form.last_name" type="text" class="w-full border rounded px-2 py-1" />
+        <label class="block text-xs sm:text-sm mb-1">نام خانوادگی</label>
+        <input v-model="form.last_name" type="text" class="w-full border rounded-lg px-3 py-2 text-sm sm:text-base" />
       </div>
       <div class="mb-3">
-        <label class="block text-sm mb-1">ایمیل</label>
-        <input v-model="form.email" type="email" class="w-full border rounded px-2 py-1" />
+        <label class="block text-xs sm:text-sm mb-1">ایمیل</label>
+        <input v-model="form.email" type="email" class="w-full border rounded-lg px-3 py-2 text-sm sm:text-base" />
       </div>
       <div class="mb-3">
-        <label class="block text-sm mb-1">بیو</label>
-        <textarea v-model="form.bio" rows="3" class="w-full border rounded px-2 py-1"></textarea>
+        <label class="block text-xs sm:text-sm mb-1">بیو</label>
+        <textarea v-model="form.bio" rows="3" class="w-full border rounded-lg px-3 py-2 text-sm sm:text-base"></textarea>
       </div>
       <div class="mb-4">
-        <label class="block text-sm mb-1">زبان ترجیحی</label>
-        <select v-model="form.preferred_language" class="w-full border rounded px-2 py-1">
+        <label class="block text-xs sm:text-sm mb-1">زبان ترجیحی</label>
+        <select v-model="form.preferred_language" class="w-full border rounded-lg px-3 py-2 text-sm sm:text-base">
           <option value="fa">فارسی</option>
           <option value="en">English</option>
         </select>

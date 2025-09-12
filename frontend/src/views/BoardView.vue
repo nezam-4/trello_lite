@@ -80,8 +80,14 @@
     <div class="w-full px-2 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6" v-if="board">
       <div 
         ref="listsContainer"
-        class="flex gap-3 sm:gap-4 lg:gap-6 overflow-x-auto pb-4 sm:pb-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100" 
+        class="relative flex items-start gap-3 sm:gap-4 lg:gap-6 overflow-x-auto pb-4 sm:pb-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
+        :class="{ 'dragging-scroll': isDragScrolling }"
         style="min-height: calc(100vh - 160px); direction: ltr;"
+        @pointerdown.capture="handleContainerPointerDown"
+        @pointermove="handleContainerPointerMove"
+        @pointerup="handleContainerPointerUp"
+        @pointerleave="handleContainerPointerUp"
+        @pointercancel="handleContainerPointerUp"
       >
         <div
           v-for="list in lists" 
@@ -97,7 +103,7 @@
         </div>
         
         <!-- Add List Column -->
-        <div class="flex-shrink-0 w-72 sm:w-80 lg:w-96" style="direction: rtl;">
+        <div class="flex-shrink-0 w-72 sm:w-80 lg:w-96" style="direction: rtl;" data-add-list-column>
           <div 
             v-if="!showAddListDialog"
             @click="showAddListDialog = true"
@@ -139,6 +145,7 @@
             </div>
           </div>
         </div>
+
       </div>
     </div>
     
@@ -181,16 +188,16 @@
     <!-- All Members Modal -->
     <div 
       v-if="showAllMembers" 
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
       @click="showAllMembers = false"
     >
       <div 
-        class="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 max-h-96 overflow-hidden"
+        class="bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] sm:max-h-96 overflow-hidden"
         @click.stop
       >
-        <div class="bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4">
+        <div class="bg-gradient-to-r from-blue-500 to-purple-600 px-4 sm:px-6 py-3 sm:py-4">
           <div class="flex items-center justify-between">
-            <h3 class="text-xl font-bold text-white">اعضای برد</h3>
+            <h3 class="text-lg sm:text-xl font-bold text-white">اعضای برد</h3>
             <button 
               @click="showAllMembers = false"
               class="text-white hover:text-gray-200 transition-colors"
@@ -201,22 +208,22 @@
             </button>
           </div>
         </div>
-        <div class="p-6 overflow-y-auto max-h-80">
-          <div class="space-y-3">
+        <div class="p-4 sm:p-6 overflow-y-auto max-h-[70vh] sm:max-h-80">
+          <div class="space-y-2 sm:space-y-3">
             <div 
               v-for="member in boardMembers" 
               :key="member.id"
               @click="openMemberProfile(member)"
-              class="flex items-center space-x-3 space-x-reverse p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+              class="flex items-center space-x-2 sm:space-x-3 space-x-reverse p-2 sm:p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
             >
               <UserAvatar
                 :user="member"
                 size="md"
                 @click="openMemberProfile(member)"
               />
-              <div class="flex-1">
-                <h4 class="font-medium text-gray-900">{{ member.name || member.username }}</h4>
-                <p class="text-sm text-gray-600">@{{ member.username }}</p>
+              <div class="flex-1 min-w-0">
+                <h4 class="font-medium text-gray-900 text-sm sm:text-base truncate">{{ member.name || member.username }}</h4>
+                <p class="text-xs sm:text-sm text-gray-600 truncate">@{{ member.username }}</p>
               </div>
               <span 
                 class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
@@ -233,7 +240,7 @@
 </template>
 
 <script setup>
-import { onMounted, computed, ref, nextTick, watch, reactive } from 'vue';
+import { onMounted, onBeforeUnmount, computed, ref, nextTick, watch, reactive } from 'vue';
 import { useTasksStore } from '../stores/tasks';
 import TaskModal from '../components/TaskModal.vue';
 import MemberProfileModal from '../components/MemberProfileModal.vue';
@@ -255,6 +262,123 @@ const showAddListDialog = ref(false);
 const newListTitle = ref('');
 const listTitleInput = ref(null);
 const listsContainer = ref(null);
+
+// Drag-to-scroll (desktop) state
+const isDragScrolling = ref(false);
+let dragStartX = 0;
+let dragStartY = 0;
+let dragStartScrollLeft = 0;
+let listsSortable = null;
+let hasMoved = false;
+const DRAG_THRESHOLD = 6; // px
+let isPointerDown = false;
+
+function handleContainerPointerDown(e) {
+  // Only left-click and mouse pointer (desktop behavior)
+  if (e.button !== 0 || (e.pointerType && e.pointerType !== 'mouse')) return;
+
+  const target = e.target;
+  // Ignore if starting on a list column (to not conflict with SortableJS)
+  if (target.closest('.draggable-list')) return;
+  // Ignore interactive elements to preserve native interactions
+  if (target.closest('input, textarea, button, select, a, [contenteditable="true"]')) return;
+
+  // Prepare for potential drag-scroll (do NOT start yet)
+  isDragScrolling.value = false;
+  hasMoved = false;
+  dragStartX = e.clientX;
+  dragStartY = e.clientY;
+  dragStartScrollLeft = listsContainer.value?.scrollLeft || 0;
+  isPointerDown = true;
+}
+
+function handleContainerPointerMove(e) {
+  if (!listsContainer.value) return;
+
+  // If mouse button is not pressed, ensure we stop drag-scroll
+  if (e.pointerType === 'mouse' && e.buttons === 0) {
+    if (isDragScrolling.value) {
+      handleContainerPointerUp(e);
+    }
+    return;
+  }
+
+  if (!isPointerDown) return;
+
+  // If not yet started, check threshold
+  if (!isDragScrolling.value) {
+    const dx = Math.abs(e.clientX - dragStartX);
+    const dy = Math.abs(e.clientY - dragStartY);
+    if (dx > DRAG_THRESHOLD && dx > dy) {
+      // Start drag-scroll now
+      isDragScrolling.value = true;
+      hasMoved = true;
+      try {
+        if (listsSortable && typeof listsSortable.option === 'function') {
+          listsSortable.option('disabled', true);
+        }
+      } catch (_) {}
+      // Visual feedback and prevent text selection
+      listsContainer.value.style.cursor = 'grabbing';
+      listsContainer.value.style.userSelect = 'none';
+      try {
+        e.currentTarget.setPointerCapture && e.currentTarget.setPointerCapture(e.pointerId);
+      } catch (_) {}
+    } else {
+      return; // do nothing until threshold exceeded
+    }
+  }
+
+  // Perform scrolling
+  const dxMove = e.clientX - dragStartX;
+  listsContainer.value.scrollLeft = dragStartScrollLeft - dxMove;
+  e.preventDefault();
+  e.stopPropagation();
+}
+
+function handleContainerPointerUp(e) {
+  // Release pointer capture if any
+  try {
+    if (e && e.currentTarget && e.pointerId && e.currentTarget.hasPointerCapture && e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+  } catch (_) {}
+
+  if (isDragScrolling.value) {
+    isDragScrolling.value = false;
+    if (listsContainer.value) {
+      listsContainer.value.style.cursor = '';
+      listsContainer.value.style.userSelect = '';
+    }
+    // Re-enable Sortable
+    try {
+      if (listsSortable && typeof listsSortable.option === 'function') {
+        listsSortable.option('disabled', false);
+      }
+    } catch (_) {}
+    // Prevent click after drag
+    e.preventDefault();
+    e.stopPropagation();
+  }
+  isPointerDown = false;
+}
+
+function handleGlobalPointerUp() {
+  if (!isPointerDown && !isDragScrolling.value) return;
+  isPointerDown = false;
+  if (isDragScrolling.value) {
+    isDragScrolling.value = false;
+    if (listsContainer.value) {
+      listsContainer.value.style.cursor = '';
+      listsContainer.value.style.userSelect = '';
+    }
+    try {
+      if (listsSortable && typeof listsSortable.option === 'function') {
+        listsSortable.option('disabled', false);
+      }
+    } catch (_) {}
+  }
+}
 
 // Member profile modal
 const memberProfileModal = reactive({
@@ -282,6 +406,24 @@ onMounted(async () => {
   await listsStore.fetchLists(boardId);
   await nextTick();
   initializeListSortable();
+  // Global listeners to guarantee end of drag-scroll
+  window.addEventListener('pointerup', handleGlobalPointerUp, true);
+  window.addEventListener('pointercancel', handleGlobalPointerUp, true);
+  window.addEventListener('blur', handleGlobalPointerUp, true);
+});
+
+onBeforeUnmount(() => {
+  // Ensure cleanup of styles if user navigates mid-drag
+  handleContainerPointerUp();
+  try {
+    if (listsSortable && typeof listsSortable.destroy === 'function') {
+      listsSortable.destroy();
+      listsSortable = null;
+    }
+  } catch (_) {}
+  window.removeEventListener('pointerup', handleGlobalPointerUp, true);
+  window.removeEventListener('pointercancel', handleGlobalPointerUp, true);
+  window.removeEventListener('blur', handleGlobalPointerUp, true);
 });
 
 const board = computed(() => boardsStore.currentBoard);
@@ -370,13 +512,22 @@ watch(() => showAddListDialog.value, watchAddListDialog);
 function initializeListSortable() {
   if (!listsContainer.value) return;
   
+  // Destroy previous instance if exists
+  try {
+    if (listsSortable && typeof listsSortable.destroy === 'function') {
+      listsSortable.destroy();
+      listsSortable = null;
+    }
+  } catch (_) {}
+
   import('sortablejs').then(({ default: Sortable }) => {
-    new Sortable(listsContainer.value, {
+    listsSortable = new Sortable(listsContainer.value, {
       animation: 200,
       ghostClass: 'ghost-list',
       chosenClass: 'chosen-list',
       dragClass: 'drag-list',
-      handle: '.draggable-list', // Only allow dragging by the list container
+      draggable: '.draggable-list', // Only list columns are draggable
+      handle: '.draggable-list', // Drag by the list container
       onUpdate: async (evt) => {
         try {
           const listId = evt.item.getAttribute('data-list-id');
@@ -549,6 +700,11 @@ const getRoleText = (role) => {
 }
 
 .draggable-list:active {
+  cursor: grabbing;
+}
+
+/* Cursor feedback while drag-scrolling on empty area */
+.dragging-scroll {
   cursor: grabbing;
 }
 
