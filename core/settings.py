@@ -200,15 +200,19 @@ CELERY_TIMEZONE = TIME_ZONE
 
 # Email Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.ethereal.email'
-EMAIL_PORT = 587
+EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
+EMAIL_PORT = 2525
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'trever.dietrich@ethereal.email'  # Replace with your email
-EMAIL_HOST_PASSWORD = '9ENwnvQmG2gfuK5enx'  # Replace with your app password
+EMAIL_HOST_USER = '2d2b96474a2cb3'  # Replace with your email
+EMAIL_HOST_PASSWORD = '7039edfefbdf43'  # Replace with your app password
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # Site URL for email links
 SITE_URL = 'http://localhost:8000'
+
+# Frontend route used in password reset emails (link target)
+# e.g., Your Vue app route that reads uid and token from query string
+PASSWORD_RESET_FRONTEND_URL = 'http://localhost:5173/reset-password'
 
 # Application limits
 MAX_BOARDS_PER_USER = 10            # Each user can create up to 10 boards
