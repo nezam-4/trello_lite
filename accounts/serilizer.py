@@ -47,9 +47,11 @@ class UserSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'username', 'email', 'first_name', 'last_name',
             'is_active', 'created_at', 'updated_at', 'profile',
-            'boards_count', 'memberships_count'
+            'boards_count', 'memberships_count', 'is_email_verified',
+            'email_verified_at'
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at', 'boards_count', 'memberships_count']
+        read_only_fields = ['id', 'created_at', 'updated_at', 'boards_count', 'memberships_count', 
+                           'is_email_verified', 'email_verified_at']
     
     def get_boards_count(self, obj):
         """Get number of boards owned by the user"""
@@ -175,7 +177,8 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
         # Validate uid and token
         try:
             uid_int = force_str(urlsafe_base64_decode(attrs.get('uid')))
-            user = CustomUser.objects.get(pk=uid_int, is_active=True)
+            # Allow inactive users as well; they can activate via password reset
+            user = CustomUser.objects.get(pk=uid_int)
         except Exception:
             raise serializers.ValidationError(_("Invalid reset link."))
 
@@ -189,4 +192,14 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
         user = self.validated_data['user']
         user.set_password(self.validated_data['new_password1'])
         user.save()
+        # If user is inactive or email is not verified, verify and activate now
+        if (not getattr(user, 'is_active', True)) or (not getattr(user, 'is_email_verified', True)):
+            try:
+                # verify_email will set is_active=True and set email_verified_at
+                user.verify_email()
+            except Exception:
+                # As a fallback, ensure activation
+                user.is_active = True
+                # don't override email_verified_at if verify_email failed silently
+                user.save(update_fields=['is_active'])
         return user

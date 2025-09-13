@@ -12,39 +12,94 @@ from drf_yasg import openapi
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
+from urllib.parse import urlencode
 from django.conf import settings
-
+from django.urls import reverse     
 from .models import CustomUser, Profile
 from .serilizer import (
     RegisterSerializer, UserSerializer, UserUpdateSerializer,
     ChangePasswordSerializer, ProfileSerializer,
     PasswordResetRequestSerializer, PasswordResetConfirmSerializer,
 )
-from .tasks import send_password_reset_email
+from .tasks import send_password_reset_email, send_email_verification
 
 class RegisterView(APIView):
-    """User registration endpoint that returns JWT tokens"""
+    """User registration endpoint that sends an email verification link"""
     permission_classes = [AllowAny]
     serializer_class=RegisterSerializer
     @swagger_auto_schema(
         operation_summary=_('Register a new user'), 
         request_body=RegisterSerializer, 
-        responses={201: UserSerializer, 400: _('Validation Error')}
+        responses={201: openapi.Response(description=_('Registration successful, please verify your email')), 400: _('Validation Error')}
     )
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            refresh = RefreshToken.for_user(user)
+            # Ensure user is inactive until email is verified
+            if user.is_active:
+                user.is_active = False
+                user.save(update_fields=['is_active'])
+
+            # Generate verification token and send email
+            token = user.generate_verification_token()
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+            # Build verification link: prefer frontend route if configured
+            query_params = urlencode({'uid': uid, 'token': token})
+            frontend_url = getattr(settings, 'FRONTEND_URL', None)
+            if frontend_url:
+                # Point email link to frontend verification page
+                verification_link = f"{frontend_url.rstrip('/')}/verify-email?{query_params}"
+            else:
+                # Fallback to backend API endpoint
+                try:
+                    verification_base = reverse('accounts:verify_email')
+                except Exception:
+                    try:
+                        verification_base = reverse('verify_email')
+                    except Exception:
+                        verification_base = '/api/v1/users/auth/verify-email/'
+                verification_link = f"{settings.SITE_URL.rstrip('/')}{verification_base}?{query_params}"
+            
+            send_email_verification.delay(user.id, verification_link)
             return Response({
-                "message": _("User registered successfully"),
+                "message": _("Registration successful. Please check your email to verify your account."),
                 "user": UserSerializer(user).data,
-                "tokens": {
-                    "refresh": str(refresh),
-                    "access": str(refresh.access_token),
-                }
+                "email_verification_sent": True
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class EmailVerificationView(APIView):
+    """Verify user's email and activate account"""
+    permission_classes = [AllowAny]
+
+    @swagger_auto_schema(
+        operation_summary=_('Verify email address'),
+        manual_parameters=[
+            openapi.Parameter('uid', openapi.IN_QUERY, description=_('User ID (base64)'), type=openapi.TYPE_STRING, required=True),
+            openapi.Parameter('token', openapi.IN_QUERY, description=_('Verification token'), type=openapi.TYPE_STRING, required=True),
+        ],
+        responses={200: openapi.Response(description=_('Email verified successfully')), 400: openapi.Response(description=_('Invalid or expired token'))}
+    )
+    def get(self, request):
+        uidb64 = request.query_params.get('uid')
+        token = request.query_params.get('token')
+        if not uidb64 or not token:
+            return Response({"detail": _("Missing parameters")}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            from django.utils.http import urlsafe_base64_decode
+            from django.utils.encoding import force_str
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = CustomUser.objects.get(pk=uid)
+        except Exception:
+            return Response({"detail": _("Invalid verification link.")}, status=status.HTTP_400_BAD_REQUEST)
+
+        if user.is_verification_token_valid(token):
+            user.verify_email()
+            return Response({"message": _("Email verified successfully. You can now log in.")}, status=status.HTTP_200_OK)
+        return Response({"detail": _("Invalid or expired verification token.")}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserListView(APIView):
@@ -259,14 +314,21 @@ class PasswordResetRequestView(APIView):
 
         email = serializer.validated_data['email']
         try:
-            user = CustomUser.objects.get(email=email, is_active=True)
+            # Allow password reset for inactive users as well (used to re-activate accounts)
+            user = CustomUser.objects.get(email=email)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = default_token_generator.make_token(user)
             # Build frontend reset link and send via Celery
-            reset_base = getattr(settings, 'PASSWORD_RESET_FRONTEND_URL', None) or settings.SITE_URL
-            if reset_base.endswith('/'):
-                reset_base = reset_base[:-1]
-            reset_link = f"{reset_base}?uid={uid}&token={token}"
+            reset_base=revers('accounts:password_reset_confirm')
+            frontend_url = getattr(settings, 'FRONTEND_URL', None)
+
+            if frontend_url:
+                reset_base = f"{frontend_url.rstrip('/')}{reset_base}"
+            else:
+                reset_base = f"{settings.SITE_URL.rstrip('/')}{reset_base}"
+            query_params = urlencode({'uid': uid, 'token': token})
+            reset_link = f"{reset_base}?{query_params}"
+
             send_password_reset_email.delay(user.id, reset_link)
         except CustomUser.DoesNotExist:
             # Intentionally do not reveal whether email exists
@@ -292,6 +354,8 @@ class PasswordResetConfirmView(APIView):
             serializer.save()
             return Response({"message": _("Password has been reset successfully.")}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 
 @api_view(['GET'])

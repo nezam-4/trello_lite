@@ -4,7 +4,9 @@ from accounts.views import (
     RegisterView, UserListView, UserDetailView, 
     ChangePasswordView, ProfileView, current_user, LogoutView,
     PasswordResetRequestView, PasswordResetConfirmView,
+    EmailVerificationView,
 )
+app_name = 'accounts'
 
 urlpatterns = [
     # Authentication endpoints
@@ -15,6 +17,9 @@ urlpatterns = [
     # Password reset flow
     path("auth/password/reset/", PasswordResetRequestView.as_view(), name="password_reset_request"),
     path("auth/password/reset/confirm/", PasswordResetConfirmView.as_view(), name="password_reset_confirm"),
+    # Email verification
+    path("auth/verify-email/", EmailVerificationView.as_view(), name="verify_email"),
+    # Resend verification removed; users can use password reset to activate
     
     # User management endpoints
     path("", UserListView.as_view(), name="user_list"),  # GET: list all users (admin only)

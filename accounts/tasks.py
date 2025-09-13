@@ -6,7 +6,7 @@ from django.template.loader import render_to_string
 from django.conf import settings
 from PIL import Image
 import io
-import os
+
 
 
 @shared_task
@@ -72,7 +72,8 @@ def send_password_reset_email(self, user_id, reset_link):
     """
     try:
         from .models import CustomUser
-        user = CustomUser.objects.get(pk=user_id, is_active=True)
+        # Allow inactive users as well; they may use password reset to activate their account
+        user = CustomUser.objects.get(pk=user_id)
 
         context = {
             'user': user,
@@ -95,6 +96,41 @@ def send_password_reset_email(self, user_id, reset_link):
         return _("Password reset email sent to %(email)s") % {'email': user.email}
     except CustomUser.DoesNotExist:
         return _("User not found for password reset")
+    except Exception as exc:
+        # Retry the task on transient errors
+        raise self.retry(exc=exc, countdown=60)
+
+
+@shared_task(bind=True, max_retries=3)
+def send_email_verification(self, user_id, verification_link):
+    """
+    Celery task to send email verification email with a pre-built verification link
+    """
+    try:
+        from .models import CustomUser
+        user = CustomUser.objects.get(pk=user_id)
+
+        context = {
+            'user': user,
+            'verification_link': verification_link,
+            'site_link': settings.SITE_URL,
+        }
+
+        subject = _("Verify your email address")
+        plain_message = render_to_string('emails/email_verification.txt', context)
+        html_message = render_to_string('emails/email_verification.html', context)
+
+        send_mail(
+            subject=subject,
+            message=plain_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            html_message=html_message,
+            fail_silently=False,
+        )
+        return _("Email verification sent to %(email)s") % {'email': user.email}
+    except CustomUser.DoesNotExist:
+        return _("User not found for email verification")
     except Exception as exc:
         # Retry the task on transient errors
         raise self.retry(exc=exc, countdown=60)

@@ -207,12 +207,12 @@ EMAIL_HOST_USER = '2d2b96474a2cb3'  # Replace with your email
 EMAIL_HOST_PASSWORD = '7039edfefbdf43'  # Replace with your app password
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-# Site URL for email links
-SITE_URL = 'http://localhost:8000'
+# backend url 
+SITE_URL = 'http://localhost:8000/'
 
-# Frontend route used in password reset emails (link target)
-# e.g., Your Vue app route that reads uid and token from query string
-PASSWORD_RESET_FRONTEND_URL = 'http://localhost:5173/reset-password'
+
+#frontend url 
+FRONTEND_URL = 'http://localhost:5173/'  
 
 # Application limits
 MAX_BOARDS_PER_USER = 10            # Each user can create up to 10 boards

@@ -8,6 +8,7 @@ from PIL import Image
 import uuid
 import os
 import io
+import secrets
 
 def avatar_upload_path(instance, filename):
     """Save avatars under avatar/<MM>/filename"""
@@ -40,9 +41,28 @@ class CustomUser(AbstractUser):
         help_text=_('Date and time when the user was last updated')
     )
     is_active = models.BooleanField(
-        default=True,
+        default=False,
         verbose_name=_('Active'),
         help_text=_('Designates whether this user should be treated as active. Unselect this instead of deleting accounts.')
+    )
+    email_verified_at = models.DateTimeField(
+        blank=True,
+        null=True,
+        verbose_name=_('Email verified at'),
+        help_text=_('Date and time when the email was verified')
+    )
+    email_verification_token = models.CharField(
+        max_length=64,
+        blank=True,
+        null=True,
+        verbose_name=_('Email verification token'),
+        help_text=_('Token used for email verification')
+    )
+    email_verification_token_created_at = models.DateTimeField(
+        blank=True,
+        null=True,
+        verbose_name=_('Verification token created at'),
+        help_text=_('Date and time when verification token was created')
     )
     first_name = models.CharField(
         max_length=150, 
@@ -68,6 +88,37 @@ class CustomUser(AbstractUser):
     def get_memberships_count(self):
         """Number of board memberships of the user"""
         return self.memberships.filter(status='accepted').count()
+    
+    def generate_verification_token(self):
+        """Generate a new email verification token"""
+        self.email_verification_token = secrets.token_urlsafe(32)
+        self.email_verification_token_created_at = timezone.now()
+        self.save(update_fields=['email_verification_token', 'email_verification_token_created_at'])
+        return self.email_verification_token
+    
+    def is_verification_token_valid(self, token, expiry_hours=24):
+        """Check if verification token is valid and not expired"""
+        if not self.email_verification_token or not self.email_verification_token_created_at:
+            return False
+        
+        if self.email_verification_token != token:
+            return False
+        
+        expiry_time = self.email_verification_token_created_at + timezone.timedelta(hours=expiry_hours)
+        return timezone.now() < expiry_time
+    
+    def verify_email(self):
+        """Mark email as verified and activate user"""
+        self.email_verified_at = timezone.now()
+        self.is_active = True
+        self.email_verification_token = None
+        self.email_verification_token_created_at = None
+        self.save(update_fields=['email_verified_at', 'is_active', 'email_verification_token', 'email_verification_token_created_at'])
+    
+    @property
+    def is_email_verified(self):
+        """Check if email is verified"""
+        return self.email_verified_at is not None
     
     class Meta:
         verbose_name = _('User')

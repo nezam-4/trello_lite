@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تأیید ایمیل</title>
+    <style>
+        body {
+            font-family: 'Tahoma', Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+            direction: rtl;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            color: #ffffff;
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .greeting {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .message {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        .verify-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff !important;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 16px;
+            text-align: center;
+            margin: 20px 0;
+            transition: transform 0.2s;
+        }
+        .verify-btn:hover {
+            transform: translateY(-2px);
+        }
+        .link-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .link-section p {
+            margin: 0 0 10px 0;
+            color: #666;
+            font-size: 14px;
+        }
+        .verification-link {
+            word-break: break-all;
+            color: #667eea;
+            text-decoration: none;
+            font-family: monospace;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 3px;
+            border: 1px solid #ddd;
+            display: block;
+            margin-top: 10px;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px 30px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            border-top: 1px solid #eee;
+        }
+        .warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>تأیید ایمیل</h1>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">
+                سلام {{ user.first_name|default:user.username }}!
+            </div>
+            
+            <div class="message">
+                از شما برای ثبت‌نام در سیستم Trello Lite سپاسگزاریم. برای تکمیل فرآیند ثبت‌نام و فعال‌سازی حساب کاربری‌تان، لطفاً ایمیل خود را تأیید کنید.
+            </div>
+            
+            <div style="text-align: center;">
+                <a href="{{ verification_link }}" class="verify-btn">
+                    تأیید ایمیل
+                </a>
+            </div>
+            
+            <div class="link-section">
+                <p>اگر دکمه بالا کار نمی‌کند، می‌توانید لینک زیر را کپی کرده و در مرورگر خود باز کنید:</p>
+                <a href="{{ verification_link }}" class="verification-link">{{ verification_link }}</a>
+            </div>
+            
+            <div class="warning">
+                <strong>توجه:</strong> این لینک تنها برای 24 ساعت معتبر است. اگر این ایمیل را شما درخواست نکرده‌اید، می‌توانید آن را نادیده بگیرید.
+            </div>
+            
+            <div class="message">
+                پس از تأیید ایمیل، می‌توانید از تمام امکانات سیستم Trello Lite استفاده کنید.
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>
+                با احترام،<br>
+                تیم Trello Lite
+            </p>
+            <p>
+                <a href="{{ site_link }}">{{ site_link }}</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
