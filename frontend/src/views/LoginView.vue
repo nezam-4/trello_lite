@@ -16,6 +16,9 @@
         <div class="mb-4">
           <label class="block text-sm font-medium mb-1" for="password">رمز عبور</label>
           <input v-model="password" id="password" type="password" class="w-full border rounded px-3 py-2" required />
+          <div class="text-left mt-2">
+            <router-link to="/forgot-password" class="text-sky-600 hover:underline text-sm">فراموشی رمز عبور؟</router-link>
+          </div>
         </div>
         <button type="submit" class="w-full bg-sky-600 text-white py-2 rounded hover:bg-sky-700">ورود</button>
       </form>
