@@ -69,7 +69,7 @@ const register = async () => {
       password1: password1.value,
       password2: password2.value,
     });
-    successMsg.value = res.message || 'ثبت نام موفق';
+    successMsg.value = (res && res.data && res.data.message) ? res.data.message : 'ثبت نام انجام شد. لطفاً ایمیل خود را برای تأیید بررسی کنید.';
     Object.keys(fieldErrors).forEach(k=>delete fieldErrors[k]);
     // router.push('/login');
     } catch (err) {

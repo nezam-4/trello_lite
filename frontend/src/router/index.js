@@ -10,12 +10,14 @@ const TaskDetailView = () => import('../views/TaskDetailView.vue');
 const ChangePasswordView = () => import('../views/ChangePasswordView.vue');
 const ForgotPasswordView = () => import('../views/ForgotPasswordView.vue');
 const ResetPasswordView = () => import('../views/ResetPasswordView.vue');
+const VerifyEmailView = () => import('../views/VerifyEmailView.vue');
 
 const routes = [
   { path: '/login', component: LoginView, name: 'login' },
   { path: '/register', component: RegisterView, name: 'register' },
   { path: '/forgot-password', component: ForgotPasswordView, name: 'forgot-password' },
   { path: '/reset-password', component: ResetPasswordView, name: 'reset-password' },
+  { path: '/verify-email', component: VerifyEmailView, name: 'verify-email' },
   { path: '/boards', component: BoardListView, name: 'boards' },
   { path: '/boards/:id', component: BoardView, name: 'board', props: true },
   { path: '/tasks/:id', component: TaskDetailView, name: 'task', props: true },

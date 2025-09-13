@@ -15,7 +15,8 @@ export const useAuthStore = defineStore('auth', {
     async login(email, password) {
       try {
         console.log('LOGIN URL Test →', api.defaults.baseURL + '/users/auth/token/');
-        const response = await api.post('/users/auth/token/', { email, password });
+        // Send both email and username keys to maximize compatibility with backends
+        const response = await api.post('/users/auth/token/', { email, username: email, password });
         this.access = response.data.access;
         this.refresh = response.data.refresh;
         localStorage.setItem('access', this.access);
