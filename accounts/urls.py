@@ -2,7 +2,8 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from accounts.views import (
     RegisterView, UserListView, UserDetailView, 
-    ChangePasswordView, ProfileView, current_user, LogoutView
+    ChangePasswordView, ProfileView, current_user, LogoutView,
+    PasswordResetRequestView, PasswordResetConfirmView,
 )
 
 urlpatterns = [
@@ -11,6 +12,9 @@ urlpatterns = [
     path("auth/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("auth/logout/", LogoutView.as_view(), name="logout"),
+    # Password reset flow
+    path("auth/password/reset/", PasswordResetRequestView.as_view(), name="password_reset_request"),
+    path("auth/password/reset/confirm/", PasswordResetConfirmView.as_view(), name="password_reset_confirm"),
     
     # User management endpoints
     path("", UserListView.as_view(), name="user_list"),  # GET: list all users (admin only)

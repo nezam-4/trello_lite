@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from django.utils.translation import gettext_lazy as _
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_str
+from django.contrib.auth.tokens import default_token_generator
 from .models import CustomUser, Profile
 
 
@@ -142,6 +145,48 @@ class ChangePasswordSerializer(serializers.Serializer):
     def save(self):
         """Update user password with new hashed password"""
         user = self.context['request'].user
+        user.set_password(self.validated_data['new_password1'])
+        user.save()
+        return user
+
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+    """Serializer for requesting a password reset via email"""
+
+    email = serializers.EmailField()
+
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    """Serializer to confirm password reset and set a new password"""
+
+    uid = serializers.CharField()
+    token = serializers.CharField()
+    new_password1 = serializers.CharField(write_only=True, min_length=8)
+    new_password2 = serializers.CharField(write_only=True, min_length=8)
+
+    def validate(self, attrs):
+        # Validate new passwords
+        pwd1 = attrs.get('new_password1')
+        pwd2 = attrs.get('new_password2')
+        if pwd1 != pwd2:
+            raise serializers.ValidationError({"new_password2": _("New passwords do not match.")})
+        validate_password(pwd1)
+
+        # Validate uid and token
+        try:
+            uid_int = force_str(urlsafe_base64_decode(attrs.get('uid')))
+            user = CustomUser.objects.get(pk=uid_int, is_active=True)
+        except Exception:
+            raise serializers.ValidationError(_("Invalid reset link."))
+
+        if not default_token_generator.check_token(user, attrs.get('token')):
+            raise serializers.ValidationError(_("Invalid or expired reset token."))
+
+        attrs['user'] = user
+        return attrs
+
+    def save(self):
+        user = self.validated_data['user']
         user.set_password(self.validated_data['new_password1'])
         user.save()
         return user

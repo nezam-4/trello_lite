@@ -9,12 +9,18 @@ from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
 from rest_framework.decorators import api_view, permission_classes
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.contrib.auth.tokens import default_token_generator
+from django.conf import settings
 
 from .models import CustomUser, Profile
 from .serilizer import (
     RegisterSerializer, UserSerializer, UserUpdateSerializer,
-    ChangePasswordSerializer, ProfileSerializer
+    ChangePasswordSerializer, ProfileSerializer,
+    PasswordResetRequestSerializer, PasswordResetConfirmSerializer,
 )
+from .tasks import send_password_reset_email
 
 class RegisterView(APIView):
     """User registration endpoint that returns JWT tokens"""
@@ -235,6 +241,57 @@ class LogoutView(APIView):
                 {"detail": _("Invalid token")},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+
+class PasswordResetRequestView(APIView):
+    """Request a password reset by email"""
+    permission_classes = [AllowAny]
+
+    @swagger_auto_schema(
+        operation_summary=_('Request password reset'),
+        request_body=PasswordResetRequestSerializer,
+        responses={200: openapi.Response(description=_('Email sent if account exists'))}
+    )
+    def post(self, request):
+        serializer = PasswordResetRequestSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        email = serializer.validated_data['email']
+        try:
+            user = CustomUser.objects.get(email=email, is_active=True)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            token = default_token_generator.make_token(user)
+            # Build frontend reset link and send via Celery
+            reset_base = getattr(settings, 'PASSWORD_RESET_FRONTEND_URL', None) or settings.SITE_URL
+            if reset_base.endswith('/'):
+                reset_base = reset_base[:-1]
+            reset_link = f"{reset_base}?uid={uid}&token={token}"
+            send_password_reset_email.delay(user.id, reset_link)
+        except CustomUser.DoesNotExist:
+            # Intentionally do not reveal whether email exists
+            pass
+
+        return Response({
+            "message": _("If an account with that email exists, we've sent a password reset link.")
+        }, status=status.HTTP_200_OK)
+
+
+class PasswordResetConfirmView(APIView):
+    """Confirm a password reset and set a new password"""
+    permission_classes = [AllowAny]
+
+    @swagger_auto_schema(
+        operation_summary=_('Confirm password reset'),
+        request_body=PasswordResetConfirmSerializer,
+        responses={200: openapi.Response(description=_('Password reset successful')), 400: openapi.Response(description=_('Validation error'))}
+    )
+    def post(self, request):
+        serializer = PasswordResetConfirmSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": _("Password has been reset successfully.")}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])

@@ -1,6 +1,9 @@
 from celery import shared_task
 from django.core.files.storage import default_storage
 from django.utils.translation import gettext as _
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.conf import settings
 from PIL import Image
 import io
 import os
@@ -60,3 +63,38 @@ def create_avatar_thumbnail(profile_id):
         return _("Profile {} not found").format(profile_id)
     except Exception as e:
         return _("Error creating thumbnail for profile {}: {}").format(profile_id, str(e))
+
+
+@shared_task(bind=True, max_retries=3)
+def send_password_reset_email(self, user_id, reset_link):
+    """
+    Celery task to send password reset email with a pre-built reset link
+    """
+    try:
+        from .models import CustomUser
+        user = CustomUser.objects.get(pk=user_id, is_active=True)
+
+        context = {
+            'user': user,
+            'reset_link': reset_link,
+            'site_link': settings.SITE_URL,
+        }
+
+        subject = _("Password reset requested")
+        plain_message = render_to_string('emails/password_reset.txt', context)
+        html_message = render_to_string('emails/password_reset.html', context)
+
+        send_mail(
+            subject=subject,
+            message=plain_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            html_message=html_message,
+            fail_silently=False,
+        )
+        return _("Password reset email sent to %(email)s") % {'email': user.email}
+    except CustomUser.DoesNotExist:
+        return _("User not found for password reset")
+    except Exception as exc:
+        # Retry the task on transient errors
+        raise self.retry(exc=exc, countdown=60)
