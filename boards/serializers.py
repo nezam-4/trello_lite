@@ -5,7 +5,7 @@ from .models import Board, BoardMembership, BoardInvitation, BoardActivity
 from .utils import check_user_board_limit, check_board_member_limit, check_user_membership_limit
 from rest_framework.validators import UniqueTogetherValidator
 from django.db.models import Q
-from accounts.serilizer import ProfileSerializer
+from accounts.serializers import ProfileSerializer
 User = get_user_model()
 
 

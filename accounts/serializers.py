@@ -107,12 +107,9 @@ class RegisterSerializer(serializers.ModelSerializer):
         # Remove password confirmation field
         validated_data.pop("password2")
         password = validated_data.pop("password1")
-        
-        # Create user with hashed password
-        user = CustomUser(**validated_data)
-        user.set_password(password)
-        user.save()
-        
+        # Use manager to ensure defaults (e.g., is_active=False) and email normalization
+        email = validated_data.pop("email")
+        user = CustomUser.objects.create_user(email=email, password=password, **validated_data)
         return user
 
 

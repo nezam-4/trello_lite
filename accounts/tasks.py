@@ -4,6 +4,7 @@ from django.utils.translation import gettext as _
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.conf import settings
+from django.core.files.base import ContentFile
 from PIL import Image
 import io
 
@@ -55,7 +56,7 @@ def create_avatar_thumbnail(profile_id):
         thumbnail_path = profile.get_thumbnail_path()
         
         # Save the thumbnail alongside the original avatar
-        default_storage.save(thumbnail_path, thumb_io)
+        default_storage.save(thumbnail_path, ContentFile(thumb_io.getvalue()))
         
         return _("Thumbnail created successfully for profile {}").format(profile_id)
         

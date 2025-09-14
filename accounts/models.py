@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from boards.models import Board
+from django.contrib.auth.base_user import BaseUserManager
 from django.utils import timezone
 from django.core.files.storage import default_storage
 from django.utils.translation import gettext_lazy as _
@@ -9,6 +10,36 @@ import uuid
 import os
 import io
 import secrets
+
+class CustomUserManager(BaseUserManager):
+    use_in_migrations = True
+
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError('The Email must be set')
+        email = self.normalize_email(email)
+        # Regular users are inactive by default
+        extra_fields.setdefault('is_active', False)
+        user = self.model(email=email, **extra_fields)
+        if password:
+            user.set_password(password)
+        else:
+            user.set_unusable_password()
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        # Superusers are active by default
+        extra_fields.setdefault('is_active', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self.create_user(email, password, **extra_fields)
 
 def avatar_upload_path(instance, filename):
     """Save avatars under avatar/<MM>/filename"""
@@ -80,6 +111,8 @@ class CustomUser(AbstractUser):
     )
     REQUIRED_FIELDS = ['username']
     USERNAME_FIELD = 'email'
+
+    objects = CustomUserManager()
 
     def get_boards_count(self):
         """Number of boards owned by the user"""

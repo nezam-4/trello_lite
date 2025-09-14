@@ -178,7 +178,8 @@ class TaskComment(models.Model):
     
     def clean(self):
         """Validate that the user is a member of the board"""
-        if not self.task.board.active_members.filter(id=self.user.id).exists():
+        # active_members returns a queryset of BoardMembership entries
+        if not self.task.board.active_members.filter(user_id=self.user.id).exists():
             raise ValidationError(_('Only board members can comment.'))
     
     def save(self, *args, **kwargs):

@@ -16,7 +16,7 @@ from urllib.parse import urlencode
 from django.conf import settings
 from django.urls import reverse     
 from .models import CustomUser, Profile
-from .serilizer import (
+from .serializers import (
     RegisterSerializer, UserSerializer, UserUpdateSerializer,
     ChangePasswordSerializer, ProfileSerializer,
     PasswordResetRequestSerializer, PasswordResetConfirmSerializer,
@@ -319,12 +319,14 @@ class PasswordResetRequestView(APIView):
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = default_token_generator.make_token(user)
             # Build frontend reset link and send via Celery
-            reset_base=revers('accounts:password_reset_confirm')
+            reset_base = reverse('accounts:password_reset_confirm')
             frontend_url = getattr(settings, 'FRONTEND_URL', None)
 
             if frontend_url:
-                reset_base = f"{frontend_url.rstrip('/')}{reset_base}"
+                # Point email link to frontend reset page (SPA route)
+                reset_base = f"{frontend_url.rstrip('/')}/reset-password"
             else:
+                # Fallback to backend API endpoint
                 reset_base = f"{settings.SITE_URL.rstrip('/')}{reset_base}"
             query_params = urlencode({'uid': uid, 'token': token})
             reset_link = f"{reset_base}?{query_params}"

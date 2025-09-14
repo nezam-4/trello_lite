@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from .models import Task, TaskComment
 from lists.models import List
 from boards.models import BoardMembership
-from accounts.serilizer import ProfileSerializer
+from accounts.serializers import ProfileSerializer
 
 User = get_user_model()
 

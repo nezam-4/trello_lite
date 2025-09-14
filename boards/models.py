@@ -80,7 +80,7 @@ class Board(models.Model):
             user=user,
             role=role,
             invited_by=invited_by,
-            status='Pending',
+            status='pending',
             response_at=timezone.now()
         )
 
@@ -284,7 +284,7 @@ class BoardActivity(models.Model):
 
     def __str__(self):
         return _("%(username)s %(action)s %(board_title)s") % {
-            'username': self.user.username,
+            'username': (self.user.username if self.user else _('System')),
             'action': self.get_action_display(),
             'board_title': self.board.title
         }

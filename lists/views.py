@@ -36,7 +36,7 @@ class ListListView(APIView):
         
         # Check if user is owner or member of the board
         if not (board.owner == user or board.memberships.filter(user=user, status='accepted').exists()):
-            return Response(_("You don't have permission to access this board."), status=status.HTTP_403_FORBIDDEN)
+            raise PermissionDenied(_("You don't have permission to access this board."))
         
         return board 
     
@@ -49,7 +49,7 @@ class ListListView(APIView):
         
         # Check if user is owner or admin member of the board
         if not (board.owner == user or board.memberships.filter(user=user, status='accepted', role='admin').exists()):
-            return Response(_("You don't have permission to access this board."), status=status.HTTP_403_FORBIDDEN)
+            raise PermissionDenied(_("You don't have permission to access this board."))
         
         return board 
     
@@ -88,14 +88,14 @@ class ListDetailView(APIView):
         list_obj = get_object_or_404(List, id=list_id)
         board = list_obj.board
         if not (board.owner == user or board.memberships.filter(user=user, status='accepted').exists()):
-            return Response(_("You don't have permission to access this list."), status=status.HTTP_403_FORBIDDEN)
+            raise PermissionDenied(_("You don't have permission to access this list."))
         return list_obj
     
     def get_list_and_check_permission_admin(self, list_id, user):
         list_obj = get_object_or_404(List, id=list_id)
         board = list_obj.board
         if not (board.owner == user or board.memberships.filter(user=user, status='accepted', role='admin').exists()):
-            return Response(_("You don't have permission to access this list."), status=status.HTTP_403_FORBIDDEN)
+            raise PermissionDenied(_("You don't have permission to access this list."))
         return list_obj
     
     @swagger_auto_schema(operation_summary=_("Retrieve a list"), responses={200: ListDetailSerializer})
@@ -127,7 +127,7 @@ class ListMoveView(APIView):
         list_obj = get_object_or_404(List, id=list_id)
         board = list_obj.board
         if not (board.owner == user or board.memberships.filter(user=user, status='accepted', role='admin').exists()):
-            return Response(_("You don't have permission to move this list."), status=status.HTTP_403_FORBIDDEN)
+            raise PermissionDenied(_("You don't have permission to move this list."))
         return list_obj
     
     @swagger_auto_schema(operation_summary=_("Move list to new position"), request_body=ListMoveSerializer, responses={200: ListDetailSerializer, 400: _("Validation Error")})
