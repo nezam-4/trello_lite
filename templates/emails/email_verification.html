@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تأیید ایمیل</title>
+    <title>Email Verification</title>
     <style>
         body {
             font-family: 'Tahoma', Arial, sans-serif;
             background-color: #f8f9fa;
             margin: 0;
             padding: 20px;
-            direction: rtl;
+            direction: ltr;
         }
         .container {
             max-width: 600px;
@@ -103,45 +103,45 @@
         }
     </style>
 </head>
-<body>
+<body dir="ltr" lang="en">
     <div class="container">
         <div class="header">
-            <h1>تأیید ایمیل</h1>
+            <h1>Email Verification</h1>
         </div>
         
         <div class="content">
             <div class="greeting">
-                سلام {{ user.first_name|default:user.username }}!
+                Hi {{ user.first_name|default:user.username }}!
             </div>
             
             <div class="message">
-                از شما برای ثبت‌نام در سیستم Trello Lite سپاسگزاریم. برای تکمیل فرآیند ثبت‌نام و فعال‌سازی حساب کاربری‌تان، لطفاً ایمیل خود را تأیید کنید.
+                Thank you for signing up for Trello Lite. To complete your registration and activate your account, please verify your email address.
             </div>
             
             <div style="text-align: center;">
                 <a href="{{ verification_link }}" class="verify-btn">
-                    تأیید ایمیل
+                    Verify Email
                 </a>
             </div>
             
             <div class="link-section">
-                <p>اگر دکمه بالا کار نمی‌کند، می‌توانید لینک زیر را کپی کرده و در مرورگر خود باز کنید:</p>
+                <p>If the button above doesn't work, you can copy and paste the link below into your browser:</p>
                 <a href="{{ verification_link }}" class="verification-link">{{ verification_link }}</a>
             </div>
             
             <div class="warning">
-                <strong>توجه:</strong> این لینک تنها برای 24 ساعت معتبر است. اگر این ایمیل را شما درخواست نکرده‌اید، می‌توانید آن را نادیده بگیرید.
+                <strong>Note:</strong> This link is valid for 24 hours. If you did not request this email, you can safely ignore it.
             </div>
             
             <div class="message">
-                پس از تأیید ایمیل، می‌توانید از تمام امکانات سیستم Trello Lite استفاده کنید.
+                After verifying your email, you'll have full access to Trello Lite.
             </div>
         </div>
         
         <div class="footer">
             <p>
-                با احترام،<br>
-                تیم Trello Lite
+                Best regards,<br>
+                Trello Lite Team
             </p>
             <p>
                 <a href="{{ site_link }}">{{ site_link }}</a>

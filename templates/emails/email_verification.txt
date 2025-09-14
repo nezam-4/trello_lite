@@ -1,18 +1,18 @@
-تأیید ایمیل - Trello Lite
+Email Verification - Trello Lite
 
-سلام {{ user.first_name|default:user.username }}!
+Hi {{ user.first_name|default:user.username }}!
 
-از شما برای ثبت‌نام در سیستم Trello Lite سپاسگزاریم. 
-برای تکمیل فرآیند ثبت‌نام و فعال‌سازی حساب کاربری‌تان، لطفاً ایمیل خود را تأیید کنید.
+Thank you for signing up for Trello Lite.
+To complete your registration and activate your account, please verify your email address.
 
-لینک تأیید ایمیل:
+Verification link:
 {{ verification_link }}
 
-توجه مهم:
-- این لینک تنها برای 24 ساعت معتبر است
-- اگر این ایمیل را شما درخواست نکرده‌اید، می‌توانید آن را نادیده بگیرید
-- پس از تأیید ایمیل، می‌توانید از تمام امکانات سیستم استفاده کنید
+Important notes:
+- This link is valid for 24 hours.
+- If you did not request this email, you can safely ignore it.
+- After verification, you'll have full access to the system.
 
-با احترام،
-تیم Trello Lite
+Best regards,
+Trello Lite Team
 {{ site_link }}
