@@ -14,9 +14,9 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async login(email, password) {
       try {
-        console.log('LOGIN URL Test →', api.defaults.baseURL + '/users/auth/token/');
+        console.log('LOGIN URL Test →', api.defaults.baseURL + '/auth/login/');
         // Send both email and username keys to maximize compatibility with backends
-        const response = await api.post('/users/auth/token/', { email, username: email, password });
+        const response = await api.post('/auth/login/', { email, username: email, password });
         this.access = response.data.access;
         this.refresh = response.data.refresh;
         localStorage.setItem('access', this.access);
@@ -64,7 +64,7 @@ export const useAuthStore = defineStore('auth', {
       try {
         // Call backend logout endpoint to blacklist refresh token
         if (this.refresh) {
-          await api.post('/users/auth/logout/', { 
+          await api.post('/auth/logout/', { 
             refresh_token: this.refresh 
           });
         }
@@ -84,7 +84,7 @@ export const useAuthStore = defineStore('auth', {
       if (!this.access) return;
       try {
         console.log('Fetching current user...');
-        const res = await api.get('/users/current/');
+        const res = await api.get('/users/me/');
         console.log('Current user response:', res.data);
         this.user = res.data;
       } catch (e) {
@@ -94,7 +94,7 @@ export const useAuthStore = defineStore('auth', {
     async fetchProfile() {
       if (!this.access) throw 'Not authenticated';
       try {
-        const res = await api.get('/users/profile/');
+        const res = await api.get('/profiles/me/');
         // res.data = {user: {...}, profile: {...}}
         this.user = res.data.user;
         this.user.profile = res.data.profile;
@@ -108,7 +108,7 @@ export const useAuthStore = defineStore('auth', {
       if (!this.access) throw 'Not authenticated';
       try {
         const config = data instanceof FormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : {};
-        const res = await api.patch('/users/profile/', data, config);
+        const res = await api.patch('/profiles/me/', data, config);
         // res.data = {user, profile}
         this.user = res.data.user;
         this.user.profile = res.data.profile;
@@ -122,7 +122,7 @@ export const useAuthStore = defineStore('auth', {
       if (!this.access) throw 'Not authenticated';
       try {
         const payload = { old_password: oldPassword, new_password1: newPassword1, new_password2: newPassword2 };
-        await api.post('/users/change-password/', payload);
+        await api.post('/users/me/password/', payload);
         return true;
       } catch (e) {
         console.error(e);

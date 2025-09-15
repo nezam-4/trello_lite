@@ -63,7 +63,7 @@ export const useBoardsStore = defineStore('boards', {
     },
     async inviteMember(boardId, username, role = 'member') {
       try {
-        const res = await api.post(`/boards/${boardId}/invite/user/`, { identifier: username, role });
+        const res = await api.post(`/boards/${boardId}/invitations/user/`, { identifier: username, role });
         return res.data;
       } catch (e) {
         console.error(e);
@@ -72,7 +72,7 @@ export const useBoardsStore = defineStore('boards', {
     },
     async fetchInvitations(boardId) {
       try {
-        const res = await api.get(`/boards/${boardId}/invite/`);
+        const res = await api.get(`/boards/${boardId}/invitations/`);
         return res.data;
       } catch (e) {
         console.error(e);
@@ -100,7 +100,7 @@ export const useBoardsStore = defineStore('boards', {
     },
     async inviteEmail(boardId, email, role='member') {
       try {
-        const res = await api.post(`/boards/${boardId}/invite/`, { invited_email: email, role });
+        const res = await api.post(`/boards/${boardId}/invitations/`, { invited_email: email, role });
         return res.data;
       } catch (e) {
         console.error(e);

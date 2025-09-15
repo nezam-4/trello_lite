@@ -8,7 +8,7 @@ export const useInvitationsStore = defineStore('invitations', {
   actions: {
     async fetchInvitations() {
       try {
-        const res = await api.get('/boards/invitations/');
+        const res = await api.get('/invitations/');
         this.invitations = res.data;
       } catch (e) {
         console.error(e);
@@ -18,7 +18,7 @@ export const useInvitationsStore = defineStore('invitations', {
     async respondInvitation(id, action = 'accept') {
       // action: 'accept' or 'reject'
       try {
-        const res = await api.post(`/boards/invitations/${id}/respond/`, { action });
+        const res = await api.post(`/invitations/${id}/respond/`, { action });
         // remove from list after response
         this.invitations = this.invitations.filter(inv => inv.id !== id);
         return res.data;

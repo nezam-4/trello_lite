@@ -81,7 +81,7 @@ const submit = async () => {
 
   loading.value = true;
   try {
-    await api.post('/users/auth/password/reset/confirm/', {
+    await api.post('/auth/password/reset/confirm/', {
       uid: uid.value,
       token: token.value,
       new_password1: password1.value,

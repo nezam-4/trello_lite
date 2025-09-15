@@ -42,7 +42,7 @@ onMounted(async () => {
     return;
   }
   try {
-    await api.get('/users/auth/verify-email/', { params: { uid, token } });
+    await api.get('/auth/verify-email/', { params: { uid, token } });
     success.value = 'ایمیل شما با موفقیت تأیید شد. اکنون می‌توانید وارد شوید.';
   } catch (e) {
     const data = e?.response?.data;

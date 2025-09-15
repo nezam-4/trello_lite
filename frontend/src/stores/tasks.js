@@ -27,7 +27,7 @@ export const useTasksStore = defineStore('tasks', {
     async fetchTasks(listId) {
       if (!listId) throw new Error('listId is required');
       try {
-        const res = await api.get(`/tasks/lists/${listId}/tasks/`);
+        const res = await api.get(`/tasks/lists/${listId}/`);
         this.tasksByList[listId] = res.data;
       } catch (e) {
         console.error('Failed to fetch tasks', e);
@@ -40,7 +40,7 @@ export const useTasksStore = defineStore('tasks', {
     async createTask(listId, title) {
       if (!listId || !title) throw new Error('listId and title are required');
       try {
-        const res = await api.post(`/tasks/lists/${listId}/tasks/`, { title });
+        const res = await api.post(`/tasks/lists/${listId}/`, { title });
         // if list not fetched yet create array
         if (!this.tasksByList[listId]) this.tasksByList[listId] = [];
         this.tasksByList[listId].push(res.data);
@@ -58,7 +58,7 @@ export const useTasksStore = defineStore('tasks', {
 
     async fetchTask(id) {
       try {
-        const res = await api.get(`/tasks/tasks/${id}/`);
+        const res = await api.get(`/tasks/${id}/`);
         this.currentTask = res.data;
         return res.data;
       } catch (e) {
@@ -69,7 +69,7 @@ export const useTasksStore = defineStore('tasks', {
 
     async toggleComplete(id) {
       try {
-        const res = await api.post(`/tasks/tasks/${id}/toggle-complete/`);
+        const res = await api.post(`/tasks/${id}/toggle-complete/`);
         const updated = res.data.task || res.data;
         // Replace reference with new cloned object for deep reactivity
         this.currentTask = { ...updated };
@@ -91,7 +91,7 @@ export const useTasksStore = defineStore('tasks', {
 
     async updateTask(id, data) {
       try {
-        const res = await api.patch(`/tasks/tasks/${id}/`, data);
+        const res = await api.patch(`/tasks/${id}/`, data);
         const updated = res.data;
         // Replace reference with new cloned object for deep reactivity
         this.currentTask = { ...updated };
@@ -113,7 +113,7 @@ export const useTasksStore = defineStore('tasks', {
 
     async deleteTask(id) {
       try {
-        await api.delete(`/tasks/tasks/${id}/`);
+        await api.delete(`/tasks/${id}/`);
         // Determine the list that contains this task
         let listId = null;
         if (this.currentTask && this.currentTask.id === id) {
@@ -152,7 +152,7 @@ export const useTasksStore = defineStore('tasks', {
         if (newListId) payload.new_list = newListId;
         if (newPosition !== undefined) payload.new_position = newPosition;
         
-        const res = await api.post(`/tasks/tasks/${taskId}/move/`, payload);
+        const res = await api.post(`/tasks/${taskId}/move/`, payload);
         const updated = res.data;
         
         // Instead of manually updating cache, refresh affected lists

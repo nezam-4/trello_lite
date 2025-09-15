@@ -50,7 +50,7 @@ const submit = async () => {
   successMessage.value = '';
   loading.value = true;
   try {
-    await api.post('/users/auth/email/resend/', { email: email.value });
+    await api.post('/auth/email/resend/', { email: email.value });
     successMessage.value = 'اگر حسابی با این ایمیل وجود داشته باشد و تأیید نشده باشد، ایمیل تأیید ارسال شد.';
   } catch (e) {
     if (!errorMessage.value) {

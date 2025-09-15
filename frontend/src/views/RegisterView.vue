@@ -61,7 +61,7 @@ const router = useRouter();
 
 const register = async () => {
   try {
-    const res = await api.post('/users/auth/register/', {
+    const res = await api.post('/auth/register/', {
       email: email.value,
       username: username.value,
       first_name: firstName.value,

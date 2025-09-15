@@ -50,7 +50,7 @@ const submit = async () => {
   successMessage.value = '';
   loading.value = true;
   try {
-    await api.post('/users/auth/password/reset/', { email: email.value });
+    await api.post('/auth/password/reset/', { email: email.value });
     successMessage.value = 'اگر ایمیلی با این مشخصات وجود داشته باشد، لینک بازیابی برای شما ارسال خواهد شد.';
   } catch (e) {
     // 400 errors won't be pushed to global errors store by interceptor
