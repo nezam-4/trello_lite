@@ -142,7 +142,7 @@ chmod +x restart_frontend.sh
 
 1. Create a board invitation via API:
 ```bash
-curl -X POST http://localhost:8000/api/v1/boards/{board_id}/invite/ \
+curl -X POST http://localhost:8000/api/v1/boards/{board_id}/invitations/ \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -187,9 +187,9 @@ invitation = BoardInvitation.objects.create(
 
 ## API Endpoints
 
-- **Create Invitation**: `POST /api/v1/boards/{board_id}/invite/`
-- **View Invitation**: `GET /api/v1/boards/invitations/accept/{token}/`
-- **Accept Invitation**: `POST /api/v1/boards/invitations/accept/{token}/`
+- **Create Invitation**: `POST /api/v1/boards/{board_id}/invitations/`
+- **List Board Invitations**: `GET /api/v1/boards/{board_id}/invitations/`
+- **Respond to Invitation (accept/reject)**: `POST /api/v1/invitations/{id}/respond/`
 
 ## Email Templates
 

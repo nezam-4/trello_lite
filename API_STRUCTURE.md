@@ -1,7 +1,7 @@
 # Trello Lite REST API Structure
 
 ## Overview
-این پروژه از معماری RESTful برای طراحی API استفاده می‌کند. تمام endpoints ها بر اساس استانداردهای REST طراحی شده‌اند.
+This project follows a RESTful architecture. All endpoints adhere to REST standards and conventions.
 
 ## Base URL
 ```
@@ -11,169 +11,169 @@ https://your-domain.com/api/v1/
 ## API Resources
 
 ### 1. Authentication (`/auth/`)
-منابع مربوط به احراز هویت به صورت مستقل از user management.
+Authentication resources are separate from user management.
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/auth/register/` | ثبت‌نام کاربر جدید |
-| POST | `/auth/login/` | ورود (دریافت JWT token) |
-| POST | `/auth/refresh/` | تازه‌سازی token |
-| POST | `/auth/logout/` | خروج |
-| POST | `/auth/password/reset/` | درخواست بازیابی رمز عبور |
-| POST | `/auth/password/reset/confirm/` | تایید بازیابی رمز عبور |
-| POST | `/auth/verify-email/` | تایید ایمیل |
+| POST | `/auth/register/` | Register a new user |
+| POST | `/auth/login/` | Login (obtain JWT tokens) |
+| POST | `/auth/refresh/` | Refresh access token |
+| POST | `/auth/logout/` | Logout |
+| POST | `/auth/password/reset/` | Request password reset |
+| POST | `/auth/password/reset/confirm/` | Confirm password reset |
+| POST | `/auth/verify-email/` | Verify email address |
 
 ### 2. Users (`/users/`)
-مدیریت کاربران سیستم.
+User management.
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/users/` | لیست کاربران (فقط admin) |
-| GET | `/users/me/` | اطلاعات کاربر جاری |
-| GET | `/users/{id}/` | اطلاعات کاربر خاص |
-| PATCH | `/users/me/` | ویرایش کاربر جاری |
-| PATCH | `/users/{id}/` | ویرایش کاربر خاص (admin) |
-| DELETE | `/users/{id}/` | حذف کاربر |
-| POST | `/users/me/password/` | تغییر رمز عبور کاربر جاری |
-| POST | `/users/{id}/password/` | تغییر رمز عبور کاربر خاص |
+| GET | `/users/` | List users (admin only) |
+| GET | `/users/me/` | Current user info |
+| GET | `/users/{id}/` | Specific user info |
+| PATCH | `/users/me/` | Update current user |
+| PATCH | `/users/{id}/` | Update specific user (admin) |
+| DELETE | `/users/{id}/` | Delete user |
+| POST | `/users/me/password/` | Change current user's password |
+| POST | `/users/{id}/password/` | Change a user's password |
 
 ### 3. Profiles (`/profiles/`)
-مدیریت پروفایل کاربران به عنوان منبع مستقل.
+Manage user profiles as an independent resource.
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/profiles/` | لیست پروفایل‌ها |
-| GET | `/profiles/me/` | پروفایل کاربر جاری |
-| GET | `/profiles/{id}/` | پروفایل کاربر خاص |
-| PATCH | `/profiles/me/` | ویرایش پروفایل کاربر جاری |
-| PATCH | `/profiles/{id}/` | ویرایش پروفایل کاربر خاص |
+| GET | `/profiles/` | List profiles |
+| GET | `/profiles/me/` | Current user's profile |
+| GET | `/profiles/{id}/` | Specific user's profile |
+| PATCH | `/profiles/me/` | Update current user's profile |
+| PATCH | `/profiles/{id}/` | Update specific user's profile |
 
 ### 4. Boards (`/boards/`)
-مدیریت بردها و منابع وابسته.
+Boards and related resources.
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/boards/` | لیست بردهای کاربر |
-| POST | `/boards/` | ایجاد برد جدید |
-| GET | `/boards/{id}/` | جزئیات برد |
-| PATCH | `/boards/{id}/` | ویرایش برد |
-| DELETE | `/boards/{id}/` | حذف برد |
-| GET | `/boards/public/` | لیست بردهای عمومی |
+| GET | `/boards/` | List user boards |
+| POST | `/boards/` | Create a new board |
+| GET | `/boards/{id}/` | Board details |
+| PATCH | `/boards/{id}/` | Update a board |
+| DELETE | `/boards/{id}/` | Delete a board |
+| GET | `/boards/public/` | List public boards |
 
 #### Nested Resources - Members
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/boards/{board_id}/members/` | لیست اعضای برد |
-| DELETE | `/boards/{board_id}/members/{user_id}/` | حذف عضو از برد |
+| GET | `/boards/{board_id}/members/` | List board members |
+| DELETE | `/boards/{board_id}/members/{user_id}/` | Remove a member from board |
 
 #### Nested Resources - Invitations
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/boards/{board_id}/invitations/` | لیست دعوت‌نامه‌های برد |
-| POST | `/boards/{board_id}/invitations/` | ارسال دعوت‌نامه جدید |
-| POST | `/boards/{board_id}/invitations/user/` | دعوت کاربر ثبت‌نام شده |
+| GET | `/boards/{board_id}/invitations/` | List board invitations |
+| POST | `/boards/{board_id}/invitations/` | Send a new invitation |
+| POST | `/boards/{board_id}/invitations/user/` | Invite a registered user |
 
 #### Board Actions
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/boards/{board_id}/leave/` | خروج از برد |
-| GET | `/boards/{board_id}/activities/` | تاریخچه فعالیت‌های برد |
+| POST | `/boards/{board_id}/leave/` | Leave board |
+| GET | `/boards/{board_id}/activities/` | Board activity history |
 
 #### Nested Resources - Lists
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/boards/{board_id}/lists/` | لیست‌های برد |
-| POST | `/boards/{board_id}/lists/` | ایجاد لیست جدید |
+| GET | `/boards/{board_id}/lists/` | Board lists |
+| POST | `/boards/{board_id}/lists/` | Create a new list |
 
 ### 5. Lists (`/lists/`)
-مدیریت لیست‌ها.
+List management.
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/lists/{id}/` | جزئیات لیست |
-| PATCH | `/lists/{id}/` | ویرایش لیست |
-| DELETE | `/lists/{id}/` | حذف لیست |
-| POST | `/lists/{id}/move/` | جابجایی لیست |
+| GET | `/lists/{id}/` | List details |
+| PATCH | `/lists/{id}/` | Update list |
+| DELETE | `/lists/{id}/` | Delete list |
+| POST | `/lists/{id}/move/` | Move list to new position |
 
 ### 6. Tasks (`/tasks/`)
-مدیریت وظایف.
+Task management.
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/tasks/` | وظایف اختصاص داده شده به کاربر |
-| GET | `/tasks/{id}/` | جزئیات وظیفه |
-| PATCH | `/tasks/{id}/` | ویرایش وظیفه |
-| DELETE | `/tasks/{id}/` | حذف وظیفه |
-| POST | `/tasks/{id}/move/` | جابجایی وظیفه |
-| POST | `/tasks/{id}/toggle-complete/` | تغییر سریع وضعیت تکمیل |
+| GET | `/tasks/` | Tasks assigned to current user |
+| GET | `/tasks/{id}/` | Task details |
+| PATCH | `/tasks/{id}/` | Update task |
+| DELETE | `/tasks/{id}/` | Delete task |
+| POST | `/tasks/{id}/move/` | Move task |
+| POST | `/tasks/{id}/toggle-complete/` | Quick toggle completion status |
 
 #### Nested Resources - Comments
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/tasks/{task_id}/comments/` | لیست نظرات |
-| POST | `/tasks/{task_id}/comments/` | ایجاد نظر جدید |
-| GET | `/tasks/{task_id}/comments/{id}/` | جزئیات نظر |
-| PATCH | `/tasks/{task_id}/comments/{id}/` | ویرایش نظر |
-| DELETE | `/tasks/{task_id}/comments/{id}/` | حذف نظر |
+| GET | `/tasks/{task_id}/comments/` | List comments |
+| POST | `/tasks/{task_id}/comments/` | Create a new comment |
+| GET | `/tasks/{task_id}/comments/{id}/` | Comment details |
+| PATCH | `/tasks/{task_id}/comments/{id}/` | Update comment |
+| DELETE | `/tasks/{task_id}/comments/{id}/` | Delete comment |
 
 #### List-specific Tasks
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/tasks/lists/{list_id}/` | وظایف یک لیست |
-| POST | `/tasks/lists/{list_id}/` | ایجاد وظیفه در لیست |
+| GET | `/tasks/lists/{list_id}/` | Tasks of a list |
+| POST | `/tasks/lists/{list_id}/` | Create a task in a list |
 
 ### 7. Invitations (`/invitations/`)
-مدیریت دعوت‌نامه‌های کاربر.
+Manage user invitations.
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/invitations/` | دعوت‌نامه‌های کاربر |
-| GET | `/invitations/{id}/` | جزئیات دعوت‌نامه |
-| POST | `/invitations/{id}/respond/` | پاسخ به دعوت‌نامه (accept/reject) |
+| GET | `/invitations/` | Current user's invitations |
+| GET | `/invitations/{id}/` | Invitation details |
+| POST | `/invitations/{id}/respond/` | Respond to invitation (accept/reject) |
 
 ### 8. User Limits (`/limits/`)
-محدودیت‌های کاربر.
+User limits.
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/limits/` | محدودیت‌های کاربر جاری |
-| GET | `/limits/{user_id}/` | محدودیت‌های کاربر خاص (admin) |
+| GET | `/limits/` | Limits for current user |
+| GET | `/limits/{user_id}/` | Limits for a specific user (admin) |
 
 ## REST Principles Applied
 
 ### 1. Resource-Based URLs
-- هر URL نماینده یک منبع (resource) است
-- استفاده از اسامی جمع برای collections
-- استفاده از IDs برای منابع خاص
+- Each URL represents a resource
+- Use plural nouns for collections
+- Use IDs for specific resources
 
 ### 2. HTTP Methods
-- `GET`: خواندن داده‌ها
-- `POST`: ایجاد منبع جدید یا انجام عملیات
-- `PATCH`: به‌روزرسانی جزئی
-- `PUT`: به‌روزرسانی کامل (در حال حاضر استفاده نمی‌شود)
-- `DELETE`: حذف منبع
+- `GET`: Read data
+- `POST`: Create a new resource or perform an action
+- `PATCH`: Partial update
+- `PUT`: Full update (currently unused)
+- `DELETE`: Delete a resource
 
 ### 3. Status Codes
-- `200 OK`: عملیات موفق
-- `201 Created`: ایجاد منبع جدید
-- `204 No Content`: حذف موفق
-- `400 Bad Request`: خطای validation
-- `401 Unauthorized`: عدم احراز هویت
-- `403 Forbidden`: عدم دسترسی
-- `404 Not Found`: منبع یافت نشد
+- `200 OK`: Successful operation
+- `201 Created`: Resource created
+- `204 No Content`: Successful deletion
+- `400 Bad Request`: Validation error
+- `401 Unauthorized`: Authentication required/failed
+- `403 Forbidden`: Permission denied
+- `404 Not Found`: Resource not found
 
 ### 4. Nested Resources
-منابع وابسته به صورت nested تعریف شده‌اند:
-- `/boards/{id}/members/`: اعضای یک برد
-- `/boards/{id}/lists/`: لیست‌های یک برد
-- `/tasks/{id}/comments/`: نظرات یک وظیفه
+Dependent resources are defined as nested paths:
+- `/boards/{id}/members/`: Members of a board
+- `/boards/{id}/lists/`: Lists of a board
+- `/tasks/{id}/comments/`: Comments of a task
 
 ### 5. Special Endpoints
-- `/me/`: برای دسترسی به منابع کاربر جاری
-- `/public/`: برای منابع عمومی
+- `/me/`: Access current user's resources
+- `/public/`: Public resources
 
 ## Authentication
-تمام endpoints ها به جز `/auth/register/` و `/auth/login/` نیاز به احراز هویت دارند.
+All endpoints require authentication except `/auth/register/` and `/auth/login/`.
 
 ### Headers
 ```
@@ -202,7 +202,7 @@ Authorization: Bearer <jwt_token>
 ```
 
 ## Pagination
-برای لیست‌ها از pagination استفاده می‌شود:
+Pagination is used for listing endpoints:
 ```
 GET /api/v1/boards/?page=1&page_size=20
 ```
@@ -213,7 +213,7 @@ GET /api/v1/tasks/?is_completed=false&priority=high&ordering=-created_at
 ```
 
 ## Notes
-- endpoint `/tasks/{id}/toggle-complete/` برای UX بهتر اضافه شده - راه سریع برای تغییر وضعیت تکمیل
-- تغییر completion status هم از طریق PATCH endpoint با فیلد `is_completed` و هم از طریق toggle endpoint امکان‌پذیر است
-- محدودیت‌های کاربر به صورت منبع مستقل از boards جدا شده است
-- دعوت‌نامه‌ها هم به صورت منبع مستقل قابل مدیریت هستند
+- The `/tasks/{id}/toggle-complete/` endpoint exists for better UX — a quick way to change completion state
+- Completion status can be changed via PATCH (field `is_completed`) or via the toggle endpoint
+- User limits are an independent resource, separate from boards
+- Invitations are also managed as a top-level resource
