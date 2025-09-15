@@ -123,7 +123,8 @@ class ChangePasswordSerializer(serializers.Serializer):
     
     def validate_old_password(self, value):
         """Verify the current password is correct"""
-        user = self.context['request'].user
+        # Get user from context (could be current user or another user for admin)
+        user = self.context.get('user', self.context['request'].user)
         if not user.check_password(value):
             raise serializers.ValidationError(_("Old password is incorrect."))
         return value
@@ -143,7 +144,8 @@ class ChangePasswordSerializer(serializers.Serializer):
     
     def save(self):
         """Update user password with new hashed password"""
-        user = self.context['request'].user
+        # Get user from context (could be current user or another user for admin)
+        user = self.context.get('user', self.context['request'].user)
         user.set_password(self.validated_data['new_password1'])
         user.save()
         return user

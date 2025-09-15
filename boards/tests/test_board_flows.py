@@ -204,19 +204,19 @@ class BoardFlowTests(APITestCase):
             'role': 'member'
         }
         
-        response = self.client.post(f'/api/v1/boards/{board.id}/invite/user/', invite_data)
+        response = self.client.post(f'/api/v1/boards/{board.id}/invitations/user/', invite_data)
         
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         
-        # Verify invitation creation
-        invitation = BoardInvitation.objects.get(board=board, user=self.member)
-        self.assertFalse(invitation.is_used)
+        # Verify invitation was created
+        invitation = BoardInvitation.objects.get(board=board, invited_by=self.owner)
+        self.assertEqual(invitation.user, self.member)
         
-        # Accept invitation by invited user
+        # Accept invitation
         self.client.force_authenticate(user=self.member)
         
         accept_data = {'action': 'accept'}
-        response = self.client.post(f'/api/v1/boards/invitations/{invitation.id}/respond/', accept_data)
+        response = self.client.post(f'/api/v1/invitations/{invitation.id}/respond/', accept_data)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         

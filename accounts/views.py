@@ -48,18 +48,18 @@ class RegisterView(APIView):
             # Build verification link: prefer frontend route if configured
             query_params = urlencode({'uid': uid, 'token': token})
             frontend_url = getattr(settings, 'FRONTEND_URL', None)
+
             if frontend_url:
-                # Point email link to frontend verification page
                 verification_link = f"{frontend_url.rstrip('/')}/verify-email?{query_params}"
             else:
                 # Fallback to backend API endpoint
                 try:
-                    verification_base = reverse('accounts:verify_email')
+                    verification_base = reverse('auth:verify_email')
                 except Exception:
                     try:
                         verification_base = reverse('verify_email')
                     except Exception:
-                        verification_base = '/api/v1/users/auth/verify-email/'
+                        verification_base = '/api/v1/auth/verify-email/'
                 verification_link = f"{settings.SITE_URL.rstrip('/')}{verification_base}?{query_params}"
             
             send_email_verification.delay(user.id, verification_link)
@@ -319,7 +319,7 @@ class PasswordResetRequestView(APIView):
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = default_token_generator.make_token(user)
             # Build frontend reset link and send via Celery
-            reset_base = reverse('accounts:password_reset_confirm')
+            reset_base = reverse('auth:password_reset_confirm')
             frontend_url = getattr(settings, 'FRONTEND_URL', None)
 
             if frontend_url:

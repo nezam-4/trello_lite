@@ -72,7 +72,7 @@ class TaskFlowTests(APITestCase):
             'title': 'New Task'
         }
         
-        response = self.client.post(f'/api/v1/tasks/lists/{self.list1.id}/tasks/', data)
+        response = self.client.post(f'/api/v1/tasks/lists/{self.list1.id}/', data)
         
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         
@@ -90,7 +90,7 @@ class TaskFlowTests(APITestCase):
             'title': 'Owner Task'
         }
         
-        response = self.client.post(f'/api/v1/tasks/lists/{self.list1.id}/tasks/', data)
+        response = self.client.post(f'/api/v1/tasks/lists/{self.list1.id}/', data)
         
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         
@@ -102,7 +102,7 @@ class TaskFlowTests(APITestCase):
             'title': 'Unauthorized Task'
         }
         
-        response = self.client.post(f'/api/v1/tasks/lists/{self.list1.id}/tasks/', data)
+        response = self.client.post(f'/api/v1/tasks/lists/{self.list1.id}/', data)
         
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         
@@ -121,7 +121,7 @@ class TaskFlowTests(APITestCase):
             'assigned_to': [self.member1.id, self.member2.id]
         }
         
-        response = self.client.patch(f'/api/v1/tasks/tasks/{task.id}/', data)
+        response = self.client.patch(f'/api/v1/tasks/{task.id}/', data)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
@@ -146,7 +146,7 @@ class TaskFlowTests(APITestCase):
             'assigned_to': [self.non_member.id]
         }
         
-        response = self.client.patch(f'/api/v1/tasks/tasks/{task.id}/', data)
+        response = self.client.patch(f'/api/v1/tasks/{task.id}/', data)
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         
@@ -167,7 +167,7 @@ class TaskFlowTests(APITestCase):
             'priority': 'high'
         }
         
-        response = self.client.patch(f'/api/v1/tasks/tasks/{task.id}/', data)
+        response = self.client.patch(f'/api/v1/tasks/{task.id}/', data)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
@@ -191,7 +191,7 @@ class TaskFlowTests(APITestCase):
             'new_position': 4
         }
         
-        response = self.client.post(f'/api/v1/tasks/tasks/{task.id}/move/', data)
+        response = self.client.post(f'/api/v1/tasks/{task.id}/move/', data)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
@@ -212,7 +212,7 @@ class TaskFlowTests(APITestCase):
         # Move task3 to position 1
         data = {'new_position': 4}
         
-        response = self.client.post(f'/api/v1/tasks/tasks/{task3.id}/move/', data)
+        response = self.client.post(f'/api/v1/tasks/{task3.id}/move/', data)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
@@ -238,7 +238,7 @@ class TaskFlowTests(APITestCase):
         self.client.force_authenticate(user=self.member1)
         
         # Mark as completed
-        response = self.client.post(f'/api/v1/tasks/tasks/{task.id}/toggle-complete/')
+        response = self.client.post(f'/api/v1/tasks/{task.id}/toggle-complete/')
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
@@ -247,7 +247,7 @@ class TaskFlowTests(APITestCase):
         self.assertIsNotNone(task.completed_at)
         
         # Toggle back to incomplete
-        response = self.client.post(f'/api/v1/tasks/tasks/{task.id}/toggle-complete/')
+        response = self.client.post(f'/api/v1/tasks/{task.id}/toggle-complete/')
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
@@ -266,7 +266,7 @@ class TaskFlowTests(APITestCase):
         
         self.client.force_authenticate(user=self.member1)
         
-        response = self.client.delete(f'/api/v1/tasks/tasks/{task.id}/')
+        response = self.client.delete(f'/api/v1/tasks/{task.id}/')
         
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         
@@ -284,7 +284,7 @@ class TaskFlowTests(APITestCase):
         
         self.client.force_authenticate(user=self.owner)
         
-        response = self.client.delete(f'/api/v1/tasks/tasks/{task.id}/')
+        response = self.client.delete(f'/api/v1/tasks/{task.id}/')
         
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         
@@ -299,7 +299,7 @@ class TaskFlowTests(APITestCase):
         
         self.client.force_authenticate(user=self.member2)
         
-        response = self.client.delete(f'/api/v1/tasks/tasks/{task.id}/')
+        response = self.client.delete(f'/api/v1/tasks/{task.id}/')
         
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         
@@ -315,13 +315,13 @@ class TaskFlowTests(APITestCase):
         self.client.force_authenticate(user=self.non_member)
         
         # Try to get details
-        response = self.client.get(f'/api/v1/tasks/tasks/{task.id}/')
+        response = self.client.get(f'/api/v1/tasks/{task.id}/')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         
         # Try to update
-        response = self.client.patch(f'/api/v1/tasks/tasks/{task.id}/', {'title': 'Hacked'})
+        response = self.client.patch(f'/api/v1/tasks/{task.id}/', {'title': 'Hacked'})
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         
         # Try to move
-        response = self.client.post(f'/api/v1/tasks/tasks/{task.id}/move/', {'new_position': 5})
+        response = self.client.post(f'/api/v1/tasks/{task.id}/move/', {'new_position': 5})
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

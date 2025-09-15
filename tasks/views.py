@@ -357,6 +357,7 @@ class TaskToggleCompleteView(APIView):
     Behaviour:
     - POST: Toggle task between completed and incomplete.
     - Only board members can toggle completion.
+    - Provides a quick way to mark tasks as done/undone.
     
     Endpoint: POST /api/v1/tasks/{pk}/toggle-complete/
     """

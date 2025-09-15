@@ -26,7 +26,7 @@ class AuthenticationFlowTests(APITestCase):
             'password2': 'TestPass123!'
         }
         
-        response = self.client.post('/api/v1/users/auth/register/', data)
+        response = self.client.post('/api/v1/auth/register/', data)
         
         # Check response status
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -55,7 +55,7 @@ class AuthenticationFlowTests(APITestCase):
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         
         # Request email verification
-        response = self.client.get(f'/api/v1/users/auth/verify-email/?uid={uid}&token={token}')
+        response = self.client.get(f'/api/v1/auth/verify-email/?uid={uid}&token={token}')
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
@@ -79,7 +79,7 @@ class AuthenticationFlowTests(APITestCase):
             'password': 'TestPass123!'
         }
         
-        response = self.client.post('/api/v1/users/auth/token/', data)
+        response = self.client.post('/api/v1/auth/login/', data)
         
         # Inactive user should not obtain a token
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -102,7 +102,7 @@ class AuthenticationFlowTests(APITestCase):
             'password': 'TestPass123!'
         }
         
-        response = self.client.post('/api/v1/users/auth/token/', data)
+        response = self.client.post('/api/v1/auth/login/', data)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('access', response.data)
@@ -119,7 +119,7 @@ class AuthenticationFlowTests(APITestCase):
         )
         
         # Obtain initial token
-        login_response = self.client.post('/api/v1/users/auth/token/', {
+        login_response = self.client.post('/api/v1/auth/login/', {
             'email': 'refresh@example.com',
             'password': 'TestPass123!'
         })
@@ -127,7 +127,7 @@ class AuthenticationFlowTests(APITestCase):
         refresh_token = login_response.data['refresh']
         
         # Refresh the token
-        response = self.client.post('/api/v1/users/auth/token/refresh/', {
+        response = self.client.post('/api/v1/auth/refresh/', {
             'refresh': refresh_token
         })
         
@@ -151,7 +151,7 @@ class AuthenticationFlowTests(APITestCase):
             'new_password2': 'NewPass123!'
         }
         
-        response = self.client.post('/api/v1/users/change-password/', data)
+        response = self.client.post('/api/v1/users/me/password/', data)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
@@ -176,7 +176,7 @@ class AuthenticationFlowTests(APITestCase):
             'new_password2': 'NewPass123!'
         }
         
-        response = self.client.post('/api/v1/users/change-password/', data)
+        response = self.client.post('/api/v1/users/me/password/', data)
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         
@@ -204,7 +204,7 @@ class AuthenticationFlowTests(APITestCase):
             'bio': 'New bio text'
         }
         
-        response = self.client.patch('/api/v1/users/profile/', data)
+        response = self.client.patch('/api/v1/profiles/me/', data)
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         

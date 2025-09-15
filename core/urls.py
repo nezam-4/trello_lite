@@ -35,10 +35,27 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path('api/v1/users/',include('accounts.urls')),
-    path('api/v1/boards/',include('boards.urls')),
-    path('api/v1/lists/',include('lists.urls')),
+    
+    # Authentication endpoints (separate resource)
+    path('api/v1/auth/', include('accounts.auth_urls')),
+    
+    # User management
+    path('api/v1/users/', include('accounts.user_urls')),
+    
+    # Profile management (separate resource)
+    path('api/v1/profiles/', include('accounts.profile_urls')),
+    
+    # Board management
+    path('api/v1/boards/', include('boards.urls')),
+    
+    # List management (merged with boards for proper nesting)
+    path('api/v1/lists/', include('lists.urls')),
+    
+    # Task management
     path('api/v1/tasks/', include('tasks.urls')),
+    
+    # Invitation management (separate resource)
+    path('api/v1/invitations/', include('boards.invitation_urls')),
 
     # Swagger & ReDoc
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),

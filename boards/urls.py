@@ -4,48 +4,27 @@ from . import views
 app_name = 'boards'
 
 urlpatterns = [
-    # Main CRUD operations for boards
-    # List all boards of the user (owner or member)
-    # Create a new board while checking user limits
-    path('', views.BoardListView.as_view(), name='board-list'),
+    # Board CRUD operations
+    path('', views.BoardListView.as_view(), name='board-list'),  # GET: list, POST: create
+    path('<int:pk>/', views.BoardDetailView.as_view(), name='board-detail'),  # GET/PATCH/DELETE
     
-    # Retrieve, update, or delete a specific board
-    path('<int:pk>/', views.BoardDetailView.as_view(), name='board-detail'),
+    # Public boards discovery
+    path('public/', views.PublicBoardListView.as_view(), name='public-boards'),  # GET: list public boards
     
-    # List public boards to discover new ones
-    path('public/', views.PublicBoardListView.as_view(), name='public-boards'),
+    # Board members (nested resource)
+    path('<int:board_id>/members/', views.BoardMembersView.as_view(), name='board-members'),  # GET: list members
+    path('<int:board_id>/members/<int:user_id>/', views.BoardRemoveMemberView.as_view(), name='board-member-detail'),  # DELETE: remove member
     
-    # Board members management
-    # List members of a specific board
-    path('<int:board_id>/members/', views.BoardMembersView.as_view(), name='board-members'),
+    # Board invitations (nested resource)
+    path('<int:board_id>/invitations/', views.BoardInviteView.as_view(), name='board-invitations'),  # GET: list, POST: create
+    path('<int:board_id>/invitations/user/', views.BoardUserInviteView.as_view(), name='board-invite-user'),  # POST: invite registered user
     
-    # Remove a member from a board
-    path('<int:board_id>/members/<int:user_id>/', views.BoardRemoveMemberView.as_view(), name='board-remove-member'),
+    # Board actions
+    path('<int:board_id>/leave/', views.BoardLeaveView.as_view(), name='board-leave'),  # POST: leave board
     
-    # Invite a new user to the board via email
-    #List all invitations for a specific board by owner or admin
-    path('<int:board_id>/invite/', views.BoardInviteView.as_view(), name='board-invite'),
-
-    # Invite an already registered user by username or email
-    path('<int:board_id>/invite/user/', views.BoardUserInviteView.as_view(), name='board-user-invite'),
+    # Board activity log
+    path('<int:board_id>/activities/', views.BoardActivitiesView.as_view(), name='board-activities'),  # GET: activity history
     
-    # Leave a board as a member (owner cannot leave)
-    path('<int:board_id>/leave/', views.BoardLeaveView.as_view(), name='board-leave'),
-    
-  
-    # Show activity history of a board
-    path('<int:board_id>/activities/', views.BoardActivitiesView.as_view(), name='board-activities'),
-
-    # List all invitations related to current user
-    path('invitations/', views.UserInvitationListView.as_view(), name='user-invitations'),
-
-    # Respond to an invitation (accept/reject)
-    path('invitations/<int:pk>/respond/', views.BoardInvitationRespondView.as_view(), name='invitation-respond'),
-    
-    # Show current user limits (number of boards, memberships)
-    path('limits/', views.UserLimitsView.as_view(), name='user-limits'),
-    
-    # Board lists management
-    # List all lists in a board and create new lists
-    path('<int:board_id>/lists/', views.BoardListsView.as_view(), name='board-lists'),
+    # Board lists (nested resource)
+    path('<int:board_id>/lists/', views.BoardListsView.as_view(), name='board-lists'),  # GET: list, POST: create
 ]

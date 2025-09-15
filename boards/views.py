@@ -652,13 +652,23 @@ class UserLimitsView(APIView):
     - Includes number of memberships vs maximum allowed.
     - Intended for showing status in the dashboard.
 
-    Endpoint: GET /api/v1/boards/limits/
+    Endpoint: GET /api/v1/limits/ or /api/v1/limits/{user_id}/
     """
     permission_classes = [permissions.IsAuthenticated]
     
     @swagger_auto_schema(responses={200: openapi.Response(description='User limits')})
-    def get(self, request):
-        user = request.user
+    def get(self, request, user_id=None):
+        if user_id is None:
+            user = request.user
+        else:
+            # Only staff can view other users' limits
+            if not request.user.is_staff:
+                return Response(
+                    {"error": _("You don't have permission to view other users' limits.")},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            user = get_object_or_404(User, pk=user_id)
+        
         # Retrieve limit information via utils
         limits_info = get_user_limits_info(user)
         return Response(limits_info, status=status.HTTP_200_OK)
