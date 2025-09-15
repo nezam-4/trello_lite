@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Trello Lite 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-10 19:39+0000\n"
+"POT-Creation-Date: 2025-09-15 18:42+0000\n"
 "PO-Revision-Date: 2025-09-10 19:41+0000\n"
 "Last-Translator: Trello Lite Team\n"
 "Language-Team: Persian <fa@li.org>\n"
@@ -41,247 +41,395 @@ msgstr "زمان‌بندی"
 msgid "Accounts"
 msgstr "حساب‌های کاربری"
 
-#: accounts/models.py:24
+#: accounts/models.py:53
 msgid "Username"
 msgstr "نام کاربری"
 
-#: accounts/models.py:25
+#: accounts/models.py:54
 msgid "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."
 msgstr "الزامی. حداکثر ۱۵۰ کاراکتر. فقط حروف، اعداد و @/./+/-/_ مجاز است."
 
-#: accounts/models.py:29
+#: accounts/models.py:58
 msgid "Email address"
 msgstr "آدرس ایمیل"
 
-#: accounts/models.py:30
+#: accounts/models.py:59
 msgid "Required. Enter a valid email address."
 msgstr "الزامی. یک آدرس ایمیل معتبر وارد کنید."
 
-#: accounts/models.py:34 accounts/models.py:116
+#: accounts/models.py:63 accounts/models.py:197
 msgid "Created at"
 msgstr "تاریخ ایجاد"
 
-#: accounts/models.py:35
+#: accounts/models.py:64
 msgid "Date and time when the user was created"
 msgstr "تاریخ و زمان ایجاد کاربر"
 
-#: accounts/models.py:39 accounts/models.py:121
+#: accounts/models.py:68 accounts/models.py:202
 msgid "Updated at"
 msgstr "تاریخ بروزرسانی"
 
-#: accounts/models.py:40
+#: accounts/models.py:69
 msgid "Date and time when the user was last updated"
 msgstr "تاریخ و زمان آخرین بروزرسانی کاربر"
 
-#: accounts/models.py:44
+#: accounts/models.py:73
 msgid "Active"
 msgstr "فعال"
 
-#: accounts/models.py:45
+#: accounts/models.py:74
 msgid ""
 "Designates whether this user should be treated as active. Unselect this "
 "instead of deleting accounts."
-msgstr "تعیین می‌کند که آیا این کاربر باید به عنوان فعال در نظر گرفته شود. به جای حذف حساب، این گزینه را غیرفعال کنید."
+msgstr ""
+"تعیین می‌کند که آیا این کاربر باید به عنوان فعال در نظر گرفته شود. به جای حذف "
+"حساب، این گزینه را غیرفعال کنید."
 
-#: accounts/models.py:51
+#: accounts/models.py:79
+msgid "Email verified at"
+msgstr "تاریخ تأیید ایمیل"
+
+#: accounts/models.py:80
+#, fuzzy
+#| msgid "Date and time when the user was created"
+msgid "Date and time when the email was verified"
+msgstr "تاریخ و زمان ایجاد کاربر"
+
+#: accounts/models.py:86
+msgid "Email verification token"
+msgstr "توکن تأیید ایمیل"
+
+#: accounts/models.py:87
+msgid "Token used for email verification"
+msgstr "توکن مورد استفاده برای تأیید ایمیل"
+
+#: accounts/models.py:92
+msgid "Verification token created at"
+msgstr "تاریخ ایجاد توکن تأیید"
+
+#: accounts/models.py:93
+#, fuzzy
+#| msgid "Date and time when the profile was created"
+msgid "Date and time when verification token was created"
+msgstr "تاریخ و زمان ایجاد پروفایل"
+
+#: accounts/models.py:99
 msgid "First name"
 msgstr "نام"
 
-#: accounts/models.py:52
+#: accounts/models.py:100
 msgid "User's first name"
 msgstr "نام کاربر"
 
-#: accounts/models.py:58
+#: accounts/models.py:106
 msgid "Last name"
 msgstr "نام خانوادگی"
 
-#: accounts/models.py:59
+#: accounts/models.py:107
 msgid "User's last name"
 msgstr "نام خانوادگی کاربر"
 
-#: accounts/models.py:73 accounts/models.py:98
+#: accounts/models.py:154 accounts/models.py:179
 msgid "User"
 msgstr "کاربر"
 
-#: accounts/models.py:74
+#: accounts/models.py:155
 msgid "Users"
 msgstr "کاربران"
 
-#: accounts/models.py:90
+#: accounts/models.py:171
 msgid "English"
 msgstr "انگلیسی"
 
-#: accounts/models.py:91
+#: accounts/models.py:172
 msgid "Persian"
 msgstr "فارسی"
 
-#: accounts/models.py:99
+#: accounts/models.py:180
 msgid "The user this profile belongs to"
 msgstr "کاربری که این پروفایل متعلق به اوست"
 
-#: accounts/models.py:105
+#: accounts/models.py:186
 msgid "Avatar"
 msgstr "تصویر پروفایل"
 
-#: accounts/models.py:106
+#: accounts/models.py:187
 msgid "User profile picture"
 msgstr "عکس پروفایل کاربر"
 
-#: accounts/models.py:111
+#: accounts/models.py:192
 msgid "Biography"
 msgstr "بیوگرافی"
 
-#: accounts/models.py:112
+#: accounts/models.py:193
 msgid "Tell us about yourself"
 msgstr "درباره خودتان بگویید"
 
-#: accounts/models.py:117
+#: accounts/models.py:198
 msgid "Date and time when the profile was created"
 msgstr "تاریخ و زمان ایجاد پروفایل"
 
-#: accounts/models.py:122
+#: accounts/models.py:203
 msgid "Date and time when the profile was last updated"
 msgstr "تاریخ و زمان آخرین بروزرسانی پروفایل"
 
-#: accounts/models.py:128
+#: accounts/models.py:209
 msgid "Preferred language"
 msgstr "زبان ترجیحی"
 
-#: accounts/models.py:129
+#: accounts/models.py:210
 msgid "Your preferred language for the interface"
 msgstr "زبان ترجیحی شما برای رابط کاربری"
 
-#: accounts/models.py:164
+#: accounts/models.py:245
 msgid "Profile"
 msgstr "پروفایل"
 
-#: accounts/models.py:165
+#: accounts/models.py:246
 msgid "Profiles"
 msgstr "پروفایل‌ها"
 
-#: accounts/serilizer.py:71
-msgid "A user with this email already exists."
-msgstr "کاربری با این ایمیل از قبل وجود دارد."
-
-#: accounts/serilizer.py:78
+#: accounts/serializers.py:77
 msgid "A user with this username already exists."
 msgstr "کاربری با این نام کاربری از قبل وجود دارد."
 
-#: accounts/serilizer.py:100
+#: accounts/serializers.py:99
 msgid "Passwords do not match."
 msgstr "رمزهای عبور مطابقت ندارند."
 
-#: accounts/serilizer.py:132
+#: accounts/serializers.py:129
 msgid "Old password is incorrect."
 msgstr "رمز عبور قدیمی اشتباه است."
 
-#: accounts/serilizer.py:142
+#: accounts/serializers.py:139 accounts/serializers.py:173
 msgid "New passwords do not match."
 msgstr "رمزهای عبور جدید مطابقت ندارند."
 
-#: accounts/tasks.py:20
+#: accounts/serializers.py:182
+#, fuzzy
+#| msgid "Invalid token"
+msgid "Invalid reset link."
+msgstr "لینک بازنشانی نامعتبر است."
+
+#: accounts/serializers.py:185
+msgid "Invalid or expired reset token."
+msgstr "توکن بازنشانی نامعتبر یا منقضی شده است."
+
+#: accounts/tasks.py:24
 msgid "No avatar found for profile {}"
 msgstr "هیچ تصویر پروفایلی برای پروفایل {} یافت نشد"
 
-#: accounts/tasks.py:57
+#: accounts/tasks.py:61
 msgid "Thumbnail created successfully for profile {}"
 msgstr "تصویر کوچک با موفقیت برای پروفایل {} ایجاد شد"
 
-#: accounts/tasks.py:60
+#: accounts/tasks.py:64
 msgid "Profile {} not found"
 msgstr "پروفایل {} یافت نشد"
 
-#: accounts/tasks.py:62
+#: accounts/tasks.py:66
 msgid "Error creating thumbnail for profile {}: {}"
 msgstr "خطا در ایجاد تصویر کوچک برای پروفایل {}: {}"
 
-#: accounts/views.py:24
+#: accounts/tasks.py:85
+msgid "Password reset requested"
+msgstr "درخواست بازنشانی رمز عبور"
+
+#: accounts/tasks.py:97
+#, python-format
+msgid "Password reset email sent to %(email)s"
+msgstr "ایمیل بازنشانی رمز عبور به %(email)s ارسال شد"
+
+#: accounts/tasks.py:99
+msgid "User not found for password reset"
+msgstr "کاربر برای بازنشانی رمز عبور یافت نشد"
+
+#: accounts/tasks.py:120
+#, fuzzy
+#| msgid "Email address"
+msgid "Verify your email address"
+msgstr "ایمیل خود را تأیید کنید"
+
+#: accounts/tasks.py:132
+#, fuzzy, python-format
+#| msgid "Email sent successfully to %(email)s"
+msgid "Email verification sent to %(email)s"
+msgstr "ایمیل تأیید به %(email)s ارسال شد"
+
+#: accounts/tasks.py:134
+msgid "User not found for email verification"
+msgstr "کاربر برای تأیید ایمیل یافت نشد"
+
+#: accounts/views.py:30
 msgid "Register a new user"
 msgstr "ثبت‌نام کاربر جدید"
 
-#: accounts/views.py:26 accounts/views.py:95 accounts/views.py:125
-#: accounts/views.py:172 lists/views.py:67 lists/views.py:107
-#: lists/views.py:133
+#: accounts/views.py:32
+msgid "Registration successful, please verify your email"
+msgstr "ثبت‌نام موفقیت‌آمیز بود، لطفاً ایمیل خود را تأیید کنید"
+
+#: accounts/views.py:32 accounts/views.py:155 accounts/views.py:185
+#: accounts/views.py:232 lists/views.py:66 lists/views.py:106
+#: lists/views.py:132
 msgid "Validation Error"
 msgstr "خطای اعتبارسنجی"
 
-#: accounts/views.py:34
-msgid "User registered successfully"
-msgstr "کاربر با موفقیت ثبت‌نام شد"
+#: accounts/views.py:66
+msgid ""
+"Registration successful. Please check your email to verify your account."
+msgstr "ثبت‌نام با موفقیت انجام شد. لطفاً ایمیل خود را برای تأیید حساب بررسی کنید."
 
-#: accounts/views.py:49
+#: accounts/views.py:78
+#, fuzzy
+#| msgid "Email address"
+msgid "Verify email address"
+msgstr "تأیید آدرس ایمیل"
+
+#: accounts/views.py:80
+msgid "User ID (base64)"
+msgstr "شناسه کاربر (base64)"
+
+#: accounts/views.py:81
+#, fuzzy
+#| msgid "Notification sent"
+msgid "Verification token"
+msgstr "توکن تأیید"
+
+#: accounts/views.py:83
+#, fuzzy
+#| msgid "Task deleted successfully"
+msgid "Email verified successfully"
+msgstr "ایمیل با موفقیت تأیید شد"
+
+#: accounts/views.py:83
+#, fuzzy
+#| msgid "Invalid token"
+msgid "Invalid or expired token"
+msgstr "توکن نامعتبر یا منقضی شده است."
+
+#: accounts/views.py:89
+msgid "Missing parameters"
+msgstr "پارامترها ناقص است"
+
+#: accounts/views.py:96
+msgid "Invalid verification link."
+msgstr "لینک تأیید نامعتبر است."
+
+#: accounts/views.py:100
+msgid "Email verified successfully. You can now log in."
+msgstr "ایمیل با موفقیت تأیید شد. اکنون می‌توانید وارد شوید."
+
+#: accounts/views.py:101
+msgid "Invalid or expired verification token."
+msgstr "توکن تأیید نامعتبر یا منقضی شده است."
+
+#: accounts/views.py:109
 msgid "List all users (Admin only)"
 msgstr "فهرست تمام کاربران (فقط مدیر)"
 
-#: accounts/views.py:56
+#: accounts/views.py:116
 msgid "You do not have permission to perform this action."
 msgstr "شما مجوز انجام این عمل را ندارید."
 
-#: accounts/views.py:73
+#: accounts/views.py:133
 msgid "Retrieve a user detail"
 msgstr "دریافت جزئیات کاربر"
 
-#: accounts/views.py:85
+#: accounts/views.py:145
 msgid "You do not have permission to view this user."
 msgstr "شما مجوز مشاهده این کاربر را ندارید."
 
-#: accounts/views.py:93
+#: accounts/views.py:153
 msgid "Partially update a user"
 msgstr "بروزرسانی جزئی کاربر"
 
-#: accounts/views.py:106
+#: accounts/views.py:166
 msgid "You do not have permission to update this user."
 msgstr "شما مجوز بروزرسانی این کاربر را ندارید."
 
-#: accounts/views.py:123
+#: accounts/views.py:183
 msgid "Change current user's password"
 msgstr "تغییر رمز عبور کاربر فعلی"
 
-#: accounts/views.py:125
+#: accounts/views.py:185
 msgid "Password changed"
 msgstr "رمز عبور تغییر یافت"
 
-#: accounts/views.py:135
+#: accounts/views.py:195
 msgid "Password changed successfully"
 msgstr "رمز عبور با موفقیت تغییر یافت"
 
-#: accounts/views.py:150
+#: accounts/views.py:210
 msgid "Retrieve a user's profile"
 msgstr "دریافت پروفایل کاربر"
 
-#: accounts/views.py:161
+#: accounts/views.py:221
 msgid "You do not have permission to view this profile."
 msgstr "شما مجوز مشاهده این پروفایل را ندارید."
 
-#: accounts/views.py:170
+#: accounts/views.py:230
 msgid "Partially update a profile"
 msgstr "بروزرسانی جزئی پروفایل"
 
-#: accounts/views.py:182
+#: accounts/views.py:242
 msgid "You do not have permission to update this profile."
 msgstr "شما مجوز بروزرسانی این پروفایل را ندارید."
 
-#: accounts/views.py:201
+#: accounts/views.py:264
 msgid "Logout user and blacklist refresh token"
 msgstr "خروج کاربر و قرار دادن توکن تازه سازی در لیست سیاه"
 
-#: accounts/views.py:205
+#: accounts/views.py:268
 msgid "Refresh token to blacklist"
 msgstr "قرار دادن توکن تازه سازی در لیست سیاه"
 
-#: accounts/views.py:210 accounts/views.py:227
+#: accounts/views.py:273 accounts/views.py:290
 msgid "Successfully logged out"
 msgstr "با موفقیت خارج شدید"
 
-#: accounts/views.py:211 accounts/views.py:232
+#: accounts/views.py:274 accounts/views.py:295
 msgid "Invalid token"
 msgstr "توکن نامعتبر"
 
-#: accounts/views.py:219
+#: accounts/views.py:282
 msgid "Refresh token is required"
 msgstr "توکن تازه‌سازی الزامی است"
 
-#: accounts/views.py:239
+#: accounts/views.py:305
+msgid "Request password reset"
+msgstr "درخواست بازنشانی رمز عبور"
+
+#: accounts/views.py:307
+msgid "Email sent if account exists"
+msgstr "در صورت وجود حساب، ایمیل ارسال شد"
+
+#: accounts/views.py:339
+msgid "If an account with that email exists, we've sent a password reset link."
+msgstr "اگر حسابی با این ایمیل وجود داشته باشد، لینک بازنشانی رمز عبور را ارسال کرده‌ایم."
+
+#: accounts/views.py:348
+msgid "Confirm password reset"
+msgstr "تأیید بازنشانی رمز عبور"
+
+#: accounts/views.py:350
+#, fuzzy
+#| msgid "Password changed successfully"
+msgid "Password reset successful"
+msgstr "بازنشانی رمز عبور با موفقیت انجام شد"
+
+#: accounts/views.py:350
+#, fuzzy
+#| msgid "Validation Error"
+msgid "Validation error"
+msgstr "خطای اعتبارسنجی"
+
+#: accounts/views.py:356
+#, fuzzy
+#| msgid "Password changed successfully"
+msgid "Password has been reset successfully."
+msgstr "رمز عبور با موفقیت تغییر یافت"
+
+#: accounts/views.py:364
 msgid "Get current authenticated user"
 msgstr "دریافت کاربر احراز هویت شده فعلی"
 
@@ -355,7 +503,8 @@ msgstr "%(username)s - %(board_title)s (%(role)s)"
 msgid ""
 "This board has reached the limit of %(max_members)s members and cannot send "
 "new invitations."
-msgstr "این تابلو به حد %(max_members)s عضو رسیده و نمی‌تواند دعوت‌نامه جدید ارسال کند."
+msgstr ""
+"این تابلو به حد %(max_members)s عضو رسیده و نمی‌تواند دعوت‌نامه جدید ارسال کند."
 
 #: boards/models.py:254
 #, python-format
@@ -399,12 +548,18 @@ msgstr "دعوت"
 msgid "%(username)s %(action)s %(board_title)s"
 msgstr "%(username)s %(action)s %(board_title)s"
 
+#: boards/models.py:287
+msgid "System"
+msgstr "سیستم"
+
 #: boards/serializers.py:113
 #, python-format
 msgid ""
 "You have reached the maximum number of boards allowed. You can create "
 "%(remaining)s more."
-msgstr "شما به حداکثر تعداد تابلوهای مجاز رسیده‌اید. شما می‌توانید %(remaining)s تابلو دیگر ایجاد کنید."
+msgstr ""
+"شما به حداکثر تعداد تابلوهای مجاز رسیده‌اید. شما می‌توانید %(remaining)s تابلو "
+"دیگر ایجاد کنید."
 
 #: boards/serializers.py:179
 msgid "This user is already signed up"
@@ -419,7 +574,8 @@ msgstr "قبلاً دعوت‌نامه‌ای برای این ایمیل به ا
 msgid ""
 "Board has reached the maximum number of members. %(remaining_slots)s slots "
 "remaining."
-msgstr "تابلو به حداکثر تعداد اعضا رسیده است. %(remaining_slots)s جای باقی مانده است."
+msgstr ""
+"تابلو به حداکثر تعداد اعضا رسیده است. %(remaining_slots)s جای باقی مانده است."
 
 #: boards/serializers.py:235
 msgid "Board context missing."
@@ -437,7 +593,7 @@ msgstr "این کاربر از قبل عضو تابلو است."
 msgid "An invitation has already been sent to this user."
 msgstr "قبلاً دعوت‌نامه‌ای برای این کاربر ارسال شده است."
 
-#: boards/serializers.py:254 boards/views.py:609
+#: boards/serializers.py:254 boards/views.py:612
 msgid "Board has reached the maximum number of members."
 msgstr "تابلو به حداکثر تعداد اعضا رسیده است."
 
@@ -473,7 +629,16 @@ msgid ""
 "\n"
 "Regards,\n"
 "%(invited_by)s"
-msgstr "سلام %(name)s،\n\nشما دعوت‌نامه جدیدی برای پیوستن به تابلو '%(board_title)s' دارید.\n\nلطفاً وارد داشبورد خود شوید (%(site_link)s) تا دعوت‌نامه را بپذیرید یا رد کنید.\n\nبا احترام،\n%(invited_by)s"
+msgstr ""
+"سلام %(name)s،\n"
+"\n"
+"شما دعوت‌نامه جدیدی برای پیوستن به تابلو '%(board_title)s' دارید.\n"
+"\n"
+"لطفاً وارد داشبورد خود شوید (%(site_link)s) تا دعوت‌نامه را بپذیرید یا رد "
+"کنید.\n"
+"\n"
+"با احترام،\n"
+"%(invited_by)s"
 
 #: boards/tasks.py:44
 #, python-format
@@ -519,7 +684,7 @@ msgstr "تابلو '%(title)s' توسط %(user)s ایجاد شد"
 
 #: boards/views.py:121 boards/views.py:249 boards/views.py:310
 #: boards/views.py:331 boards/views.py:403 boards/views.py:470
-#: boards/views.py:532 boards/views.py:694
+#: boards/views.py:532 boards/views.py:707
 msgid "Board not found or you do not have access."
 msgstr "تابلو یافت نشد یا شما دسترسی ندارید."
 
@@ -608,131 +773,137 @@ msgstr "این دعوت‌نامه برای شما نیست."
 msgid "Invitation has expired."
 msgstr "دعوت‌نامه منقضی شده است."
 
-#: boards/views.py:601
+#: boards/views.py:594 boards/views.py:614
+msgid "You have reached the maximum number of board memberships."
+msgstr "شما به حداکثر تعداد عضویت در تابلوها رسیده‌اید."
+
+#: boards/views.py:604
 #, python-format
 msgid "%(username)s rejected the invitation"
 msgstr "%(username)s دعوت‌نامه را رد کرد"
 
-#: boards/views.py:603
+#: boards/views.py:606
 msgid "Invitation rejected."
 msgstr "دعوت‌نامه رد شد."
 
-#: boards/views.py:611
-msgid "You have reached the maximum number of board memberships."
-msgstr "شما به حداکثر تعداد عضویت در تابلوها رسیده‌اید."
-
-#: boards/views.py:624
+#: boards/views.py:627
 msgid "You are already a member of this board."
 msgstr "شما از قبل عضو این تابلو هستید."
 
-#: boards/views.py:635
+#: boards/views.py:638
 #, python-format
 msgid "%(username)s accepted the invitation"
 msgstr "%(username)s دعوت‌نامه را پذیرفت"
 
-#: boards/views.py:638
+#: boards/views.py:641
 msgid "Successfully joined the board."
 msgstr "با موفقیت به تابلو پیوستید."
 
-#: boards/views.py:706
+#: boards/views.py:666
+#, fuzzy
+#| msgid "You do not have permission to view this user."
+msgid "You don't have permission to view other users' limits."
+msgstr "شما مجوز مشاهده محدودیت‌های سایر کاربران را ندارید."
+
+#: boards/views.py:719
 msgid "Only the board owner or an admin can remove members."
 msgstr "فقط مالک تابلو یا مدیر می‌تواند اعضا را حذف کند."
 
-#: boards/views.py:711
+#: boards/views.py:724
 msgid "You do not have permission to remove members."
 msgstr "شما مجوز حذف اعضا را ندارید."
 
-#: boards/views.py:720
+#: boards/views.py:733
 msgid "User not found."
 msgstr "کاربر یافت نشد."
 
-#: boards/views.py:727
+#: boards/views.py:740
 msgid "The board owner cannot be removed from their own board."
 msgstr "مالک تابلو نمی‌تواند از تابلو خود حذف شود."
 
-#: boards/views.py:738
+#: boards/views.py:751
 msgid "User is not a member of this board."
 msgstr "کاربر عضو این تابلو نیست."
 
-#: boards/views.py:750
+#: boards/views.py:763
 #, python-format
 msgid "%(target_user)s was removed from the board by %(user)s"
 msgstr "%(target_user)s توسط %(user)s از تابلو حذف شد"
 
-#: boards/views.py:754
+#: boards/views.py:767
 msgid "Member removed successfully"
 msgstr "عضو با موفقیت حذف شد"
 
-#: lists/models.py:73
+#: lists/models.py:89
 #, python-format
 msgid "%(board_title)s - %(list_title)s"
 msgstr "%(board_title)s - %(list_title)s"
 
-#: lists/views.py:39 lists/views.py:52
+#: lists/views.py:38 lists/views.py:51
 msgid "You don't have permission to access this board."
 msgstr "شما مجوز دسترسی به این تابلو را ندارید."
 
-#: lists/views.py:58
+#: lists/views.py:57
 msgid "List all lists in a board"
 msgstr "فهرست تمام لیست‌ها در تابلو"
 
-#: lists/views.py:67
+#: lists/views.py:66
 msgid "Create a new list in a board"
 msgstr "ایجاد لیست جدید در تابلو"
 
-#: lists/views.py:91 lists/views.py:98
+#: lists/views.py:90 lists/views.py:97
 msgid "You don't have permission to access this list."
 msgstr "شما مجوز دسترسی به این لیست را ندارید."
 
-#: lists/views.py:101
+#: lists/views.py:100
 msgid "Retrieve a list"
 msgstr "دریافت لیست"
 
-#: lists/views.py:107
+#: lists/views.py:106
 msgid "Partially update a list"
 msgstr "بروزرسانی جزئی لیست"
 
-#: lists/views.py:116
+#: lists/views.py:115
 msgid "Delete a list"
 msgstr "حذف لیست"
 
-#: lists/views.py:116 tasks/views.py:134 tasks/views.py:471
+#: lists/views.py:115 tasks/views.py:133 tasks/views.py:471
 msgid "No Content"
 msgstr "بدون محتوا"
 
-#: lists/views.py:130
+#: lists/views.py:129
 msgid "You don't have permission to move this list."
 msgstr "شما مجوز جابه‌جایی این لیست را ندارید."
 
-#: lists/views.py:133
+#: lists/views.py:132
 msgid "Move list to new position"
 msgstr "جابه‌جایی لیست به موقعیت جدید"
 
-#: tasks/models.py:17
+#: tasks/models.py:16
 msgid "Low"
 msgstr "کم"
 
-#: tasks/models.py:18
+#: tasks/models.py:17
 msgid "Medium"
 msgstr "متوسط"
 
-#: tasks/models.py:19
+#: tasks/models.py:18
 msgid "High"
 msgstr "زیاد"
 
-#: tasks/models.py:20
+#: tasks/models.py:19
 msgid "Urgent"
 msgstr "فوری"
 
-#: tasks/models.py:49 tasks/serializers.py:151
+#: tasks/models.py:48 tasks/serializers.py:150
 msgid "All assigned users must be members of this board."
 msgstr "تمام کاربران منصوب شده باید عضو این تابلو باشند."
 
-#: tasks/models.py:102
+#: tasks/models.py:101
 msgid "Cannot move task between different boards"
 msgstr "نمی‌توان وظیفه را بین تابلوهای مختلف جابه‌جا کرد"
 
-#: tasks/models.py:163
+#: tasks/models.py:162
 #, python-format
 msgid "%(list_title)s - %(task_title)s"
 msgstr "%(list_title)s - %(task_title)s"
@@ -746,44 +917,44 @@ msgstr "فقط اعضای تابلو می‌توانند نظر بدهند."
 msgid "%(username)s - %(task_title)s"
 msgstr "%(username)s - %(task_title)s"
 
-#: tasks/serializers.py:120 tasks/serializers.py:178 tasks/views.py:47
+#: tasks/serializers.py:119 tasks/serializers.py:177 tasks/views.py:46
 msgid "You don't have access to this list."
 msgstr "شما دسترسی به این لیست ندارید."
 
-#: tasks/serializers.py:189
+#: tasks/serializers.py:188
 msgid "Either new_list or new_position must be provided."
 msgstr "یا new_list یا new_position باید ارائه شود."
 
-#: tasks/serializers.py:222 tasks/views.py:107 tasks/views.py:240
-#: tasks/views.py:318 tasks/views.py:398
+#: tasks/serializers.py:221 tasks/views.py:106 tasks/views.py:239
+#: tasks/views.py:317 tasks/views.py:398
 msgid "You don't have access to this task."
 msgstr "شما دسترسی به این وظیفه ندارید."
 
-#: tasks/views.py:51
+#: tasks/views.py:50
 msgid "List not found."
 msgstr "لیست یافت نشد."
 
-#: tasks/views.py:64 tasks/views.py:120 tasks/views.py:257 tasks/views.py:451
+#: tasks/views.py:63 tasks/views.py:119 tasks/views.py:256 tasks/views.py:451
 msgid "Bad Request"
 msgstr "درخواست نامعتبر"
 
-#: tasks/views.py:111 tasks/views.py:244 tasks/views.py:307 tasks/views.py:387
+#: tasks/views.py:110 tasks/views.py:243 tasks/views.py:306 tasks/views.py:387
 msgid "Task not found."
 msgstr "وظیفه یافت نشد."
 
-#: tasks/views.py:134 tasks/views.py:451 tasks/views.py:471
+#: tasks/views.py:133 tasks/views.py:451 tasks/views.py:471
 msgid "Forbidden"
 msgstr "ممنوع"
 
-#: tasks/views.py:158
+#: tasks/views.py:157
 msgid "Only the task creator, board owner, or admin can delete this task."
 msgstr "فقط سازنده وظیفه، مالک تابلو یا مدیر می‌تواند این وظیفه را حذف کند."
 
-#: tasks/views.py:164
+#: tasks/views.py:163
 msgid "Task deleted successfully"
 msgstr "وظیفه با موفقیت حذف شد"
 
-#: tasks/views.py:333
+#: tasks/views.py:332
 msgid "Cannot move task to a list in a different board."
 msgstr "نمی‌توان وظیفه را به لیستی در تابلو متفاوت جابه‌جا کرد."
 
@@ -814,6 +985,66 @@ msgstr "فقط نویسنده نظر، مالک تابلو یا مدیر می‌
 #: tasks/views.py:501
 msgid "Comment deleted successfully"
 msgstr "نظر با موفقیت حذف شد"
+
+#: templates/emails/password_reset.html:7
+#, fuzzy
+#| msgid "Change current user's password"
+msgid "Reset your password"
+msgstr "بازنشانی رمز عبور خود"
+
+#: templates/emails/password_reset.html:19
+#, fuzzy
+#| msgid "Password changed"
+msgid "Password Reset"
+msgstr "بازنشانی رمز عبور"
+
+#: templates/emails/password_reset.html:23
+#: templates/emails/password_reset.txt:2
+#, python-format
+msgid "Hello %(name)s,"
+msgstr "سلام %(name)s،"
+
+#: templates/emails/password_reset.html:26
+#: templates/emails/password_reset.txt:4
+msgid "We received a request to reset the password for your account."
+msgstr "ما درخواستی برای بازنشانی رمز عبور حساب شما دریافت کرده‌ایم."
+
+#: templates/emails/password_reset.html:27
+msgid "If you made this request, click the button below to continue."
+msgstr "اگر این درخواست را شما انجام داده‌اید، برای ادامه روی دکمه زیر کلیک کنید."
+
+#: templates/emails/password_reset.html:31
+msgid "Reset Password"
+msgstr "بازنشانی رمز عبور"
+
+#: templates/emails/password_reset.html:35
+#: templates/emails/password_reset.txt:9
+msgid ""
+"If you didn’t request a password reset, you can safely ignore this email."
+msgstr "اگر شما درخواستی برای بازنشانی رمز عبور نداده‌اید، می‌توانید این ایمیل را نادیده بگیرید."
+
+#: templates/emails/password_reset.html:39
+msgid ""
+"This link will expire based on security settings. For your security, do not "
+"share this email."
+msgstr "این لینک بر اساس تنظیمات امنیتی منقضی می‌شود. برای حفظ امنیت خود، این ایمیل را به اشتراک نگذارید."
+
+#: templates/emails/password_reset.html:40
+#: templates/emails/password_reset.txt:11
+#, python-format
+msgid "Need help? Visit %(site_link)s"
+msgstr "به کمک نیاز دارید؟ به %(site_link)s مراجعه کنید"
+
+#: templates/emails/password_reset.txt:5
+msgid "If you made this request, click the link below to continue:"
+msgstr "اگر این درخواست را شما انجام داده‌اید، روی لینک زیر کلیک کنید:"
+
+#~ msgid "A user with this email already exists."
+#~ msgstr "کاربری با این ایمیل از قبل وجود دارد."
+
+#~ msgid "User registered successfully"
+#~ msgstr "کاربر با موفقیت ثبت‌نام شد"
+
 
 #~ msgid "this is test message"
 #~ msgstr "ای یه پیام تست هسته هههه"
