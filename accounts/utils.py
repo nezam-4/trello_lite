@@ -2,7 +2,6 @@
 Utility functions for profile and thumbnail management
 """
 from django.core.files.storage import default_storage
-from django.conf import settings
 import os
 
 

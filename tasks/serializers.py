@@ -3,7 +3,6 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import get_user_model
 from .models import Task, TaskComment
 from lists.models import List
-from boards.models import BoardMembership
 from accounts.serializers import ProfileSerializer
 
 User = get_user_model()
