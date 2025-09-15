@@ -4,7 +4,6 @@ from rest_framework import status, permissions
 from rest_framework.exceptions import PermissionDenied, ValidationError, NotFound
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 from django.db.models import Q

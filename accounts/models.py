@@ -3,12 +3,9 @@ from django.contrib.auth.models import AbstractUser
 from boards.models import Board
 from django.contrib.auth.base_user import BaseUserManager
 from django.utils import timezone
-from django.core.files.storage import default_storage
 from django.utils.translation import gettext_lazy as _
-from PIL import Image
 import uuid
 import os
-import io
 import secrets
 
 class CustomUserManager(BaseUserManager):
