@@ -96,6 +96,9 @@ class Board(models.Model):
             expires_at=timezone.now() + timedelta(days=7)
         )
 
+    def __str__(self):
+        return self.title
+
  
 class BoardMembership(models.Model):
     ROLE_CHOICES = [
