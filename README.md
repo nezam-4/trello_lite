@@ -128,6 +128,60 @@ The frontend will be available at `http://localhost:5173`
 - **Backend API**: http://localhost:8000
 - **API Documentation**: http://localhost:8000/swagger/
 
+## Running Tests
+
+The project includes comprehensive flow-based test suites that test the complete user workflows and business logic for all core features.
+
+### Test Structure
+
+The tests are organized as flow tests that validate complete user journeys:
+
+- **Authentication Flows** (`accounts/tests/test_auth_flows.py`): User registration, email verification, login, password changes
+- **Board Management Flows** (`boards/tests/test_board_flows.py`): Board creation, permissions, member management, invitations  
+- **List Management Flows** (`lists/tests/test_list_flows.py`): List CRUD operations, positioning, permissions
+- **Task Management Flows** (`tasks/tests/test_task_flows.py`): Task lifecycle, assignments, moving, completion
+
+### Running All Tests
+
+```bash
+# Run all tests
+python manage.py test
+
+# Run with verbose output to see test descriptions
+python manage.py test --verbosity=2
+
+# Run tests and stop on first failure
+python manage.py test --failfast
+```
+
+### Running Tests by App
+
+```bash
+# Authentication flow tests
+python manage.py test accounts.tests.test_auth_flows
+
+# Board management flow tests  
+python manage.py test boards.tests.test_board_flows
+
+# List management flow tests
+python manage.py test lists.tests.test_list_flows
+
+# Task management flow tests
+python manage.py test tasks.tests.test_task_flows
+```
+
+### Running Specific Test Cases
+
+```bash
+# Run specific test class
+python manage.py test accounts.tests.test_auth_flows.AuthenticationFlowTests
+
+# Run specific test method
+python manage.py test boards.tests.test_board_flows.BoardFlowTests.test_invite_registered_user_and_accept
+```
+
+
+
 ## Testing the System
 
 
