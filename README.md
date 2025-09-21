@@ -122,13 +122,6 @@ npm run dev
 
 The frontend will be available at `http://localhost:5173`
 
-**Alternative**: Use the restart script from project root:
-
-```bash
-chmod +x restart_frontend.sh
-./restart_frontend.sh
-```
-
 ### 8. Access the Application
 
 - **Frontend**: http://localhost:5173
@@ -183,7 +176,7 @@ invitation = BoardInvitation.objects.create(
 2. **Signal Triggered**: `post_save` signal calls Celery task
 3. **Email Sent**: Celery task renders templates and sends email
 4. **User Clicks Link**: Email contains activation link
-5. **Invitation Accepted**: User accepts via API endpoint
+5. **Invitation Accepted**: User can accept or reject the invitation via API endpoint
 
 ## API Endpoints
 
